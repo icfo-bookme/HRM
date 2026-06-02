@@ -1,0 +1,249 @@
+ ================================================================
+--  HRM PROFESSIONAL — COMPLETE MYSQL DATABASE SCHEMA
+--  Version     : 2.0
+--  Engine      : InnoDB | UTF8MB4
+--  Total Tables: 83 | Views: 15 | Procedures: 12 | Events: 5
+-- ================================================================
+--
+--  HOW TO USE THIS FILE:
+--  ---------------------
+--  1. Save this file as: hrm_professional.sql
+--  2. Run in terminal: mysql -u root -p < hrm_professional.sql
+--  3. Or in MySQL: source /path/to/hrm_professional.sql
+--  4. Default database created: hrm_pro
+--  5. Default user: root (configure in .env)
+--
+--  TABLE REFERENCE (83 Tables - 24 Modules):
+--  ===========================================
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 01: FOUNDATION (3 tables)                           │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ companies      → Company/organization master record        │
+--  │ branches       → Branch/office locations                   │
+--  │ fiscal_years   → Financial year definitions                │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 02: ORGANIZATION (5 tables)                         │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ cost_centers       → Budget tracking centers               │
+--  │ departments        → Department hierarchy                  │
+--  │ salary_grades      → Pay grade bands                       │
+--  │ designations       → Job titles with levels                │
+--  │ job_positions      → Available positions (headcount)       │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 03: EMPLOYEE MASTER (9 tables)                      │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ employees              → Core employee data (MAIN)         │
+--  │ employee_job_history   → Promotion/transfer log            │
+--  │ employee_experience    → Previous work experience          │
+--  │ employee_education     → Academic qualifications           │
+--  │ employee_certifications→ Professional certificates         │
+--  │ skill_categories       → Skill classification              │
+--  │ employee_skills        → Employee skill matrix             │
+--  │ employee_awards        → Recognition & awards              │
+--  │ employee_dependents    → Family/nominee details            │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 04: DOCUMENTS (3 tables + 1 view)                   │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ document_categories    → Document types (NID, Passport)    │
+--  │ employee_documents     → File storage & expiry tracking    │
+--  │ vw_expiring_documents  → Alert view for expiring docs      │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 05: SHIFTS & ROSTERS (4 tables)                     │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ shifts              → Work shift definitions               │
+--  │ weekend_policies    → Weekly holiday settings              │
+--  │ employee_rosters    → Daily shift assignment               │
+--  │ shift_swap_requests → Employee shift exchange requests     │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 06: ATTENDANCE (5 tables + 2 views)                 │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ attendance_devices      → Biometric/Face recognition devices│
+--  │ attendance              → Daily punch in/out records        │
+--  │ attendance_csv_import   → Bulk upload staging table         │
+--  │ attendance_monthly_summary→ Pre-calculated monthly stats    │
+--  │ vw_attendance_report    → Attendance summary view           │
+--  │ vw_late_history         → Late arrival tracking             │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 07: LEAVE MANAGEMENT (6 tables + 1 view)            │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ leave_types            → Leave categories (Casual, Sick)    │
+--  │ leave_policies         → Company leave rules                │
+--  │ leave_policy_details   → Policy-to-leave type mapping       │
+--  │ employee_leave_balance → Available leave days per employee  │
+--  │ leave_applications     → Leave request submissions          │
+--  │ leave_encashments      → Leave encashment requests          │
+--  │ vw_leave_report        → Leave summary with approvers       │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 08: HOLIDAYS (2 tables)                             │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ holiday_presets     → Holiday calendar templates           │
+--  │ holidays            → Individual holiday dates             │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 09: PAYROLL (13 tables + 2 views)                   │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ salary_components       → Earnings/Deductions (Basic, HRA)  │
+--  │ employee_salary_structure→ Employee-specific component values│
+--  │ tax_slabs               → Income tax brackets               │
+--  │ bonus_types             → Bonus categories (Eid, Festival)  │
+--  │ payroll_runs            → Monthly payroll processing batch  │
+--  │ payroll_salary_slips    → Individual salary slips           │
+--  │ payroll_slip_lines      → Slip line items breakdown         │
+--  │ payroll_bonus           → Bonus payments                    │
+--  │ payroll_advances        → Salary advance requests           │
+--  │ payroll_loans           → Employee loan management          │
+--  │ payroll_loan_installments→ Monthly loan deductions          │
+--  │ bank_transfer_batches   → Bulk salary disbursement          │
+--  │ provident_fund          → PF contributions tracking         │
+--  │ vw_payroll_report       → Payroll summary view              │
+--  │ vw_employee_total_earnings→ Lifetime earnings per employee  │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 10: PERFORMANCE (4 tables)                          │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ kpi_categories      → KPI groups (Productivity, Quality)   │
+--  │ kpis                → Individual KPIs with targets         │
+--  │ appraisal_cycles    → Review periods (Annual, Quarterly)   │
+--  │ performance_reviews → Employee performance ratings         │
+--  │ performance_review_kpis→ KPI scores per review             │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 11: TRAINING (2 tables)                             │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ training_programs   → Training course catalog              │
+--  │ training_enrollments→ Employee training registration       │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 12: RECRUITMENT (7 tables)                          │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ job_postings        → Open job vacancies                   │
+--  │ recruitment_stages  → Hiring pipeline stages               │
+--  │ job_applicants      → Candidate applications               │
+--  │ interview_panels    → Interview schedules                  │
+--  │ interview_interviewers→ Panel members mapping              │
+--  │ job_offers          → Offer letter management              │
+--  │ vw_recruitment_pipeline→ Hiring funnel analytics           │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 13: ONBOARDING (4 tables)                           │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ onboarding_checklists    → New hire task templates         │
+--  │ onboarding_checklist_items→ Individual checklist tasks     │
+--  │ employee_onboarding      → Employee-specific onboarding    │
+--  │ employee_onboarding_tasks→ Task completion tracking        │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 14: OFFBOARDING (5 tables)                          │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ resignation_requests → Employee resignation submissions    │
+--  │ clearance_checklists → Exit clearance templates            │
+--  │ clearance_items      → Clearance task items                │
+--  │ employee_clearances  → Employee exit clearance status      │
+--  │ employee_clearance_tasks→ Task completion per employee     │
+--  │ exit_interviews      → Exit interview responses            │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 15: ASSETS (3 tables)                               │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ asset_categories    → Asset types (Laptop, Phone)          │
+--  │ assets              → Individual asset inventory           │
+--  │ asset_assignments   → Asset allocation to employees        │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 16: TASKS (5 tables + 1 view)                       │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ task_projects       → Project management                   │
+--  │ tasks               → Individual tasks with deadlines      │
+--  │ task_comments       → Task discussion thread               │
+--  │ task_watchers       → Task followers                       │
+--  │ vw_task_report      → Task status overview                 │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 17: NOTICE BOARD (3 tables)                         │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ notice_categories   → Announcement types                   │
+--  │ notices             → Company announcements                │
+--  │ notice_acknowledgements→ Read receipt tracking             │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 18: MESSAGING (4 tables)                            │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ sms_templates       → Reusable SMS message templates       │
+--  │ sms_campaigns       → Bulk SMS campaign management         │
+--  │ sms_logs            → SMS delivery tracking                │
+--  │ messages            → Internal employee messaging          │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 19: DISCIPLINE (2 tables)                           │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ discipline_types    → Action types (Warning, Suspension)   │
+--  │ disciplinary_actions→ Employee disciplinary records        │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 20: GRIEVANCE (2 tables)                            │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ grievance_categories→ Complaint types                      │
+--  │ grievances          → Employee complaint tickets           │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 21: OVERTIME (2 tables)                             │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ overtime_policies   → OT rate rules (1.5x, 2x)             │
+--  │ overtime_requests   → OT approval requests                 │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 22: SYSTEM CONFIG (7 tables)                        │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ system_settings     → Key-value configuration              │
+--  │ roles               → User roles (Admin, Manager, Employee)│
+--  │ modules_list        → System module registry               │
+--  │ permissions         → Action permissions per module        │
+--  │ role_permissions    → Role-to-permission mapping           │
+--  │ user_accounts       → System login credentials             │
+--  │ user_sessions       → Active session tracking              │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 23: AUDIT (1 table)                                 │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ audit_logs          → Complete data change history         │
+--  └─────────────────────────────────────────────────────────────┘
+--
+--  ┌─────────────────────────────────────────────────────────────┐
+--  │ MODULE 24: ANALYTICS VIEWS (6 views)                       │
+--  ├─────────────────────────────────────────────────────────────┤
+--  │ vw_employees        → Employee master with computed fields │
+--  │ vw_birthday_alerts  → Upcoming birthdays (7 days)          │
+--  │ vw_headcount_summary→ Department-wise employee count       │
+--  └─────────────────────────────────────────────────────────────┘
+--
+-- ================================================================
