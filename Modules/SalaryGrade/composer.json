@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/salarygrade",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\SalaryGrade\\": "app/",
+            "Modules\\SalaryGrade\\Database\\Factories\\": "database/factories/",
+            "Modules\\SalaryGrade\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\SalaryGrade\\Tests\\": "tests/"
+        }
+    }
+}
