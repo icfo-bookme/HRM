@@ -102,12 +102,12 @@ class LeaveApplicationController extends Controller
         unset($data['document_file']);
 
         $result = $this->leaveApplicationService->saveLeaveApplication($data);
-        
+
         if ($result['status'] === 'success') {
             return redirect()->route('leave-applications.my')
                 ->with('success', $result['message']);
         }
-        
+
         return redirect()->back()
             ->withInput()
             ->with('error', $result['message']);
@@ -166,7 +166,7 @@ class LeaveApplicationController extends Controller
     {
         $approvedBy = auth()->id();
         $result = $this->leaveApplicationService->approve($id, $approvedBy);
-        
+
         return response()->json($result);
     }
 

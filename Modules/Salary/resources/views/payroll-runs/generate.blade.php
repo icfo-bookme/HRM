@@ -141,9 +141,9 @@
                     if (year && monthVal) {
                         const monthName = monthNames[parseInt(monthVal) - 1] || '';
                         const label = $('#run_label');
-                        if (!label.val()) {
+                        
                             label.val(monthName + ' ' + year + ' Payroll');
-                        }
+                       
                     }
                 }
                 $('#run_year, #run_month').on('change', updateLabelSuggestion);

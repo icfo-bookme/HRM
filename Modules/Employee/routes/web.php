@@ -79,3 +79,16 @@ Route::middleware(['auth', 'verified','permission:employees.create'])->group(fun
     Route::get('employee-attendance-rules/{employeeId}', [\Modules\Employee\Http\Controllers\EmployeeAttendanceRuleController::class, 'show'])->name('employee.attendance-rules.show');
 
     });
+
+// Employee Report Routes (separate middleware group for wider access)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('employee-report', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'index'])->name('employee.report');
+    Route::get('employee-report/search', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'searchEmployee'])->name('employee.report.search');
+    Route::get('employee-report/attendance', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'attendanceData'])->name('employee.report.attendance');
+    Route::get('employee-report/overtime', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'overtimeData'])->name('employee.report.overtime');
+    Route::get('employee-report/salary', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'salaryData'])->name('employee.report.salary');
+    Route::get('employee-report/kpi', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'kpiData'])->name('employee.report.kpi');
+    Route::get('employee-report/loan', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'loanData'])->name('employee.report.loan');
+    Route::get('employee-report/kpi-monthly', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'monthlyKpiHistory'])->name('employee.report.kpi-monthly');
+    Route::get('employee-report/salary-monthly', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'monthlySalaryData'])->name('employee.report.salary-monthly');
+});

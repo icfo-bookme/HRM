@@ -4,7 +4,9 @@
     "type": "module",
     "autoload": {
         "psr-4": {
-            "Modules\\Kpi\\": "app/"
+            "Modules\\Kpi\\": "app/",
+            "Modules\\Kpi\\Database\\Factories\\": "database/factories/",
+            "Modules\\Kpi\\Database\\Seeders\\": "database/seeders/"
         }
     },
     "require": {

@@ -55,5 +55,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             \Modules\Leave\Database\Seeders\LeaveDatabaseSeeder::class,
         ]);
+
+        $this->command->info('--- Seeding KPI Data ---');
+        $this->call([
+            \Modules\Kpi\Database\Seeders\KpiDatabaseSeeder::class,
+        ]);
     }
 }

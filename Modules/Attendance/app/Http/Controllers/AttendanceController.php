@@ -23,6 +23,21 @@ class AttendanceController extends Controller
         return view('attendance::index', compact('employees'));
     }
 
+    public function edit($id)
+    {
+        $attendance = Attendance::with('employee.personalInfo')->findOrFail($id);
+        $employees = Employee::with('personalInfo')->active()->get();
+        $today = $attendance->attendance_date->format('Y-m-d');
+
+        return view('attendance::create', [
+            'employee' => $attendance->employee,
+            'today' => $today,
+            'defaultCheckIn' => $attendance->check_in_at ? \Carbon\Carbon::parse($attendance->check_in_at)->format('H:i') : now()->format('H:i'),
+            'employees' => $employees,
+            'todayAttendance' => $attendance,
+        ]);
+    }
+
     public function create(Request $request)
     {
         $today = Carbon::today()->format('Y-m-d');
@@ -78,6 +93,26 @@ class AttendanceController extends Controller
     public function destroy($id): JsonResponse
     {
         $result = $this->attendanceService->deleteAttendance($id);
+
+        return response()->json([
+            'status' => $result['status'],
+            'message' => $result['message'],
+        ]);
+    }
+
+    public function approve($id): JsonResponse
+    {
+        $result = $this->attendanceService->approveAttendance($id);
+
+        return response()->json([
+            'status' => $result['status'],
+            'message' => $result['message'],
+        ]);
+    }
+
+    public function disapprove($id): JsonResponse
+    {
+        $result = $this->attendanceService->disapproveAttendance($id);
 
         return response()->json([
             'status' => $result['status'],

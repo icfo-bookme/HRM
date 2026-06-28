@@ -869,7 +869,8 @@ class EmployeeSeeder extends Seeder
             $employeeCode = 'EMP-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT);
 
             $fullName = $data['first_name'] . ' ' . $data['last_name'];
-            $employee = Employee::create([
+            $employee = Employee::updateOrCreate(
+                ['employee_code' => $employeeCode],
                 'employee_code' => $employeeCode,
                 'branch_id' => $branchId,
                 'department_id' => $departmentId,

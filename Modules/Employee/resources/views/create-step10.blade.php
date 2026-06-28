@@ -14,7 +14,7 @@
                 <div class="grid gap-6 sm:grid-cols-2">
                     <x-form-select label="Skill Category" name="category_id" id="category_id" placeholder="-- Select Category --">
                         @foreach ($categories as $cat)
-                            <option value="{{ $cat->id }}"
+                            <option value="{{ $cat->id }}" data-description="{{ $cat->description }}"
                                 {{ old('category_id', $data['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
                                 {{ $cat->name }}</option>
                         @endforeach
@@ -65,4 +65,14 @@
             </form>
         </div>
     </div>
+
+    <script>
+        const categorySelect = document.getElementById('category_id');
+        const descriptionInput = document.getElementById('description');
+
+        categorySelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            descriptionInput.value = selectedOption?.dataset.description || '';
+        });
+    </script>
 </x-app-layout>

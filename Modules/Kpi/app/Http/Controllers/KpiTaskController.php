@@ -21,7 +21,7 @@ class KpiTaskController extends Controller
      * Display a listing of tasks.
      */
     public function index(Request $request)
-    {
+    { 
         if ($request->ajax()) {
             $employeeId = auth()->user()->employee?->id;
             return $this->taskService->getTaskDataTable($request, $employeeId);
@@ -56,10 +56,19 @@ class KpiTaskController extends Controller
 
         $result = $this->taskService->createTask($validated);
 
-        if ($result['status'] === 'success') {
-            return redirect()->route('kpi.tasks.index')
-                ->with('success', $result['message']);
-        }
+       if ($result['status'] === 'success') {
+        return response()->json([
+            'status' => 'success',
+            'message' => $result['message'],
+            'task' => $result['task'],
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'error',
+        'message' => $result['message'],
+    ], 422);
+     
 
         return back()->with('error', $result['message'])->withInput();
     }

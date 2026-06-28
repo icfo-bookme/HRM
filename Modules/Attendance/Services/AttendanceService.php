@@ -60,7 +60,7 @@ class AttendanceService
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->editColumn('employee', function ($a) {
+            ->addColumn('employee', function ($a) {
                 $name = $a->employee?->full_name ?? 'Unknown';
                 $code = $a->employee?->employee_code ?? '-';
 
@@ -77,6 +77,15 @@ class AttendanceService
             </div>
         </div>
     ';
+            })
+            ->filterColumn('employee', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->whereHas('employee.personalInfo', function ($q) use ($keyword) {
+                        $q->where('full_name', 'like', "%{$keyword}%");
+                    })->orWhereHas('employee', function ($q) use ($keyword) {
+                        $q->where('employee_code', 'like', "%{$keyword}%");
+                    });
+                });
             })
             ->editColumn('attendance_date', fn($a) => $a->attendance_date->format('d M '))
             ->addColumn('attendance_time', function ($a) {
@@ -164,11 +173,35 @@ class AttendanceService
                 return '<span class="text-gray-400">—</span>';
             })
             ->editColumn('source', fn($a) => '<span class="badge badge-info">' . e($a->source) . '</span>')
-            ->addColumn('action', fn(Attendance $a) => view('components.action-buttons', [
-                'id' => $a->id,
-                'edit' => 'attendanceEdit',
-                'delete' => 'attendanceDelete',
-            ])->render())
+            ->addColumn('action', function (Attendance $a) {
+                $approvalStatus = $a->approval_status;
+                $id = $a->id;
+                $user = auth()->user();
+                $canEditApproved = $user && ($user->hasAnyRole(['admin', 'manager']));
+                $html = '<div class="flex space-x-1 justify-center items-center">';
+
+                // Edit button - disabled only when Approved and user is NOT HR/Admin/Super Admin
+                if ($approvalStatus === 'Approved' && !$canEditApproved) {
+                    $html .= '<button onclick="attendanceEdit(' . $id . ')" class="bg-gray-400 text-white px-2 py-1 rounded text-sm cursor-not-allowed" title="Edit unavailable - attendance is approved" disabled><i class="fa fa-pencil"></i></button>';
+                } else {
+                    $html .= '<button onclick="attendanceEdit(' . $id . ')" class="bg-blue-900 text-white px-2 py-1 rounded text-sm hover:bg-blue-600" title="Edit"><i class="fa fa-pencil"></i></button>';
+                }
+
+                // Approval buttons - only one shows based on current status
+                if ($approvalStatus === 'Pending') {
+                    // Pending: show Approve button only
+                    $html .= '<button onclick="attendanceApprove(' . $id . ')" class="bg-green-600 text-white px-2 py-1 rounded text-sm hover:bg-green-700" title="Approve"><i class="fa fa-check"></i></button>';
+                } elseif ($approvalStatus === 'Approved') {
+                    // Approved: show Disapprove button only
+                    $html .= '<button onclick="attendanceDisapprove(' . $id . ')" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600" title="Disapprove"><i class="fa fa-times"></i></button>';
+                }
+                // Rejected: no approval button shown
+
+                // Delete button
+                $html .= '<button onclick="attendanceDelete(' . $id . ')" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600" title="Delete"><i class="fa fa-trash"></i></button>';
+                $html .= '</div>';
+                return $html;
+            })
             ->rawColumns(['employee', 'attendance_time', 'working_hours', 'late_early', 'overtime', 'attendance_status', 'approval_status', 'source', 'action'])
             ->make(true);
     }
@@ -317,6 +350,40 @@ class AttendanceService
             });
         } catch (Exception $e) {
             return ['status' => 'error', 'message' => 'Error deleting attendance: ' . $e->getMessage()];
+        }
+    }
+
+    public function approveAttendance(int $id): array
+    {
+        try {
+            return DB::transaction(function () use ($id) {
+                $attendance = Attendance::findOrFail($id);
+                $attendance->update([
+                    'approval_status' => 'Approved',
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
+                ]);
+                return ['status' => 'success', 'message' => 'Attendance approved successfully.'];
+            });
+        } catch (Exception $e) {
+            return ['status' => 'error', 'message' => 'Error approving attendance: ' . $e->getMessage()];
+        }
+    }
+
+    public function disapproveAttendance(int $id): array
+    {
+        try {
+            return DB::transaction(function () use ($id) {
+                $attendance = Attendance::findOrFail($id);
+                $attendance->update([
+                    'approval_status' => 'Pending',
+                    'approved_by' => null,
+                    'approved_at' => null,
+                ]);
+                return ['status' => 'success', 'message' => 'Approval reverted to Pending successfully.'];
+            });
+        } catch (Exception $e) {
+            return ['status' => 'error', 'message' => 'Error reverting approval: ' . $e->getMessage()];
         }
     }
 }

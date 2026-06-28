@@ -51,7 +51,7 @@ class KpiDailyTracking extends Model
     public function attendance(): BelongsTo
     {
         return $this->belongsTo(Attendance::class, 'employee_id', 'employee_id')
-            ->whereColumn('attendance_date
+            ->whereColumn('attendance_date', 'tracking_date');
     }
 
     public function scopeForMonth($query, $year, $month)

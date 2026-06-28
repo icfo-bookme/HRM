@@ -59,6 +59,22 @@ class PayrollRun extends Model
         return $this->belongsTo(\App\Models\User::class, 'created_by', 'id');
     }
 
+    /**
+     * Per-employee detail records; populated when the run is Locked.
+     */
+    public function details()
+    {
+        return $this->hasMany(PayrollRunDetail::class, 'payroll_run_id', 'id');
+    }
+
+    /**
+     * Determine whether this payroll run has a frozen snapshot.
+     */
+    public function hasSnapshot(): bool
+    {
+        return $this->status === 'Locked' && $this->details()->exists();
+    }
+
     public function scopeByStatus($query, $status)
     {
         return $query->where('status', $status);

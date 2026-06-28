@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Traits\CustomSoftDeletes;
 
 class Employee extends Model
 {
-    use HasFactory, SoftDeletes, CustomSoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'employees';
 

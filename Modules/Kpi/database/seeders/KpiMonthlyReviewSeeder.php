@@ -18,34 +18,35 @@ class KpiMonthlyReviewSeeder extends Seeder
             return;
         }
 
+        $adminEmployee = Employee::active()->first();
+        $reviewerId = $adminEmployee ? $adminEmployee->id : 1;
+
         $reviews = [];
         $now = now();
 
-        // Generate reviews for last 2 months
         foreach ($employees as $employee) {
             for ($monthOffset = 1; $monthOffset <= 2; $monthOffset++) {
                 $date = $now->copy()->subMonths($monthOffset);
                 $year = $date->year;
                 $month = $date->month;
 
-                // Randomly decide which optional scores to give
                 $giveBehavior = (bool) rand(0, 1);
                 $giveBonus = (bool) rand(0, 1);
                 $givePenalty = (bool) rand(0, 1);
 
                 $reviews[] = [
                     'employee_id' => $employee->id,
-                    'reviewer_id' => 1, // Admin user
+                    'reviewer_id' => $reviewerId,
                     'year' => $year,
                     'month' => $month,
                     'give_behavior' => $giveBehavior,
-                    'behavior_score' => $giveBehavior ? round(rand(50, 100) / 10, 1) : null, // 5.0 - 10.0
+                    'behavior_score' => $giveBehavior ? round(rand(50, 100) / 10, 1) : null,
                     'behavior_remarks' => $giveBehavior ? $this->getRandomBehaviorRemark() : null,
                     'give_bonus' => $giveBonus,
-                    'bonus_score' => $giveBonus ? round(rand(30, 100) / 10, 1) : null, // 3.0 - 10.0
+                    'bonus_score' => $giveBonus ? round(rand(30, 100) / 10, 1) : null,
                     'bonus_remarks' => $giveBonus ? $this->getRandomBonusRemark() : null,
                     'give_penalty' => $givePenalty,
-                    'penalty_score' => $givePenalty ? round(rand(0, 70) / 10, 1) : null, // 0.0 - 7.0
+                    'penalty_score' => $givePenalty ? round(rand(0, 70) / 10, 1) : null,
                     'penalty_remarks' => $givePenalty ? $this->getRandomPenaltyRemark() : null,
                     'status' => 'Approved',
                     'created_at' => $date,
@@ -54,7 +55,12 @@ class KpiMonthlyReviewSeeder extends Seeder
             }
         }
 
-        DB::table('kpi_monthly_reviews')->insert($reviews);
+        foreach ($reviews as $review) {
+            DB::table('kpi_monthly_reviews')->updateOrInsert(
+                ['employee_id' => $review['employee_id'], 'year' => $review['year'], 'month' => $review['month']],
+                $review
+            );
+        }
 
         $this->command->info('✓ KPI monthly reviews seeded for ' . count($employees) . ' employees (2 months)');
     }

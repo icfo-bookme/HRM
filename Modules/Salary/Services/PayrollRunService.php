@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Modules\Salary\Models\PayrollRun;
 use Modules\Salary\Models\EmployeeSalaryStructure;
 use Modules\Salary\Models\SalaryComponent;
+use Modules\Salary\Models\PayrollRunDetail;
+
 use Modules\Employee\Models\Employee;
 use Modules\Attendance\Models\Attendance;
 use Modules\Loan\Services\LoanService;
@@ -28,18 +30,18 @@ class PayrollRunService
     public function getPayrollRunDataTable(Request $request)
     {
         $query = PayrollRun::query()->select(
-                'payroll_runs.id',
-                'payroll_runs.run_label',
-                'payroll_runs.fiscal_year_id',
-                'payroll_runs.run_month',
-                'payroll_runs.run_type',
-                'payroll_runs.total_employees',
-                'payroll_runs.total_gross',
-                'payroll_runs.total_net',
-                'payroll_runs.total_deductions',
-                'payroll_runs.status',
-                'payroll_runs.created_at'
-            )->latest();
+            'payroll_runs.id',
+            'payroll_runs.run_label',
+            'payroll_runs.fiscal_year_id',
+            'payroll_runs.run_month',
+            'payroll_runs.run_type',
+            'payroll_runs.total_employees',
+            'payroll_runs.total_gross',
+            'payroll_runs.total_net',
+            'payroll_runs.total_deductions',
+            'payroll_runs.status',
+            'payroll_runs.created_at'
+        )->latest();
 
         if ($request->filled('status')) {
             $query->where('payroll_runs.status', $request->status);
@@ -150,7 +152,7 @@ class PayrollRunService
         // Get employee's weekend days from employee_weekends table
         $weeklyOffDays = $employee->weekend?->weekend_days;
         $monthDays = $this->getMonthlyWorkingDays($runMonth, $weeklyOffDays);
-        
+
         // Get per-employee attendance rules (falls back to salary grade)
         $rule = $employee->attendanceRule;
         $salaryGrade = $employee->salaryGrade;
@@ -343,7 +345,7 @@ class PayrollRunService
                         $totalEarnings += $struct->is_percentage ? ($struct->amount / 100) * $basicSalary : $struct->amount;
                     }
 
-                // -- Overtime Pay (added as additional earning) --
+                    // -- Overtime Pay (added as additional earning) --
                     if ($attendanceAdjustments['pay_overtime'] && $attendanceAdjustments['total_overtime_minutes'] > 0) {
                         $hourlyRate = $dailyRate / 8;
                         $overtimeHours = $attendanceAdjustments['total_overtime_minutes'] / 60;
@@ -371,7 +373,7 @@ class PayrollRunService
                     }
 
                     // -- Attendance-Based Deductions --
-                    
+
                     // Late deduction
                     if ($attendanceAdjustments['late_deduction'] > 0) {
                         $empDeductions += $attendanceAdjustments['late_deduction'];
@@ -413,24 +415,6 @@ class PayrollRunService
                 $data['run_label']        = $data['run_label'] ?? $monthName . ' Payroll';
 
                 $run = PayrollRun::create($data);
-
-                // Mark loan installments as paid for this payroll run
-                // Only for employees that were actually processed
-                $dueLoans = $this->loanService->getLoansDueForMonth($runMonth);
-                foreach ($dueLoans as $dueLoan) {
-                    $employeeId = $dueLoan['loan']->employee_id;
-                    // Only mark installments for employees who were actually processed in this payroll
-                    if (in_array($employeeId, $processedEmployeeIds)) {
-                        $installmentIds = $dueLoan['installments']->pluck('id')->toArray();
-                        if (!empty($installmentIds)) {
-                            $this->loanService->markInstallmentsPaid(
-                                $dueLoan['loan']->id,
-                                $installmentIds,
-                                $run->id
-                            );
-                        }
-                    }
-                }
 
                 return [
                     'status'     => 'success',
@@ -527,7 +511,7 @@ class PayrollRunService
                     // -- Loan Installment Deduction --
                     // For recalculation, look for installments already linked to this run
                     $loanDeduction = $this->loanService->getEmployeeLoanDeductions($employee->id, $runMonth);
-                    
+
                     $empDeductions += $loanDeduction;
                     $totalLoanDeductions += $loanDeduction;
 
@@ -585,6 +569,16 @@ class PayrollRunService
                     return ['status' => 'error', 'message' => 'Payroll run must be approved before locking.'];
                 }
                 $run->update(['status' => 'Locked', 'disbursed_by' => auth()->id(), 'disbursed_at' => now()]);
+                // -- Freeze a snapshot of all employee calculation data for this payroll run --
+                $this->snapshotPayrollRunDetails($run);
+                $employeeIds = PayrollRunDetail::where('payroll_run_id', $run->id)->pluck('employee_id')->toArray();
+                $this->loanService->markInstallmentsInProgressForPayrollRun(
+                    $run->id,
+                    $run->run_month->format('Y-m-d'),
+                    $employeeIds
+                );
+
+
                 return ['status' => 'success', 'message' => 'Payroll run locked successfully.', 'payroll_run' => $run->fresh()];
             });
         } catch (\Exception $e) {
@@ -670,12 +664,14 @@ class PayrollRunService
                 $totalEarnings += $calculatedAmount;
 
                 $componentDetails[] = [
-                    'name'     => $struct->component->name,
-                    'type'     => 'Earning',
-                    'value'    => $struct->amount,
-                    'is_pct'   => $struct->is_percentage,
-                    'calc'     => $calcDesc,
-                    'amount'   => round($calculatedAmount, 2),
+                    'component_id'     => $struct->component_id,
+                    'name'             => $struct->component->name,
+                    'type'             => 'Earning',
+                    'calculation_type' => $struct->component->calculation_type,
+                    'value'            => $struct->amount,
+                    'is_pct'           => $struct->is_percentage,
+                    'calc'             => $calcDesc,
+                    'amount'           => round($calculatedAmount, 2),
                 ];
             }
 
@@ -723,12 +719,14 @@ class PayrollRunService
                 $totalDeductions += $calculatedAmount;
 
                 $componentDetails[] = [
-                    'name'     => $struct->component->name,
-                    'type'     => 'Deduction',
-                    'value'    => $struct->amount,
-                    'is_pct'   => $struct->is_percentage,
-                    'calc'     => $calcDesc,
-                    'amount'   => round($calculatedAmount, 2),
+                    'component_id'     => $struct->component_id,
+                    'name'             => $struct->component->name,
+                    'type'             => 'Deduction',
+                    'calculation_type' => $struct->component->calculation_type,
+                    'value'            => $struct->amount,
+                    'is_pct'           => $struct->is_percentage,
+                    'calc'             => $calcDesc,
+                    'amount'           => round($calculatedAmount, 2),
                 ];
             }
 
@@ -819,9 +817,193 @@ class PayrollRunService
         ];
     }
 
+    // ========================================================================
+    // Payment Methods (for payment list & marking as paid)
+    // ========================================================================
+
+    /**
+     * Get payroll run details for payment list DataTable.
+     * Only returns data for locked payroll runs (which have snapshots).
+     */
+    public function getPaymentListDataTable(Request $request)
+    {
+        $query = PayrollRunDetail::with(['payrollRun', 'createdBy'])
+            ->select(
+                'id',
+                'payroll_run_id',
+                'employee_name',
+                'employee_code',
+                'basic_salary',
+                'gross',
+                'deductions',
+                'net',
+                'payment_status',
+                'created_by',
+                'created_at'
+            )->orderBy('id','desc');
+
+        // Filters
+        if ($request->filled('employee_id')) {
+            $query->where('employee_id', $request->employee_id);
+        }
+        if ($request->filled('payroll_run_id')) {
+            $query->where('payroll_run_id', $request->payroll_run_id);
+        }
+
+        return DataTables::of($query)
+            ->addIndexColumn()
+            ->editColumn('payroll_run_id', function ($d) {
+                return $d->payrollRun?->run_label ?? 'N/A';
+            })
+
+            ->editColumn('basic_salary', fn($d) => number_format($d->basic_salary, 2))
+            ->editColumn('gross', fn($d) => number_format($d->gross, 2))
+            ->editColumn('deductions', fn($d) => number_format($d->deductions, 2))
+            ->editColumn('net', fn($d) => number_format($d->net, 2))
+            ->editColumn('created_by', function ($d) {
+                return $d->createdBy?->name ?? 'System';
+            })
+            ->editColumn('payment_status', function ($d) {
+                if ($d->payment_status) {
+                    return '<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700"><i class="fas fa-check-circle"></i> Paid</span>';
+                }
+                return '<span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Unpaid</span>';
+            })
+            ->addColumn('action', function ($d) {
+                if ($d->payment_status) {
+                    return '<span class="px-3 py-1.5 text-xs font-semibold text-green-700 bg-green-100 rounded-lg"><i class="fas fa-check"></i> Paid</span>';
+                }
+                return '<button onclick="markAsPaid(' . $d->id . ')" class="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition flex items-center gap-1"><i class="fas fa-credit-card"></i> Pay</button>';
+            })
+            ->rawColumns(['payment_status', 'action'])
+            ->make(true);
+    }
+
+    /**
+     * Mark a payroll run detail as paid.
+     */
+    public function markDetailAsPaid(int $detailId): array
+    {
+        try {
+            $detail = PayrollRunDetail::findOrFail($detailId);
+            if ($detail->payment_status) {
+                return ['status' => 'error', 'message' => 'This employee is already marked as paid.'];
+            }
+            $detail->update(['payment_status' => 1]);
+            $this->loanService->markProgressInstallmentsPaidForEmployee($detail->employee_id, $detail->payroll_run_id);
+            return ['status' => 'success', 'message' => 'Payment marked as paid successfully.'];
+        } catch (\Exception $e) {
+            return ['status' => 'error', 'message' => 'Error: ' . $e->getMessage()];
+        }
+    }
+
+
+
+    // ========================================================================
+    // Snapshot Helpers (used when locking / viewing locked payroll runs)
+    // ========================================================================
+
+    /**
+     * Freeze the current payroll calculation data into payroll_run_details.
+     * Called automatically when a payroll run is locked.
+     */
+    private function snapshotPayrollRunDetails(PayrollRun $run): void
+    {
+        // Reuse the preview logic to get current calculated data for every employee
+        $preview = $this->previewPayroll($run->run_month->format('Y-m-d'));
+
+        // Remove any previous snapshot data (e.g. if re-locked after unlock)
+        PayrollRunDetail::where('payroll_run_id', $run->id)->delete();
+
+        $now = now();
+        $userId = auth()->id();
+        $chunks = [];
+
+        foreach ($preview['employees'] as $emp) {
+            $chunks[] = [
+                'payroll_run_id'    => $run->id,
+                'employee_id'       => $emp['employee_id'],
+                'employee_name'     => $emp['employee_name'],
+                'employee_code'     => $emp['employee_code'],
+                'basic_salary'      => $emp['basic_salary'],
+                'gross'             => $emp['gross'],
+                'deductions'        => $emp['deductions'],
+                'net'               => $emp['net'],
+                'component_details' => json_encode($emp['components']),
+                'attendance_summary' => json_encode($emp['attendance_summary']),
+                'payment_status'    => 0,
+                'created_by'        => $userId,
+                'created_at'        => $now,
+                'updated_at'        => $now,
+            ];
+        }
+
+        // Bulk insert for performance
+        if (!empty($chunks)) {
+            PayrollRunDetail::insert($chunks);
+        }
+    }
+
+    /**
+     * Load frozen payroll-run data from the snapshot table.
+     * Called by getPayrollRunWithEmployees() when a locked run has a snapshot.
+     *
+     * @return array{run: PayrollRun, employees: array, totals: array}
+     */
+    private function getLockedPayrollRunData(PayrollRun $run): array
+    {
+        $details = PayrollRunDetail::where('payroll_run_id', $run->id)->get();
+
+        $employees = [];
+        $totals = [
+            'count'      => 0,
+            'gross'      => 0,
+            'deductions' => 0,
+            'net'        => 0,
+        ];
+
+        foreach ($details as $detail) {
+            $employees[] = [
+                'employee_id'       => $detail->employee_id,
+                'employee_name'     => $detail->employee_name,
+                'employee_code'     => $detail->employee_code,
+                'basic_salary'      => (float) $detail->basic_salary,
+                'gross'             => (float) $detail->gross,
+                'deductions'        => (float) $detail->deductions,
+                'net'               => (float) $detail->net,
+                'components'        => $detail->component_details ?? [],
+                'attendance_summary' => $detail->attendance_summary ?? [],
+            ];
+
+            $totals['count']++;
+            $totals['gross'] += (float) $detail->gross;
+            $totals['deductions'] += (float) $detail->deductions;
+            $totals['net'] += (float) $detail->net;
+        }
+
+        $totals['gross'] = round($totals['gross'], 2);
+        $totals['deductions'] = round($totals['deductions'], 2);
+        $totals['net'] = round($totals['net'], 2);
+
+        return [
+            'run'       => $run,
+            'employees' => $employees,
+            'totals'    => $totals,
+        ];
+    }
+
+
+
     public function getPayrollRunWithEmployees(int $id): array
     {
         $run = PayrollRun::with(['fiscalYear', 'approvedBy', 'createdBy', 'disbursedBy'])->findOrFail($id);
+
+        // If the payroll run is locked and has a snapshot, serve data from the frozen snapshot
+        if ($run->hasSnapshot()) {
+            return $this->getLockedPayrollRunData($run);
+        }
+
+        // Otherwise, dynamically calculate from live salary structure data
         $preview = $this->previewPayroll($run->run_month->format('Y-m-d'));
         return [
             'run'       => $run,

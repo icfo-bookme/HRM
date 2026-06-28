@@ -84,7 +84,7 @@ class EmployeeAttendanceRuleService
 
         return [
             'html' => view('employee::attendance-rules.partials.employee-cards', compact('employees'))->render(),
-            'pagination' => view('employee::components.pagination', compact('employees'))->render(),
+            'pagination' => view('employee::attendance-rules.partials.pagination', compact('employees'))->render(),
             'search' => $search,
         ];
     }

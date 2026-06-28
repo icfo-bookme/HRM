@@ -11,22 +11,21 @@ class KpiMonthlyScoreSeeder extends Seeder
     public function run(): void
     {
         $employees = Employee::active()->get();
-        
+
         if ($employees->isEmpty()) {
+            $this->command->warn('No active employees found. Skipping KPI monthly score seeder.');
             return;
         }
 
         $scores = [];
         $now = now();
 
-        // Generate scores for last 3 months
         foreach ($employees as $employee) {
             for ($monthOffset = 1; $monthOffset <= 3; $monthOffset++) {
                 $date = $now->copy()->subMonths($monthOffset);
                 $year = $date->year;
                 $month = $date->month;
 
-                // Random performance metrics
                 $workingDays = rand(20, 26);
                 $presentDays = rand(18, $workingDays);
                 $lateDays = rand(0, 5);
@@ -51,7 +50,6 @@ class KpiMonthlyScoreSeeder extends Seeder
                 $penaltyObtained = $penaltyGiven ? rand(0, 5) : 0;
                 $penaltyPercentage = $penaltyGiven ? round((($penaltyTarget - $penaltyObtained) / $penaltyTarget) * 100, 2) : 100;
 
-                // Calculate weighted scores
                 $attendanceWeight = 20;
                 $taskWeight = 30;
                 $behaviorWeight = 20;
@@ -68,10 +66,9 @@ class KpiMonthlyScoreSeeder extends Seeder
                 $totalObtained = $attendanceScore + $taskScore + $behaviorScore + $bonusScore + $penaltyScore;
                 $overallPercentage = round(($totalObtained / $totalTarget) * 100, 2);
 
-                // Determine rating
                 $rating = $this->getRating($overallPercentage);
 
-                $score = [
+                $scores[] = [
                     'employee_id' => $employee->id,
                     'year' => $year,
                     'month' => $month,
@@ -106,12 +103,17 @@ class KpiMonthlyScoreSeeder extends Seeder
                     'created_at' => $date,
                     'updated_at' => $date,
                 ];
-
-                $scores[] = $score;
             }
         }
 
-        DB::table('kpi_monthly_scores')->insert($scores);
+        foreach ($scores as $score) {
+            DB::table('kpi_monthly_scores')->updateOrInsert(
+                ['employee_id' => $score['employee_id'], 'year' => $score['year'], 'month' => $score['month']],
+                $score
+            );
+        }
+
+        $this->command->info('✓ KPI monthly scores seeded successfully!');
     }
 
     private function getRating(float $percentage): string

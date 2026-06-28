@@ -26,8 +26,6 @@ class KpiIndicatorSeeder extends Seeder
                 'default_max_score' => null,
                 'count_behavior' => 'Always Count',
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'category_id' => $attendanceId,
@@ -39,8 +37,6 @@ class KpiIndicatorSeeder extends Seeder
                 'default_max_score' => null,
                 'count_behavior' => 'Always Count',
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'category_id' => $taskId,
@@ -52,8 +48,6 @@ class KpiIndicatorSeeder extends Seeder
                 'default_max_score' => null,
                 'count_behavior' => 'Always Count',
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'category_id' => $behaviorId,
@@ -65,8 +59,6 @@ class KpiIndicatorSeeder extends Seeder
                 'default_max_score' => 10.00,
                 'count_behavior' => 'Optional Count',
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'category_id' => $bonusId,
@@ -78,8 +70,6 @@ class KpiIndicatorSeeder extends Seeder
                 'default_max_score' => 10.00,
                 'count_behavior' => 'Optional Count',
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'category_id' => $penaltyId,
@@ -91,11 +81,16 @@ class KpiIndicatorSeeder extends Seeder
                 'default_max_score' => 10.00,
                 'count_behavior' => 'Optional Count',
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
         ];
 
-        DB::table('kpi_indicators')->insert($indicators);
+        foreach ($indicators as $indicator) {
+            \Modules\Kpi\Models\KpiIndicator::updateOrCreate(
+                ['category_id' => $indicator['category_id'], 'key' => $indicator['key']],
+                $indicator
+            );
+        }
+
+        $this->command->info('✓ KPI indicators seeded successfully!');
     }
 }

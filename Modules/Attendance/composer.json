@@ -18,6 +18,7 @@
     "autoload": {
         "psr-4": {
             "Modules\\Attendance\\": "app/",
+            "Modules\\Attendance\\Services\\": "Services/",
             "Modules\\Attendance\\Database\\Factories\\": "database/factories/",
             "Modules\\Attendance\\Database\\Seeders\\": "database/seeders/"
         }

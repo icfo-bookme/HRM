@@ -9,7 +9,8 @@
                 <x-form-select label="Employee" id="filter_employee" class="dt-filter-kpiTaskTable">
                     <option value="">All Employees</option>
                     @foreach ($employees as $employee)
-                        <option value="{{ $employee->id }}">{{ $employee->employee_code }} - {{ $employee->personalInfo?->full_name ?? 'N/A' }}</option>
+                        <option value="{{ $employee->id }}">{{ $employee->employee_code }} -
+                            {{ $employee->personalInfo?->full_name ?? 'N/A' }}</option>
                     @endforeach
                 </x-form-select>
             </div>
@@ -49,10 +50,25 @@
 
         {{-- REUSABLE DATA-TABLE COMPONENT --}}
         <x-data-table id="kpiTaskTable" title="KPI Task Management" icon="fa-solid fa-list-check"
-            buttonId="btnAddKpiTask" buttonText="Add New Task" :columns="['SL', 'Employee', 'Title', 'Target Score', 'Obtained Score', 'Priority', 'Deadline', 'Status', 'Created At', 'Action']"
-            :ajaxUrl="route('kpi.tasks.index')"
-            :dtColumns="[
-                ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'searchable' => false, 'orderable' => false, 'width' => '50px'],
+            buttonId="btnAddKpiTask" buttonText="Add New Task" :columns="[
+                'SL',
+                'Employee',
+                'Title',
+                'Target Score',
+                'Obtained Score',
+                'Priority',
+                'Deadline',
+                'Status',
+                'Created At',
+                'Action',
+            ]" :ajaxUrl="route('kpi.tasks.index')" :dtColumns="[
+                [
+                    'data' => 'DT_RowIndex',
+                    'name' => 'DT_RowIndex',
+                    'searchable' => false,
+                    'orderable' => false,
+                    'width' => '50px',
+                ],
                 ['data' => 'employee_id'],
                 ['data' => 'title'],
                 ['data' => 'target_score', 'width' => '100px'],
@@ -67,8 +83,7 @@
                 'employee_id' => '#filter_employee',
                 'status' => '#filter_status',
                 'priority' => '#filter_priority',
-            ]"
-            :exportButtons="true" />
+            ]" :exportButtons="true" />
     </div>
 
     {{-- DRAWER COMPONENT FOR ADD/EDIT --}}
@@ -79,16 +94,19 @@
 
             {{-- Employee Select --}}
             <div class="mb-4 animate-fade" style="animation-delay: 100ms;">
-                <x-form-select label="Employee" name="employee_id" id="employee_id" placeholder="Select Employee" required>
+                <x-form-select label="Employee" name="employee_id" id="employee_id" placeholder="Select Employee"
+                    required>
                     @foreach ($employees as $employee)
-                        <option value="{{ $employee->id }}">{{ $employee->employee_code }} - {{ $employee->personalInfo?->full_name ?? 'N/A' }}</option>
+                        <option value="{{ $employee->id }}">{{ $employee->employee_code }} -
+                            {{ $employee->personalInfo?->full_name ?? 'N/A' }}</option>
                     @endforeach
                 </x-form-select>
             </div>
 
             {{-- Title --}}
             <div class="mb-4 animate-fade" style="animation-delay: 150ms;">
-                <x-form-input label="Task Title" name="title" id="title" placeholder="Enter task title" required />
+                <x-form-input label="Task Title" name="title" id="title" placeholder="Enter task title"
+                    required />
             </div>
 
             {{-- Description --}}
@@ -99,7 +117,8 @@
 
             {{-- Target Score & Priority --}}
             <div class="grid grid-cols-2 gap-3 mb-4 animate-fade" style="animation-delay: 250ms;">
-                <x-form-input label="Target Score" name="target_score" id="target_score" type="number" step="0.01" min="0.01" placeholder="0.00" required />
+                <x-form-input label="Target Score" name="target_score" id="target_score" type="number" step="0.01"
+                    min="0.01" placeholder="0.00" required />
                 <x-form-select label="Priority" name="priority" id="priority" required>
                     <option value="Low">Low</option>
                     <option value="Medium" selected>Medium</option>
@@ -121,27 +140,29 @@
             <input type="hidden" name="task_id" id="complete_task_id">
 
             {{-- Obtained Score --}}
-            <div class="mb-4">
-                <x-form-input label="Obtained Score" name="obtained_score" id="obtained_score" type="number" step="0.01" min="0" placeholder="0.00" required />
+            <div class=" p-5">
+                <x-form-input label="Obtained Score" name="obtained_score" id="obtained_score" type="number"
+                    step="0.01" min="0" placeholder="0.00" required />
             </div>
 
             {{-- Completion Note --}}
-            <div class="mb-4">
+            <div class="mb-4 p-5">
                 <x-form-textarea label="Completion Note" name="completion_note" id="completion_note"
                     placeholder="Add completion notes (optional)" rows="3" />
             </div>
         </form>
 
-        @slot('footer')
-            <button type="button" onclick="submitCompleteTask()"
-                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition">
-                <i class="fas fa-check mr-1"></i> Mark Complete
-            </button>
-            <button type="button" onclick="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'completeTaskModal' }))"
-                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition">
-                Cancel
-            </button>
-        @endslot
+
+        <button type="button" onclick="submitCompleteTask()"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition">
+            <i class="fas fa-check mr-1"></i> Mark Complete
+        </button>
+        <button type="button"
+            onclick="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'completeTaskModal' }))"
+            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition">
+            Cancel
+        </button>
+
     </x-modal>
 
     @push('scripts')
@@ -222,8 +243,8 @@
                     success: function(res) {
                         isSaving = false;
                         $('#saveBtn').prop('disabled', false).removeClass('opacity-70 cursor-not-allowed');
-
-                        if (res.status === 'success' || res.status === true) {
+                        console.log(res);
+                        if (res.status == 'success' || res.status === true) {
                             Toastify({
                                 text: res.message || 'Saved successfully',
                                 duration: 3000,
@@ -265,7 +286,9 @@
                 $('#complete_task_id').val(id);
                 $('#obtained_score').val('');
                 $('#completion_note').val('');
-                window.dispatchEvent(new CustomEvent('open-modal', { detail: 'completeTaskModal' }));
+                window.dispatchEvent(new CustomEvent('open-modal', {
+                    detail: 'completeTaskModal'
+                }));
             }
 
             function submitCompleteTask() {
@@ -273,7 +296,8 @@
                 let obtainedScore = $('#obtained_score').val();
                 let completionNote = $('#completion_note').val();
 
-                if (!obtainedScore || obtainedScore < 0) {
+                if (obtainedScore === '' || obtainedScore === null || obtainedScore === undefined || parseFloat(obtainedScore) <
+                    0) {
                     Swal.fire('Validation Error', 'Please enter a valid obtained score.', 'error');
                     return;
                 }
@@ -287,7 +311,9 @@
                         _token: "{{ csrf_token() }}"
                     },
                     success: function(res) {
-                        window.dispatchEvent(new CustomEvent('close-modal', { detail: 'completeTaskModal' }));
+                        window.dispatchEvent(new CustomEvent('close-modal', {
+                            detail: 'completeTaskModal'
+                        }));
                         if (res.status === 'success' || res.status === true) {
                             Toastify({
                                 text: res.message || 'Task completed successfully',

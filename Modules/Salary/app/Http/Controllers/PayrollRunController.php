@@ -7,6 +7,10 @@ use Modules\Salary\Services\PayrollRunService;
 use Modules\Salary\Http\Requests\StorePayrollRunRequest;
 use Illuminate\Http\Request;
 use Modules\Setting\Models\FiscalYear;
+use Modules\Employee\Models\Employee;
+use Modules\Salary\Models\PayrollRun;
+
+
 
 class PayrollRunController extends Controller
 {
@@ -90,6 +94,36 @@ class PayrollRunController extends Controller
     {
         $data = $this->payrollRunService->getPayrollRunWithEmployees($id);
         return view('salary::payroll-runs.show', $data);
+    }
+
+    /**
+     * Show payment list with all payroll_run_details records
+     */
+    public function paymentListIndex()
+    {
+        $employees = Employee::with('personalInfo')->get();
+        $payrollRuns = PayrollRun::select('id', 'run_label', 'run_month')
+            ->where('status', 'Locked')
+            ->orderBy('run_month', 'desc')
+            ->get();
+        return view('salary::payroll-runs.payment-list', compact('employees', 'payrollRuns'));
+    }
+
+    /**
+     * DataTable AJAX for all payment list
+     */
+    public function paymentListDataTable(Request $request)
+    {
+        return $this->payrollRunService->getPaymentListDataTable($request);
+    }
+
+    /**
+     * Mark a payroll run detail as paid
+     */
+    public function markAsPaid($detailId)
+    {
+        $result = $this->payrollRunService->markDetailAsPaid($detailId);
+        return response()->json($result);
     }
 
     public function destroy($id)

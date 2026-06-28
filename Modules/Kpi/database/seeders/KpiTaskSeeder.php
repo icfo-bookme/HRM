@@ -2,6 +2,7 @@
 
 namespace Modules\Kpi\Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Employee\Models\Employee;
@@ -11,51 +12,59 @@ class KpiTaskSeeder extends Seeder
     public function run(): void
     {
         $employees = Employee::active()->get();
-        
+
         if ($employees->isEmpty()) {
+            $this->command->warn('No active employees found. Skipping KPI task seeder.');
             return;
         }
 
+        $adminEmployee = Employee::active()->first();
+        $assignedById = $adminEmployee ? $adminEmployee->id : 1;
+
         $priorities = ['Low', 'Medium', 'High', 'Critical'];
-        $statuses = ['Pending', 'In Progress', 'Completed', 'Completed', 'Completed']; // Weighted towards completed
+        $statuses = ['Pending', 'In Progress', 'Completed', 'Completed', 'Completed'];
 
         $tasks = [];
         $now = now();
 
-        // Create 3-5 tasks per employee
         foreach ($employees as $employee) {
             $taskCount = rand(3, 5);
-            
+
             for ($i = 0; $i < $taskCount; $i++) {
                 $status = $statuses[array_rand($statuses)];
                 $priority = $priorities[array_rand($priorities)];
                 $targetScore = rand(50, 200);
-                
+
                 $assignedDate = $now->copy()->subDays(rand(1, 30));
                 $deadline = $assignedDate->copy()->addDays(rand(7, 30));
 
-                $task = [
+                $tasks[] = [
                     'employee_id' => $employee->id,
-                    'assigned_by' => 1, // Assuming admin user ID is 1
+                    'assigned_by' => $assignedById,
                     'title' => $this->getRandomTaskTitle(),
                     'description' => $this->getRandomDescription(),
                     'target_score' => $targetScore,
                     'obtained_score' => $status === 'Completed' ? rand(40, $targetScore) : null,
                     'priority' => $priority,
-                    'assigned_date' => $assignedDate,
-                    'deadline' => $deadline,
+                    'assigned_date' => $assignedDate->toDateString(),
+                    'deadline' => $deadline->toDateString(),
                     'status' => $status,
                     'completed_at' => $status === 'Completed' ? $assignedDate->copy()->addDays(rand(1, 10)) : null,
                     'completion_note' => $status === 'Completed' ? 'Task completed successfully' : null,
                     'created_at' => $assignedDate,
                     'updated_at' => $status === 'Completed' ? $assignedDate->copy()->addDays(rand(1, 10)) : $assignedDate,
                 ];
-
-                $tasks[] = $task;
             }
         }
 
-        DB::table('kpi_tasks')->insert($tasks);
+        foreach ($tasks as $task) {
+            DB::table('kpi_tasks')->updateOrInsert(
+                ['employee_id' => $task['employee_id'], 'title' => $task['title'], 'assigned_date' => $task['assigned_date']],
+                $task
+            );
+        }
+
+        $this->command->info('✓ KPI tasks seeded successfully!');
     }
 
     private function getRandomTaskTitle(): string
@@ -94,7 +103,7 @@ class KpiTaskSeeder extends Seeder
             'Focus on accuracy and attention to detail while completing this assignment.',
             'Coordinate with relevant departments to ensure smooth execution.',
             'Document the process and outcomes for future reference.',
-            null, // Some tasks may not have descriptions
+            null,
             null,
         ];
 

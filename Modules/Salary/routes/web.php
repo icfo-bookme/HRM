@@ -26,4 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/payroll-runs/{id}/recalculate', [PayrollRunController::class, 'recalculate'])->name('payroll-runs.recalculate');
     Route::post('/payroll-runs/{id}/approve', [PayrollRunController::class, 'approve'])->name('payroll-runs.approve');
     Route::post('/payroll-runs/{id}/lock', [PayrollRunController::class, 'lock'])->name('payroll-runs.lock');
+
+    // Payment Routes
+    Route::get('/payment-list', [PayrollRunController::class, 'paymentListIndex'])->name('payment-list.index');
+    Route::get('/dataTable/payment-list', [PayrollRunController::class, 'paymentListDataTable'])->name('payment-list.dataTable');
+    Route::post('/payroll-run-details/{detailId}/mark-paid', [PayrollRunController::class, 'markAsPaid'])->name('payroll-run-details.mark-paid');
 });

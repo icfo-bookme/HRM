@@ -45,8 +45,8 @@ class StoreEmployeeStepTwoRequest extends FormRequest
             'personal_email' => 'nullable|email|max:200',
             'personal_mobile' => 'nullable|string|max:20',
 
-            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'signature_file' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,avif|mimetypes:image/jpeg,image/png,image/avif|max:2048',
+            'signature_file' => 'nullable|file|mimes:jpg,jpeg,png,avif|mimetypes:image/jpeg,image/png,image/avif|max:2048',
         ];
     }
 }

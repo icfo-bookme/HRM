@@ -103,6 +103,7 @@
                         $('input[name="name"]').val(u.name);
                         $('input[name="email"]').val(u.email);
                         $('select[name="role_id"]').val(u.role_id || '');
+                        $('select[name="employee_id"]').val(u.employee_id || '');
                         openUserDrawer('edit');
                     } else {
                         Swal.fire('Error', res.message || 'Failed to fetch data.', 'error');

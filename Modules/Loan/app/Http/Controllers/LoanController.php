@@ -232,7 +232,24 @@ class LoanController extends Controller
      */
     public function disburse($id)
     {
-        //
+        if (!auth()->user()->can('manage-loans')) {
+            if (request()->ajax()) {
+                return response()->json(['status' => 'error', 'message' => 'You are not authorized to disburse loans.']);
+            }
+            return redirect()->back()->with('error', 'You are not authorized to disburse loans.');
+        }
+
+        $result = $this->loanService->disburseLoan($id);
+
+        if (request()->ajax()) {
+            return response()->json($result);
+        }
+
+        if ($result['status'] === 'success') {
+            return redirect()->route('loan.show', $id)->with('success', $result['message']);
+        }
+
+        return redirect()->back()->with('error', $result['message']);
     }
 
     /**

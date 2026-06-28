@@ -3,7 +3,6 @@
 namespace Modules\Kpi\Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class KpiCategorySeeder extends Seeder
 {
@@ -18,8 +17,6 @@ class KpiCategorySeeder extends Seeder
                 'point_setting' => 'System Defined',
                 'sort_order' => 1,
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'name' => 'Task',
@@ -29,8 +26,6 @@ class KpiCategorySeeder extends Seeder
                 'point_setting' => 'Manager Assign',
                 'sort_order' => 2,
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'name' => 'Behavior',
@@ -40,8 +35,6 @@ class KpiCategorySeeder extends Seeder
                 'point_setting' => 'Manager Input',
                 'sort_order' => 3,
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'name' => 'Bonus',
@@ -51,8 +44,6 @@ class KpiCategorySeeder extends Seeder
                 'point_setting' => 'Manager Input',
                 'sort_order' => 4,
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'name' => 'Penalty',
@@ -62,11 +53,16 @@ class KpiCategorySeeder extends Seeder
                 'point_setting' => 'Manager Input',
                 'sort_order' => 5,
                 'is_active' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
         ];
 
-        DB::table('kpi_categories')->insert($categories);
+        foreach ($categories as $category) {
+            \Modules\Kpi\Models\KpiCategory::updateOrCreate(
+                ['name' => $category['name']],
+                $category
+            );
+        }
+
+        $this->command->info('✓ KPI categories seeded successfully!');
     }
 }

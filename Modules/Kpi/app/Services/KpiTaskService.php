@@ -14,7 +14,7 @@ class KpiTaskService
      */
     public function getTaskDataTable($request, ?int $employeeId = null)
     {
-        $query = KpiTask::with(['employee.personalInfo', 'assignedBy.personalInfo']);
+        $query = KpiTask::with(['employee.personalInfo', 'assignedBy.personalInfo'])->orderBy('id','desc');
 
         if ($employeeId) {
             $query->where('employee_id', $employeeId);

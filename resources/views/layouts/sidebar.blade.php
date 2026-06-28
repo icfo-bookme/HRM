@@ -259,15 +259,27 @@
                 </button>
                 <div class="submenu sub-indent" id="sub-rep">
                     @permission('reports.attendance')
-                        <a href="#"
+                        <a href="/attendance/report"
                             class="flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-[13px] transition-colors">
                             <i class="fas fa-calendar-check w-3.5 text-center"></i><span>Attendance Report</span>
                         </a>
                     @endpermission
+                    @permission('reports.attendance')
+                        <a href="/attendance/overtime-report"
+                            class="flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-[13px] transition-colors">
+                            <i class="fas fa-clock w-3.5 text-center"></i><span>Overtime Report</span>
+                        </a>
+                    @endpermission
                     @permission('reports.payroll')
-                        <a href="#"
+                        <a href="/payroll-runs"
                             class="flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-[13px] transition-colors">
                             <i class="fas fa-money-bill-wave w-3.5 text-center"></i><span>Payroll Report</span>
+                        </a>
+                    @endpermission
+                    @permission('reports.attendance')
+                        <a href="/employee-report"
+                            class="flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-[13px] transition-colors">
+                            <i class="fas fa-user w-3.5 text-center"></i><span>Employee Report</span>
                         </a>
                     @endpermission
                     @permission('reports.hr-analytics')
@@ -364,6 +376,12 @@
                         <a href="{{ route('payroll-runs.generate') }}"
                             class="flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-[13px] transition-colors">
                             <i class="fas fa-plus-circle w-3.5 text-center"></i><span>Generate Payroll</span>
+                        </a>
+                    @endpermission
+                    @permission('salary.payment-list')
+                        <a href="{{ route('payment-list.index') }}"
+                            class="flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-[13px] transition-colors">
+                            <i class="fas fa-credit-card w-3.5 text-center"></i><span>Payment List</span>
                         </a>
                     @endpermission
                 </div>

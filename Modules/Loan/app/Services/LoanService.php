@@ -152,7 +152,7 @@ class LoanService
         $lastLoan = Loan::where('loan_number', 'like', "LN-{$year}-%")
             ->orderBy('loan_number', 'desc')
             ->first();
-        
+
         if ($lastLoan) {
             // Extract sequence number properly regardless of digit count (e.g., 0001, 10000)
             $parts = explode('-', $lastLoan->loan_number);
@@ -160,7 +160,7 @@ class LoanService
         } else {
             $sequence = 1;
         }
-        
+
         return sprintf('LN-%s-%04d', $year, $sequence);
     }
 
@@ -168,7 +168,7 @@ class LoanService
      * Save a loan application (create or update)
      */
     public function saveLoan(array $data): array
-    { 
+    {
         try {
             return DB::transaction(function () use ($data) {
                 $loanId = $data['loan_id'] ?? null;
@@ -179,17 +179,17 @@ class LoanService
                     if (!in_array($loan->status, ['Pending', 'Rejected'])) {
                         return ['status' => 'error', 'message' => 'Only pending or rejected loans can be edited.'];
                     }
-                    
+
                     // Recalculate financials if amount, rate, or installments changed
                     $interestRate = $data['interest_rate'] ?? 0;
                     $installments = $data['total_installments'] ?? 1;
                     $calculations = Loan::calculatePayable($data['loan_amount'], $interestRate, $installments);
-                    
+
                     $data['total_interest'] = $calculations['total_interest'];
                     $data['total_payable'] = $calculations['total_payable'];
                     $data['installment_amount'] = $calculations['installment_amount'];
                     $data['remaining_amount'] = $calculations['total_payable'];
-                    
+
                     unset($data['loan_number'], $data['loan_id']);
                     $loan->update($data);
                     $message = 'Loan application updated successfully.';
@@ -244,7 +244,7 @@ class LoanService
                     'status'                => 'Approved',
                     'approved_by'           => auth()->id(),
                     'approval_date'         => now(),
-                    'first_installment_date'=> $firstInstallmentDate,
+                    'first_installment_date' => $firstInstallmentDate,
                 ]);
 
                 // Generate installments
@@ -367,12 +367,16 @@ class LoanService
                 'installments.payrollRun',
             ])->findOrFail($id);
 
+            // dd($loan);
+
             // Calculate summary
             $totalInstallments = $loan->installments->count();
             $paidInstallments = $loan->installments->where('status', 'Paid')->count();
-            $pendingInstallments = $loan->installments->whereIn('status', ['Pending', 'Overdue'])->count();
+            $pendingInstallments = $loan->installments->whereIn('status', ['Pending', 'Progress', 'Overdue'])->count();
+            $progressInstallments = $loan->installments->where('status', 'Progress')->count();
             $totalPaid = $loan->installments->where('status', 'Paid')->sum('paid_amount');
-            $totalPending = $loan->installments->whereIn('status', ['Pending', 'Overdue'])->sum('amount');
+            $totalProgress = $loan->installments->where('status', 'Progress')->sum('amount');
+            $totalPending = $loan->installments->whereIn('status', ['Pending', 'Progress', 'Overdue'])->sum('amount');
 
             return [
                 'status'                => 'success',
@@ -380,8 +384,10 @@ class LoanService
                 'summary'               => [
                     'total_installments'  => $totalInstallments,
                     'paid_installments'   => $paidInstallments,
-                    'pending_installments'=> $pendingInstallments,
+                    'progress_installments'   => $progressInstallments,
+                    'pending_installments' => $pendingInstallments,
                     'total_paid'          => round($totalPaid, 2),
+                    'total_progress'      => round($totalProgress, 2),
                     'total_pending'       => round($totalPending, 2),
                 ],
             ];
@@ -400,11 +406,11 @@ class LoanService
 
         $installments = LoanInstallment::whereHas('loan', function ($q) use ($employeeId) {
             $q->where('employee_id', $employeeId)
-              ->whereIn('status', ['Approved', 'Disbursed']);
+                ->whereIn('status', ['Approved', 'Disbursed']);
         })
-        ->whereBetween('due_date', [$start, $end])
-        ->whereIn('status', ['Pending', 'Overdue'])
-        ->get();
+            ->whereBetween('due_date', [$start, $end])
+            ->whereIn('status', ['Pending', 'Overdue'])
+            ->get();
 
         return round($installments->sum('amount'), 2);
     }
@@ -439,6 +445,59 @@ class LoanService
     }
 
     /**
+     * Mark due installments as in progress after payroll is locked
+     */
+    public function markInstallmentsInProgressForPayrollRun(int $payrollRunId, string $runMonth, array $employeeIds): void
+    {
+        $dueLoans = $this->getLoansDueForMonth($runMonth);
+
+        foreach ($dueLoans as $dueLoan) {
+            $loan = $dueLoan['loan'];
+            if (!in_array($loan->employee_id, $employeeIds)) {
+                continue;
+            }
+
+            $installmentIds = $dueLoan['installments']->pluck('id')->toArray();
+            if (empty($installmentIds)) {
+                continue;
+            }
+
+            LoanInstallment::where('loan_id', $loan->id)
+                ->whereIn('id', $installmentIds)
+                ->whereIn('status', ['Pending', 'Overdue'])
+                ->update([
+                    'status' => 'Progress',
+                    'payroll_run_id' => $payrollRunId,
+                ]);
+        }
+    }
+
+    /**
+     * Mark a locked payroll employee's in-progress installments as paid
+     */
+    public function markProgressInstallmentsPaidForEmployee(int $employeeId, int $payrollRunId): void
+    {
+        $installments = LoanInstallment::where('payroll_run_id', $payrollRunId)
+            ->where('status', 'Progress')
+            ->whereHas('loan', function ($query) use ($employeeId) {
+                $query->where('employee_id', $employeeId);
+            })
+            ->get();
+
+        foreach ($installments as $installment) {
+            $installment->update([
+                'status' => 'Paid',
+                'paid_amount' => $installment->amount,
+                'paid_at' => now(),
+            ]);
+        }
+
+        $installments->pluck('loan_id')->unique()->each(function ($loanId) {
+            $this->refreshLoanProgress((int) $loanId);
+        });
+    }
+
+    /**
      * Mark installments as paid from payroll
      */
     public function markInstallmentsPaid(int $loanId, array $installmentIds, int $payrollRunId): void
@@ -460,19 +519,7 @@ class LoanService
         $loan = Loan::find($loanId);
         if ($loan) {
             $paidCount = LoanInstallment::where('loan_id', $loanId)->where('status', 'Paid')->count();
-            $remainingAmount = LoanInstallment::where('loan_id', $loanId)
-                ->whereIn('status', ['Pending', 'Overdue'])
-                ->sum('amount');
-
-            $loan->update([
-                'paid_installments'  => $paidCount,
-                'remaining_amount'   => $remainingAmount,
-            ]);
-
-            // Check if loan is completed
-            if ($paidCount >= $loan->total_installments && $remainingAmount <= 0) {
-                $loan->update(['status' => 'Completed']);
-            }
+            $this->refreshLoanProgress($loanId);
         }
     }
 
@@ -501,23 +548,34 @@ class LoanService
             $loan = Loan::find($loanId);
             if (!$loan) continue;
 
-            $paidCount = LoanInstallment::where('loan_id', $loanId)->where('status', 'Paid')->count();
-            $remainingAmount = LoanInstallment::where('loan_id', $loanId)
-                ->whereIn('status', ['Pending', 'Overdue'])
-                ->sum('amount');
-
-            $updateData = [
-                'paid_installments' => $paidCount,
-                'remaining_amount'  => $remainingAmount,
-            ];
-
-            // If the loan was 'Completed', revert it to 'Disbursed' since there's now outstanding balance
-            if ($loan->status === 'Completed' && ($paidCount < $loan->total_installments || $remainingAmount > 0)) {
-                $updateData['status'] = 'Disbursed';
-            }
-
-            $loan->update($updateData);
+            $this->refreshLoanProgress((int) $loanId);
         }
+    }
+
+    private function refreshLoanProgress(int $loanId): void
+    {
+        $loan = Loan::find($loanId);
+        if (!$loan) {
+            return;
+        }
+
+        $paidCount = LoanInstallment::where('loan_id', $loanId)->where('status', 'Paid')->count();
+        $remainingAmount = LoanInstallment::where('loan_id', $loanId)
+            ->whereIn('status', ['Pending', 'Progress', 'Overdue'])
+            ->sum('amount');
+
+        $updateData = [
+            'paid_installments' => $paidCount,
+            'remaining_amount' => $remainingAmount,
+        ];
+
+        if ($paidCount >= $loan->total_installments && $remainingAmount <= 0) {
+            $updateData['status'] = 'Completed';
+        } elseif ($loan->status === 'Completed') {
+            $updateData['status'] = $loan->disbursement_date ? 'Disbursed' : 'Approved';
+        }
+
+        $loan->update($updateData);
     }
 
     /**
@@ -561,7 +619,7 @@ class LoanService
             'active_loans'     => $activeLoans,
             'completed_loans'  => $completedLoans,
             'total_disbursed'  => round($totalDisbursed, 2),
-            'total_outstanding'=> round($totalOutstanding, 2),
+            'total_outstanding' => round($totalOutstanding, 2),
         ];
     }
 }

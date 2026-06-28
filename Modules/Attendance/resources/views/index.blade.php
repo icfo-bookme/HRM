@@ -85,6 +85,29 @@
     @push('scripts')
         <script>
             $(document).ready(function() {
+                // Set default date filters: Date From = 1st of current month, Date To = today
+                var today = new Date();
+                var firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                
+                var formatDate = function(date) {
+                    var y = date.getFullYear();
+                    var m = String(date.getMonth() + 1).padStart(2, '0');
+                    var d = String(date.getDate()).padStart(2, '0');
+                    return y + '-' + m + '-' + d;
+                };
+
+                if (!$('#filter_date_from').val()) {
+                    $('#filter_date_from').val(formatDate(firstDay));
+                }
+                if (!$('#filter_date_to').val()) {
+                    $('#filter_date_to').val(formatDate(today));
+                }
+
+                // Trigger reload so DataTable picks up the default filter values
+                setTimeout(function() {
+                    $('.dt-filter-attendanceTable').trigger('change');
+                }, 100);
+
                 // Open add new attendance - redirect to step 1 of the creation wizard
                 $(document).on('click', '#btnAddAttandance', function(e) {
                     e.preventDefault();
@@ -100,6 +123,82 @@
 
                 $('.dt-filter-attendanceTable').trigger('change');
             });
+
+            function attendanceApprove(id) {
+                const csrfToken = '{{ csrf_token() }}';
+                Swal.fire({
+                    title: 'Approve Attendance?',
+                    text: "This will mark the attendance as approved.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#16a34a',
+                    cancelButtonColor: '#4b5563',
+                    confirmButtonText: 'Yes, approve it!'
+                }).then((r) => {
+                    if (r.isConfirmed) {
+                        $.ajax({
+                            url: "{{ url('attendances') }}/" + id + "/approve",
+                            type: 'POST',
+                            data: { _token: csrfToken },
+                            success: function(res) {
+                                if (res.status === 'success') {
+                                    Toastify({
+                                        text: res.message || 'Approved successfully',
+                                        duration: 3000,
+                                        gravity: "bottom",
+                                        position: "right",
+                                        style: { background: "linear-gradient(135deg, #16a34a, #22c55e)" },
+                                    }).showToast();
+                                    $('#attendanceTable').DataTable().ajax.reload(null, false);
+                                } else {
+                                    Swal.fire('Error', res.message || 'Approval failed.', 'error');
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire('Error', xhr.responseJSON?.message || 'Server error occurred', 'error');
+                            }
+                        });
+                    }
+                });
+            }
+
+            function attendanceDisapprove(id) {
+                const csrfToken = '{{ csrf_token() }}';
+                Swal.fire({
+                    title: 'Revert Approval?',
+                    text: "This will set the attendance back to Pending.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f59e0b',
+                    cancelButtonColor: '#4b5563',
+                    confirmButtonText: 'Yes, revert to Pending'
+                }).then((r) => {
+                    if (r.isConfirmed) {
+                        $.ajax({
+                            url: "{{ url('attendances') }}/" + id + "/disapprove",
+                            type: 'POST',
+                            data: { _token: csrfToken },
+                            success: function(res) {
+                                if (res.status === 'success') {
+                                    Toastify({
+                                        text: res.message || 'Reverted to Pending',
+                                        duration: 3000,
+                                        gravity: "bottom",
+                                        position: "right",
+                                        style: { background: "linear-gradient(135deg, #f59e0b, #d97706)" },
+                                    }).showToast();
+                                    $('#attendanceTable').DataTable().ajax.reload(null, false);
+                                } else {
+                                    Swal.fire('Error', res.message || 'Revert failed.', 'error');
+                                }
+                            },
+                            error: function(xhr) {
+                                Swal.fire('Error', xhr.responseJSON?.message || 'Server error occurred', 'error');
+                            }
+                        });
+                    }
+                });
+            }
 
             function attendanceDelete(id) {
                 Swal.fire({

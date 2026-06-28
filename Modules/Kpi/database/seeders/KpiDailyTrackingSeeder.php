@@ -21,20 +21,17 @@ class KpiDailyTrackingSeeder extends Seeder
         $trackings = [];
         $now = now();
 
-        // Generate daily tracking for last 30 days
         foreach ($employees as $employee) {
             for ($dayOffset = 0; $dayOffset < 30; $dayOffset++) {
                 $date = $now->copy()->subDays($dayOffset);
 
-                // Skip weekends (Friday/Saturday)
-                $dayOfWeek = $date->dayOfWeek;
-                if (in_array($dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
+                if (in_array($date->dayOfWeek, [Carbon::FRIDAY, Carbon::SATURDAY])) {
                     continue;
                 }
 
                 $isWorkingDay = true;
-                $isPresent = rand(0, 10) > 1; // 90% chance present
-                $isLate = $isPresent ? (rand(0, 10) > 7) : false; // 30% of present days are late
+                $isPresent = rand(0, 10) > 1;
+                $isLate = $isPresent ? (rand(0, 10) > 7) : false;
 
                 $presentTarget = $isWorkingDay ? 1 : 0;
                 $presentObtained = ($isPresent && !$isLate) ? 1 : 0;
@@ -64,10 +61,11 @@ class KpiDailyTrackingSeeder extends Seeder
             }
         }
 
-        // Insert in chunks to avoid memory issues
-        $chunks = array_chunk($trackings, 100);
-        foreach ($chunks as $chunk) {
-            DB::table('kpi_daily_tracking')->insert($chunk);
+        foreach ($trackings as $tracking) {
+            DB::table('kpi_daily_tracking')->updateOrInsert(
+                ['employee_id' => $tracking['employee_id'], 'tracking_date' => $tracking['tracking_date']],
+                $tracking
+            );
         }
 
         $this->command->info('✓ KPI daily tracking seeded for ' . count($employees) . ' employees (30 days)');
