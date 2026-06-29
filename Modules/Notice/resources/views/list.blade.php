@@ -72,7 +72,7 @@
 
                                 {{-- Description --}}
                                 <div class="text-sm text-gray-600 leading-relaxed mb-4 prose prose-sm max-w-none">
-                                    {!! nl2br(e($notice->description)) !!}
+                                    {!! $notice->description !!}
                                 </div>
 
                                 {{-- Footer: Attachment + Detail Link --}}

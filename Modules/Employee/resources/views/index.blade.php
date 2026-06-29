@@ -4,15 +4,19 @@
         {{-- FILTER SECTION --}}
         <div class="bg-white min-w-full shadow-md rounded-xl border border-gray-200 overflow-hidden mb-4">
             <div class="flex flex-wrap items-center gap-4 px-6 py-4">
-                <x-table-filter id="filter_department" label="Department"
-                    :options="$departments" tableId="employeeTable" />
+                <x-table-filter id="filter_department" label="Department" :options="$departments" tableId="employeeTable" />
 
-                <x-table-filter id="filter_designation" label="Designation"
-                    :options="$designations" tableId="employeeTable" />
+                <x-table-filter id="filter_designation" label="Designation" :options="$designations" tableId="employeeTable" />
 
-                <x-table-filter id="filter_status" label="Status"
-                    :options="['Active' => 'Active', 'Inactive' => 'Inactive', 'On Leave' => 'On Leave', 'Suspended' => 'Suspended', 'Terminated' => 'Terminated', 'Resigned' => 'Resigned', 'Retired' => 'Retired']"
-                    tableId="employeeTable" />
+                <x-table-filter id="filter_status" label="Status" :options="[
+                    'Active' => 'Active',
+                    'Inactive' => 'Inactive',
+                    'On Leave' => 'On Leave',
+                    'Suspended' => 'Suspended',
+                    'Terminated' => 'Terminated',
+                    'Resigned' => 'Resigned',
+                    'Retired' => 'Retired',
+                ]" tableId="employeeTable" />
 
                 <button onclick="resetFilters()"
                     class="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
@@ -22,10 +26,17 @@
         </div>
 
         {{-- DATA-TABLE COMPONENT --}}
-        <x-data-table id="employeeTable" title="Employee Management" icon="fa-solid fa-users"
-            buttonId="btnAddEmployee" buttonText="Add New Employee" :columns="[ 'SL', 'Employee Code', 'Employee Name', 'Department', 'Designation', 'Email', 'Status', 'Action']"
-            :ajaxUrl="route('employee.dataTable')"
-            :dtColumns="[
+        <x-data-table id="employeeTable" title="Employee Management" icon="fa-solid fa-users" buttonId="btnAddEmployee"
+            buttonText="Add New Employee" :columns="[
+                'SL',
+                'Employee Code',
+                'Employee Name',
+                'Department',
+                'Designation',
+                'Email',
+                'Status',
+                'Action',
+            ]" :ajaxUrl="route('employee.dataTable')" :dtColumns="[
                 ['data' => 'DT_RowIndex', 'name' => 'id', 'width' => '50px'],
                 ['data' => 'employee_code'],
                 ['data' => 'employee'],
@@ -38,7 +49,8 @@
                 'department_id' => '#filter_department',
                 'designation_id' => '#filter_designation',
                 'status' => '#filter_status',
-            ]" :exportButtons="true" />
+            ]"
+            :exportButtons="true" />
     </div>
 
     @push('scripts')
@@ -71,7 +83,9 @@
                         $.ajax({
                             url: deleteUrl,
                             type: 'POST',
-                            data: { _method: 'DELETE' },
+                            data: {
+                                _method: 'DELETE'
+                            },
                             success: function(res) {
                                 if (res.status === 'success' || res.status === true) {
                                     Toastify({

@@ -4,14 +4,14 @@
 <aside id="sidebar" class="w-52 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-30 overflow-hidden">
 
     <!-- Logo -->
-    <div class="h-[60px] flex items-center justify-between px-3.5 border-b border-blue-300 flex-shrink-0">
+    <div class="h-[60px] bg-[#006172] flex items-center justify-between px-3.5 border-b border-blue-300 flex-shrink-0">
         <div class="flex items-center gap-2 overflow-hidden">
             <!-- A icon circle matching BookMe HRM -->
             <div
-                class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center flex-shrink-0 shadow-sm">
+                class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-[#006172] flex items-center justify-center flex-shrink-0 shadow-sm">
                 <span class="text-white font-bold text-sm leading-none">A</span>
             </div>
-            <span class="logo-text font-semibold text-gray-800 text-[20px] whitespace-nowrap">BookMe HRM</span>
+            <span class="logo-text font-semibold text-gray-50 text-[20px] whitespace-nowrap">BookMe HRM</span>
         </div>
 
 
@@ -37,9 +37,9 @@
         <!-- Dashboard -->
         <a href="{{ route('dashboard') }}"
             class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 mb-0.5 
-    {{ request()->routeIs('dashboard') ? 'bg-[#1e3a8a] text-white active' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800' }}"
+    {{ request()->routeIs('dashboard') ? 'bg-[#006172] text-white active' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800' }}"
             data-label="Dashboard">
-            <i class="fas fa-th-large w-4 text-center flex-shrink-0 text-base"></i>
+            <i class="fas fa-th-large w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
             <span class="nav-label font-bold">Dashboard</span>
         </a>
 
@@ -49,7 +49,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Employees" data-sub="sub-emp">
-                    <i class="fas fa-users w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-users w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left ">Employees</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -99,7 +99,7 @@
             <a href="/shifts"
                 class="nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150 mb-0.5"
                 data-label="Shifts">
-                <i class="fas fa-clock w-4 text-center flex-shrink-0 text-base"></i>
+                <i class="fas fa-clock w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                 <span class="nav-label">Shifts</span>
             </a>
         @endpermission
@@ -110,7 +110,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Notice" data-sub="sub-ntc">
-                    <i class="fa-solid fa-bullhorn w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fa-solid fa-bullhorn w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">Notice</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>

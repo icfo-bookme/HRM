@@ -40,6 +40,8 @@ Route::middleware(['auth', 'verified','permission:employees.create'])->group(fun
     Route::get('employees/create/step-11', [EmployeeController::class, 'createStepEleven'])->name('employee.create.step11');
     Route::post('employees/create/finalize', [EmployeeController::class, 'finalize'])->name('employee.create.finalize');
 
+    Route::post('employees/create/step-{step}/reset', [EmployeeController::class, 'resetStep'])->name('employee.reset.step');
+
     Route::get('employees/create/cancel', [EmployeeController::class, 'cancel'])->name('employee.create.cancel');
 
     Route::get('employees/{id}/edit', [EmployeeEditController::class, 'edit'])->name('employee.edit');

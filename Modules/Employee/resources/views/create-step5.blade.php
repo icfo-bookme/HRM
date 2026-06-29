@@ -3,7 +3,7 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-8">
-            <div class="mb-8">
+            <div class="mb-8 flex items-start justify-between">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-10 h-10 rounded-2xl bg-indigo-100 flex items-center justify-center">
                         <i class="fa-solid fa-folder-open text-indigo-600 text-lg"></i>
@@ -13,6 +13,13 @@
                         <p class="text-sm text-slate-500">Upload required documents (NID, CV) and add more if needed</p>
                     </div>
                 </div>
+                <form method="POST" action="{{ route('employee.reset.step', 5) }}">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Reset Step 5 data? This will clear all entered information for this step.')"
+                        class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        ⟳ Refresh
+                    </button>
+                </form>
             </div>
 
             @if ($errors->any())
@@ -122,10 +129,6 @@
             const container = document.getElementById('documents-container');
             const i = documentIndex;
 
-            const catOptions = categoryList.map(c =>
-                `<option value="${c.value}">${c.label}</option>`
-            ).join('');
-
             const html = `
                 <div class="document-row bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
                     <div class="bg-gradient-to-r from-slate-50 to-white px-6 py-3.5 border-b border-slate-100 flex items-center justify-between">
@@ -144,9 +147,9 @@
                         <div class="grid gap-5 sm:grid-cols-2">
                             <div>
                                 <label class="font-semibold text-sm text-slate-700 block mb-1.5">Document Category <span class="text-rose-500">*</span></label>
-                                <select name="documents[${i}][category]" class="w-full border border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer">
+                                <select name="documents[${i}][category]" class="select2 w-full" id="doc-category-${i}">
                                     <option value="">-- Select Category --</option>
-                                    ${catOptions}
+                                    ${categoryList.map(c => `<option value="${c.value}">${c.label}</option>`).join('')}
                                 </select>
                             </div>
                             <div>
@@ -206,6 +209,10 @@
             `;
 
             container.insertAdjacentHTML('beforeend', html);
+            $('#doc-category-' + i).select2({
+                placeholder: '-- Select Category --',
+                width: '100%'
+            });
             documentIndex++;
         });
 

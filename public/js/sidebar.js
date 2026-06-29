@@ -16,7 +16,7 @@
         } else {
             sidebar.classList.remove('collapsed');
             sidebar.style.width = '224px'; // w-56
-            collapseIcon.className = 'fas fa-chevron-left text-[10px]';
+            collapseIcon.className = 'fa-solid fa-bars text-[10px]';
         }
     });
 

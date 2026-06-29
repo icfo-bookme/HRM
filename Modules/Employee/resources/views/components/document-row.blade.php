@@ -1,3 +1,19 @@
+@php
+    $documentCategories = [
+        'nid' => 'NID',
+        'passport' => 'Passport',
+        'tin' => 'TIN Certificate',
+        'birth_certificate' => 'Birth Certificate',
+        'driving_license' => 'Driving License',
+        'education_certificate' => 'Education Certificate',
+        'experience_certificate' => 'Experience Certificate',
+        'cv' => 'CV / Resume',
+        'photo' => 'Photograph',
+        'signature' => 'Signature',
+        'other' => 'Other',
+    ];
+@endphp
+
 @props([
     'index' => 0,
     'document' => [],
@@ -29,17 +45,12 @@
     <div class="p-6 space-y-5">
         <div class="grid gap-5 sm:grid-cols-2">
             <div>
-                <label class="font-semibold text-sm text-slate-700 block mb-1.5">Document Category <span
-                        class="text-rose-500">*</span></label>
-                <select name="documents[{{ $index }}][category]"
-                    class="w-full border border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer">
-                    <option value="">-- Select Category --</option>
-                    @foreach (['nid' => 'NID', 'passport' => 'Passport', 'tin' => 'TIN Certificate', 'birth_certificate' => 'Birth Certificate', 'driving_license' => 'Driving License', 'education_certificate' => 'Education Certificate', 'experience_certificate' => 'Experience Certificate', 'cv' => 'CV / Resume', 'photo' => 'Photograph', 'signature' => 'Signature', 'other' => 'Other'] as $val => $label)
-                        <option value="{{ $val }}"
-                            {{ old("documents.{$index}.category", $document['category'] ?? $defaultCategory) === $val ? 'selected' : '' }}>
-                            {{ $label }}</option>
-                    @endforeach
-                </select>
+                <x-form-select2 label="Document Category" name="documents[{{ $index }}][category]"
+                    id="doc-category-{{ $index }}"
+                    placeholder="-- Select Category --"
+                    required
+                    :options="$documentCategories"
+                    :selected="old('documents.{$index}.category', $document['category'] ?? $defaultCategory)" />
             </div>
             <div>
                 <x-form-input label="Document Name" name="documents[{{ $index }}][document_name]"

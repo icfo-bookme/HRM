@@ -3,9 +3,18 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-8">
-            <div class="mb-8">
-                <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
-                <p class="mt-2 text-sm text-slate-600">Step 11: Add dependents and nominees. Final step before completion.</p>
+            <div class="mb-8 flex items-start justify-between">
+                <div>
+                    <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
+                    <p class="mt-2 text-sm text-slate-600">Step 11: Add dependents and nominees. Final step before completion.</p>
+                </div>
+                <form method="POST" action="{{ route('employee.reset.step', 11) }}">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Reset Step 11 data? This will clear all entered information for this step.')"
+                        class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        ⟳ Refresh
+                    </button>
+                </form>
             </div>
 
             @if (session('error'))
@@ -18,13 +27,13 @@
                 <div class="grid gap-6 sm:grid-cols-2">
                     <x-form-input label="Full Name" name="full_name" id="full_name"
                         value="{{ old('full_name', $data['full_name'] ?? '') }}" />
-                    <x-form-select label="Relation" name="relation" id="relation" placeholder="-- Select Relation --">
+                    <x-form-select2 label="Relation" name="relation" id="relation" placeholder="-- Select Relation --">
                         @foreach (['Spouse', 'Son', 'Daughter', 'Father', 'Mother', 'Brother', 'Sister', 'Other'] as $rel)
                             <option value="{{ $rel }}"
                                 {{ old('relation', $data['relation'] ?? '') === $rel ? 'selected' : '' }}>
                                 {{ $rel }}</option>
                         @endforeach
-                    </x-form-select>
+                    </x-form-select2>
                 </div>
 
                 <div class="grid gap-6 sm:grid-cols-2">

@@ -25,6 +25,10 @@
     <!-- Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+   
+
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
@@ -70,8 +74,22 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <!-- Sidebar JS -->
     <script src="{{ asset('js/sidebar.js') }}"></script>
+
+    <!-- Select2 Default Initialization -->
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: 'Select an option',
+                width: '100%'
+            });
+        });
+    </script>
 
     <!-- CSRF Setup -->
     <script>
@@ -99,7 +117,7 @@
                 }
             });
 
-            // ২. AJAX শেষ হলে (টাইম কমিয়ে ১০০ms করা হয়েছে দ্রুত রেসপন্সের জন্য)
+            // ২. )
             $(document).on('ajaxStop', function() {
                 setTimeout(function() {
                     if (!window.isDataTableProcessing()) {
@@ -109,17 +127,16 @@
                 }, 100);
             });
 
-            // ৩. স্ট্যাটিক পেজের জন্য (টাইম কমিয়ে ১০০ms করা হয়েছে)
+            // ৩. )
             function handleStaticPageLoader() {
                 setTimeout(function() {
                     if (!window.isDataTableProcessing()) {
                         $('#global-loader').addClass('hidden');
                         window.isInitialPageLoad = false;
                     }
-                }, 100); // ১০০ms পলকের মতো কাজ করবে, ইউজার কোনো ল্যাগ বুঝবে না
+                }, 100); 
             }
 
-            // ব্রাউজার যদি অলরেডি সব লোড করে ফেলে, সাথে সাথে রান হবে
             if (document.readyState === 'complete') {
                 handleStaticPageLoader();
             } else {

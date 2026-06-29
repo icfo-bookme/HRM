@@ -31,11 +31,19 @@ class NoticeService
 
         return DataTables::of($query)
             ->addColumn('action', function ($row) {
-                return view('components.action-buttons', [
-                    'id' => $row->id,
-                    'edit' => 'noticeEdit',
-                    'delete' => 'noticeDelete'
-                ])->render();
+                $editUrl = route('notice.edit', $row->id);
+                return '
+                    <div class="flex items-center gap-3">
+                        <a href="' . $editUrl . '"
+                           class="text-indigo-600 hover:text-indigo-900 font-medium">
+                           <i class="fa-solid fa-pen-to-square mr-1"></i>
+                        </a>
+                        <button onclick="noticeDelete(' . $row->id . ')"
+                           class="text-red-600 hover:text-red-900 font-medium">
+                           <i class="fa-solid fa-trash mr-1"></i>
+                        </button>
+                    </div>
+                ';
             })
             ->addColumn('attachment', function ($row) {
                 if ($row->attachment_path) {
@@ -132,6 +140,40 @@ class NoticeService
                     'data' => $notice
                 ];
             }
+        });
+    }
+
+    public function saveNoticeFromPage(array $data, $request = null)
+    {
+        return DB::transaction(function () use ($data, $request) {
+            $data['is_popup'] = isset($data['is_popup']) ? (bool)$data['is_popup'] : false;
+            $data['is_pinned'] = isset($data['is_pinned']) ? (bool)$data['is_pinned'] : false;
+            $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
+
+            // Handle file upload
+            if ($request && $request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $path = $file->store('notices', 'public');
+                $data['attachment_path'] = $path;
+            }
+
+            if (!empty($data['id'])) {
+                $notice = Notice::findOrFail($data['id']);
+
+                // Handle removal of existing attachment
+                if (isset($data['remove_attachment']) && $data['remove_attachment'] == '1') {
+                    if ($notice->attachment_path) {
+                        Storage::disk('public')->delete($notice->attachment_path);
+                    }
+                    $data['attachment_path'] = null;
+                }
+
+                $notice->update($data);
+                return $notice;
+            }
+
+            $notice = Notice::create($data);
+            return $notice;
         });
     }
 

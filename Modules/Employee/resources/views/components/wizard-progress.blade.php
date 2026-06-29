@@ -2,17 +2,17 @@
 
 @php
     $steps = [
-        ['label' => 'Core Info', 'description' => 'Employee basics'],
-        ['label' => 'Personal Info', 'description' => 'Sensitive details'],
-        ['label' => 'Address Info', 'description' => 'Contact & location'],
-        ['label' => 'Banking Info', 'description' => 'Payment setup'],
-        ['label' => 'Documents', 'description' => 'Official files'],
-        ['label' => 'Education', 'description' => 'Qualifications'],
-        ['label' => 'Experience', 'description' => 'Work history'],
-        ['label' => 'Job History', 'description' => 'Career changes'],
-        ['label' => 'Languages', 'description' => 'Language skills'],
-        ['label' => 'Skills', 'description' => 'Competencies'],
-        ['label' => 'Dependents', 'description' => 'Family & nominees'],
+        ['label' => 'Core Info', 'description' => 'Employee basics', 'url' => '/employees/create/step-1'],
+        ['label' => 'Personal Info', 'description' => 'Sensitive details', 'url' => '/employees/create/step-2'],
+        ['label' => 'Address Info', 'description' => 'Contact & location', 'url' => '/employees/create/step-3'],
+        ['label' => 'Banking Info', 'description' => 'Payment setup', 'url' => '/employees/create/step-4'],
+        ['label' => 'Documents', 'description' => 'Official files', 'url' => '/employees/create/step-5'],
+        ['label' => 'Education', 'description' => 'Qualifications', 'url' => '/employees/create/step-6'],
+        ['label' => 'Experience', 'description' => 'Work history', 'url' => '/employees/create/step-7'],
+        ['label' => 'Job History', 'description' => 'Career changes', 'url' => '/employees/create/step-8'],
+        ['label' => 'Languages', 'description' => 'Language skills', 'url' => '/employees/create/step-9'],
+        ['label' => 'Skills', 'description' => 'Competencies', 'url' => '/employees/create/step-10'],
+        ['label' => 'Dependents', 'description' => 'Family & nominees', 'url' => '/employees/create/step-11'],
     ];
     $percentage = round(($current / count($steps)) * 100);
 @endphp
@@ -42,19 +42,21 @@
         <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
             @foreach ($steps as $index => $step)
                 @php $stepNumber = $index + 1; @endphp
-                <div
-                    class="rounded-2xl border px-4 py-4 transition-colors duration-200 {{ $stepNumber === $current ? 'border-sky-500 bg-sky-50' : ($stepNumber < $current ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-white') }}">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold {{ $stepNumber <= $current ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-700' }}">
-                            {{ $stepNumber }}
-                        </div>
-                        <div>
-                            <div class="text-sm font-semibold text-slate-900">{{ $step['label'] }}</div>
-                            <p class="text-xs text-slate-500">{{ $step['description'] }}</p>
+                <a href="{{ $step['url'] }}">
+                    <div
+                        class="rounded-2xl border px-4 py-4 transition-colors duration-200 {{ $stepNumber === $current ? 'border-sky-500 bg-sky-50' : ($stepNumber < $current ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-white') }}">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold {{ $stepNumber <= $current ? 'bg-sky-600 text-white' : 'bg-slate-200 text-slate-700' }}">
+                                {{ $stepNumber }}
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-slate-900">{{ $step['label'] }}</div>
+                                {{-- <p class="text-xs text-slate-500">{{ $step['description'] }}</p> --}}
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
     </div>

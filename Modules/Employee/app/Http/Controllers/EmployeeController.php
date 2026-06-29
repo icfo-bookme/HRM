@@ -615,6 +615,14 @@ class EmployeeController extends Controller
         ]);
     }
 
+    public function resetStep(int $step)
+    {
+        session()->forget("employee_creation.step{$step}");
+
+        return redirect()->route("employee.create.step{$step}")
+            ->with('info', "Step {$step} data has been reset.");
+    }
+
     public function cancel()
     {
         $this->employeeService->clearWizardData();

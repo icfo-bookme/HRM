@@ -3,9 +3,18 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-8">
-            <div class="mb-8">
-                <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
-                <p class="mt-2 text-sm text-slate-600">Step 2: Personal details for profile completeness and compliance.</p>
+            <div class="mb-8 flex items-start justify-between">
+                <div>
+                    <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
+                    <p class="mt-2 text-sm text-slate-600">Step 2: Personal details for profile completeness and compliance.</p>
+                </div>
+                <form method="POST" action="{{ route('employee.reset.step', 2) }}">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Reset Step 2 data? This will clear all entered information for this step.')"
+                        class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        ⟳ Refresh
+                    </button>
+                </form>
             </div>
 
             <form method="POST" action="{{ route('employee.store.step2') }}" class="space-y-6" enctype="multipart/form-data">
@@ -94,22 +103,26 @@
                 </div>
 
                 {{-- Status --}}
+                @php
+                    $maritalStatuses = array_combine(
+                        ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'],
+                        ['Single', 'Married', 'Divorced', 'Widowed', 'Separated']
+                    );
+                    $bloodGroups = array_combine(
+                        ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+                        ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+                    );
+                @endphp
                 <div class="grid gap-6 sm:grid-cols-2">
-                    <x-form-select label="Marital Status" name="marital_status" id="marital_status" placeholder="-- Select Marital Status --">
-                        @foreach (['Single', 'Married', 'Divorced', 'Widowed', 'Separated'] as $status)
-                            <option value="{{ $status }}"
-                                {{ old('marital_status', $data['marital_status'] ?? '') === $status ? 'selected' : '' }}>
-                                {{ $status }}</option>
-                        @endforeach
-                    </x-form-select>
+                    <x-form-select2 label="Marital Status" name="marital_status" id="marital_status"
+                        placeholder="-- Select Marital Status --"
+                        :options="$maritalStatuses"
+                        :selected="old('marital_status', $data['marital_status'] ?? '')" />
 
-                    <x-form-select label="Blood Group" name="blood_group" id="blood_group" placeholder="-- Select Blood Group --">
-                        @foreach (['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $blood)
-                            <option value="{{ $blood }}"
-                                {{ old('blood_group', $data['blood_group'] ?? '') === $blood ? 'selected' : '' }}>
-                                {{ $blood }}</option>
-                        @endforeach
-                    </x-form-select>
+                    <x-form-select2 label="Blood Group" name="blood_group" id="blood_group"
+                        placeholder="-- Select Blood Group --"
+                        :options="$bloodGroups"
+                        :selected="old('blood_group', $data['blood_group'] ?? '')" />
                 </div>
 
                 {{-- Family Info --}}

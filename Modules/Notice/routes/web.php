@@ -10,6 +10,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Single notice detail
     Route::get('/notices/{id}/detail', [NoticeController::class, 'detail'])->name('notice.detail');
 
+    // Create notice (separate page)
+    Route::get('/notices/create', [NoticeController::class, 'create'])->name('notice.create');
+    Route::post('/notices/store-page', [NoticeController::class, 'storeFromPage'])->name('notice.store.page');
+
+    // Edit notice (separate page)
+    Route::get('/notices/{id}/edit', [NoticeController::class, 'edit'])->name('notice.edit');
+    Route::put('/notices/{id}/update-page', [NoticeController::class, 'updateFromPage'])->name('notice.update.page');
+
     // Management routes (CRUD + DataTable)
     Route::get('/notices/manage', [NoticeController::class, 'manage'])->name('notice.manage');
     Route::get('/dataTable/notices', [NoticeController::class, 'dataTable'])->name('notice.dataTable');

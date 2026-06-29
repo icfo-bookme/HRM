@@ -4,9 +4,18 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-8">
 
-            <div class="mb-8">
-                <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
-                <p class="mt-2 text-sm text-slate-600">Step 6: Add educational qualifications. You can add multiple entries.</p>
+            <div class="mb-8 flex items-start justify-between">
+                <div>
+                    <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
+                    <p class="mt-2 text-sm text-slate-600">Step 6: Add educational qualifications. You can add multiple entries.</p>
+                </div>
+                <form method="POST" action="{{ route('employee.reset.step', 6) }}">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Reset Step 6 data? This will clear all entered information for this step.')"
+                        class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        ⟳ Refresh
+                    </button>
+                </form>
             </div>
 
             @if ($errors->any())

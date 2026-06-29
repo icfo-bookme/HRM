@@ -57,3 +57,73 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+
+
+I've created a reusable **Select2** component (`form-select2.blade.php`) with CDN integration. Here's what was done:
+
+## 1. Added Select2 CDN in `resources/views/layouts/app.blade.php`
+- **CSS**: `select2.min.css` added in `<head>`
+- **JS**: `select2.min.js` added before sidebar JS
+- **Global init**: Auto-initializes all `.select2` elements with placeholder, allowClear, and width:100%
+
+## 2. Created `resources/views/components/form-select2.blade.php`
+A full-featured reusable component like `form-select`, supporting:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `label` | string | — | Label text (optional) |
+| `name` | string | null | Input name attribute |
+| `id` | string | null | Input ID (falls back to name) |
+| `placeholder` | string | "Select an option" | Placeholder text |
+| `required` | bool | false | Required field indicator |
+| `multiple` | bool | false | Enable multi-select |
+| `allowClear` | bool | true | Show clear button |
+| `options` | array | [] | Key-value option pairs |
+| `selected` | mixed | null | Selected value(s) |
+| `disabled` | bool | false | Disable the select |
+
+## Usage Examples
+
+**Basic single select:**
+```blade
+<x-form-select2
+    label="Department"
+    name="department_id"
+    :options="$departments"
+    :selected="old('department_id', $user->department_id ?? null)"
+/>
+```
+
+**With slot (custom options):**
+```blade
+<x-form-select2 label="Employee" name="employee_id">
+    <option value="1">John Doe</option>
+    <option value="2">Jane Smith</option>
+</x-form-select2>
+```
+
+**Multi-select:**
+```blade
+<x-form-select2
+    label="Roles"
+    name="roles[]"
+    :multiple="true"
+    :options="$roles"
+    :selected="old('roles', $userRoles ?? [])"
+/>
+```
+
+**Required field:**
+```blade
+<x-form-select2
+    label="Status"
+    name="status"
+    :options="['active' => 'Active', 'inactive' => 'Inactive']"
+    :required="true"
+/>
+```
+
+The component automatically uses `select2` class and pushes its initialization script to the `@stack('scripts')` section.

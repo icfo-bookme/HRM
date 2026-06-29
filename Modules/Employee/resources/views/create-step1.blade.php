@@ -3,10 +3,19 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-8">
-            <div class="mb-8">
-                <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
-                <p class="mt-2 text-sm text-slate-600">Step 1: Core employee details required to begin the onboarding
-                    process.</p>
+            <div class="mb-8 flex items-start justify-between">
+                <div>
+                    <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
+                    <p class="mt-2 text-sm text-slate-600">Step 1: Core employee details required to begin the onboarding
+                        process.</p>
+                </div>
+                <form method="POST" action="{{ route('employee.reset.step', 1) }}">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Reset Step 1 data? This will clear all entered information for this step.')"
+                        class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        ⟳ Refresh
+                    </button>
+                </form>
             </div>
 
             @if (session('error'))
@@ -39,28 +48,20 @@
 
                 <div class="grid gap-6 sm:grid-cols-2">
                     <div>
-                        <x-form-select label="Branch" name="branch_id" id="branch_id" placeholder="-- Select Branch --"
-                            required>
-                            @foreach ($branches as $id => $name)
-                                <option value="{{ $id }}"
-                                    {{ old('branch_id', $data['branch_id'] ?? '') == $id ? 'selected' : '' }}>
-                                    {{ $name }}</option>
-                            @endforeach
-                        </x-form-select>
+                        <x-form-select2 label="Branch" name="branch_id" id="branch_id" placeholder="-- Select Branch --"
+                            required
+                            :options="$branches"
+                            :selected="old('branch_id', $data['branch_id'] ?? '')" />
                         @error('branch_id')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <x-form-select label="Department" name="department_id" id="department_id"
-                            placeholder="-- Select Department --" required>
-                            @foreach ($departments as $id => $name)
-                                <option value="{{ $id }}"
-                                    {{ old('department_id', $data['department_id'] ?? '') == $id ? 'selected' : '' }}>
-                                    {{ $name }}</option>
-                            @endforeach
-                        </x-form-select>
+                        <x-form-select2 label="Department" name="department_id" id="department_id"
+                            placeholder="-- Select Department --" required
+                            :options="$departments"
+                            :selected="old('department_id', $data['department_id'] ?? '')" />
                         @error('department_id')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -69,26 +70,16 @@
 
                 <div class="grid gap-6 sm:grid-cols-2">
                     <div>
-                        <x-form-select label="Designation" name="designation_id" id="designation_id"
-                            placeholder="-- Select Designation --" required>
-                            @foreach ($designations as $id => $title)
-                                <option value="{{ $id }}"
-                                    {{ old('designation_id', $data['designation_id'] ?? '') == $id ? 'selected' : '' }}>
-                                    {{ $title }}</option>
-                            @endforeach
-                        </x-form-select>
+                        <x-form-select2 label="Designation" name="designation_id" id="designation_id"
+                            placeholder="-- Select Designation --" required :options="$designations" :selected="old('designation_id', $data['designation_id'] ?? '')" />
                         @error('designation_id')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <x-form-select label="Grade" name="grade_id" id="grade_id" placeholder="-- Select Grade --">
-                        @foreach ($grades as $id => $name)
-                            <option value="{{ $id }}"
-                                {{ old('grade_id', $data['grade_id'] ?? '') == $id ? 'selected' : '' }}>
-                                {{ $name }}</option>
-                        @endforeach
-                    </x-form-select>
+                    <x-form-select2 label="Grade" name="grade_id" id="grade_id" placeholder="-- Select Grade --"
+                        :options="$grades"
+                        :selected="old('grade_id', $data['grade_id'] ?? '')" />
                 </div>
 
                 <div class="grid gap-6 sm:grid-cols-2">
@@ -100,14 +91,14 @@
                         @endforeach
                     </x-form-select>
 
-                    <x-form-select label="Reports To" name="reports_to" id="reports_to"
+                    <x-form-select2 label="Reports To" name="reports_to" id="reports_to"
                         placeholder="-- Select Manager --">
                         @foreach ($employee as $emp)
                             <option value="{{ $emp->id }}"
                                 {{ old('reports_to', $data['reports_to'] ?? '') == $emp->id ? 'selected' : '' }}>
                                 {{ $emp->first_name }} {{ $emp->last_name }} ({{ $emp->employee_code }})</option>
                         @endforeach
-                    </x-form-select>
+                    </x-form-select2>
                 </div>
 
                 <div class="grid gap-6 sm:grid-cols-2">

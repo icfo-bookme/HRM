@@ -4,7 +4,7 @@
 
         <!-- Left Side - Branding Section (Hidden on mobile, visible on large screens) -->
         <div
-            class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-12 flex-col justify-between relative overflow-hidden">
+            class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-[#006172] to-slate-900 p-12 flex-col justify-between relative overflow-hidden">
             <!-- Animated Background Pattern -->
             <div class="absolute inset-0 opacity-5">
                 <div class="absolute inset-0"
@@ -128,7 +128,7 @@
                                 </svg>
                             </div>
                             <x-text-input id="email"
-                                class="block w-full pl-10 pr-3 py-3 border-slate-300 dark:border-slate-600 dark:bg-slate-800/50 dark:text-white rounded-xl focus:border-blue-900 focus:ring-blue-900 focus:ring-1 transition-all duration-200"
+                                class="block w-full pl-10 pr-3 py-3 border-slate-300 dark:border-slate-600 dark:bg-slate-800/50 dark:text-white rounded-xl focus:border-blue-900 focus:ring-[#07cff2] focus:ring-1 transition-all duration-200"
                                 type="email" name="email" :value="old('email')" required autofocus
                                 autocomplete="username" placeholder="john@company.com" />
                         </div>
@@ -175,7 +175,7 @@
 
                     <!-- Sign In Button -->
                     <button type="submit"
-                        class="w-full inline-flex items-center justify-center px-6 py-3.5 bg-blue-900 hover:bg-blue-800 active:bg-blue-950 border border-transparent rounded-xl font-semibold text-sm text-white uppercase tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2 dark:focus:ring-offset-slate-800 shadow-md hover:shadow-lg mb-5">
+                        class="w-full inline-flex items-center justify-center px-6 py-3.5 bg-[#006172] hover:bg-[#012d35] active:bg-blue-950 border border-transparent rounded-xl font-semibold text-sm text-white uppercase tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2 dark:focus:ring-offset-slate-800 shadow-md hover:shadow-lg mb-5">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />

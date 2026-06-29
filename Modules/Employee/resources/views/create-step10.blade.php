@@ -3,22 +3,31 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-8">
-            <div class="mb-8">
-                <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
-                <p class="mt-2 text-sm text-slate-600">Step 10: Add skills and competencies. This step can be skipped.</p>
+            <div class="mb-8 flex items-start justify-between">
+                <div>
+                    <h1 class="text-3xl font-semibold text-slate-900">Employee Registration</h1>
+                    <p class="mt-2 text-sm text-slate-600">Step 10: Add skills and competencies. This step can be skipped.</p>
+                </div>
+                <form method="POST" action="{{ route('employee.reset.step', 10) }}">
+                    @csrf
+                    <button type="submit" onclick="return confirm('Reset Step 10 data? This will clear all entered information for this step.')"
+                        class="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400">
+                        ⟳ Refresh
+                    </button>
+                </form>
             </div>
 
             <form method="POST" action="{{ route('employee.store.step10') }}" class="space-y-6">
                 @csrf
 
                 <div class="grid gap-6 sm:grid-cols-2">
-                    <x-form-select label="Skill Category" name="category_id" id="category_id" placeholder="-- Select Category --">
+                    <x-form-select2 label="Skill Category" name="category_id" id="category_id" placeholder="-- Select Category --">
                         @foreach ($categories as $cat)
                             <option value="{{ $cat->id }}" data-description="{{ $cat->description }}"
                                 {{ old('category_id', $data['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
                                 {{ $cat->name }}</option>
                         @endforeach
-                    </x-form-select>
+                    </x-form-select2>
                     <x-form-input label="Skill Name" name="skill_name" id="skill_name"
                         value="{{ old('skill_name', $data['skill_name'] ?? '') }}" />
                 </div>
@@ -67,12 +76,26 @@
     </div>
 
     <script>
-        const categorySelect = document.getElementById('category_id');
-        const descriptionInput = document.getElementById('description');
+        // Wait for everything including Select2 to be fully ready
+        $(window).on('load', function() {
+            const $cat = $('#category_id');
+            const $desc = $('#description');
 
-        categorySelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            descriptionInput.value = selectedOption?.dataset.description || '';
+            if (!$cat.length) return;
+
+            function fillDescription() {
+                const nativeSelect = document.getElementById('category_id');
+                if (!nativeSelect) return;
+                const selected = nativeSelect.options[nativeSelect.selectedIndex];
+                $desc.val(selected ? (selected.getAttribute('data-description') || '') : '');
+            }
+
+            // Bind to Select2's native change event (the original select still fires change)
+            $cat.on('change', fillDescription);
+
+            // Fill on page load if already selected
+            fillDescription();
         });
     </script>
+
 </x-app-layout>
