@@ -20,7 +20,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-lg transition-all duration-300 group">
                 <div class="flex items-start justify-between mb-3">
                     <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-users text-indigo-600 text-lg"></i>
+                        <i class="fas fa-users text-[#006172] text-lg"></i>
                     </div>
                     <span class="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                         <i class="fas fa-arrow-up text-[10px]"></i> 12.5%

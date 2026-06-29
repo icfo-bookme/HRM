@@ -18,14 +18,14 @@
             </div>
 
             @if (session('error'))
-                <div class="rounded-2xl bg-rose-50 border border-rose-200 p-4 text-rose-700 mb-6">{{ session('error') }}</div>
+                <div class="rounded-2xl  border border-rose-200 p-4 text-rose-700 mb-6">{{ session('error') }}</div>
             @endif
 
             <form method="POST" action="{{ route('employee.store.step3') }}" class="space-y-8">
                 @csrf
 
                 {{-- Present Address --}}
-                <div class="grid gap-6 bg-slate-50 border border-slate-200 rounded-3xl p-6">
+                <div class="grid gap-6  border border-slate-200 rounded-3xl p-6">
                     <h2 class="text-lg font-semibold text-slate-900">Present Address</h2>
 
                     <div class="grid gap-6 sm:grid-cols-3">
@@ -73,7 +73,7 @@
                 </div>
 
                 {{-- Permanent Address --}}
-                <div class="grid gap-6 bg-slate-50 border border-slate-200 rounded-3xl p-6">
+                <div class="grid gap-6  border border-slate-200 rounded-3xl p-6">
                     <h2 class="text-lg font-semibold text-slate-900">Permanent Address</h2>
 
                     <div class="grid gap-6 sm:grid-cols-3">

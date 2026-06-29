@@ -19,7 +19,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                     <div class="p-5 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
+                            <div class="w-10 h-10 rounded-lg bg-[#006172] flex items-center justify-center shadow-sm">
                                 <i class="fas fa-file-invoice text-white text-sm"></i>
                             </div>
                             <div>

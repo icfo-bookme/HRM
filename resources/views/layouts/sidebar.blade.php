@@ -137,7 +137,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Leave" data-sub="sub-leave">
-                    <i class="fas fa-umbrella-beach w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-umbrella-beach w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">Leave</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -188,7 +188,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Holiday" data-sub="sub-hol">
-                    <i class="fas fa-calendar-day w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-calendar-day w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">Holiday</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -220,7 +220,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Attendance" data-sub="sub-att">
-                    <i class="fas fa-users w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-users w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left ">Attendance</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -253,7 +253,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Reports" data-sub="sub-rep">
-                    <i class="fas fa-chart-bar w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-chart-bar w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">Reports</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -298,7 +298,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="KPI" data-sub="sub-kpi">
-                    <i class="fas fa-trophy w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-trophy w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">KPI</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -349,7 +349,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Salary" data-sub="sub-sal">
-                    <i class="fas fa-money-bill-wave w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-money-bill-wave w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">Salary</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -394,7 +394,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Loan" data-sub="sub-loan">
-                    <i class="fas fa-hand-holding-usd w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-hand-holding-usd w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">Loan</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -427,7 +427,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Settings" data-sub="sub-set">
-                    <i class="fas fa-cog w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fas fa-cog w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">Settings</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
@@ -471,7 +471,7 @@
                 <button
                     class="nav-item has-sub w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-800 text-sm font-medium transition-colors duration-150"
                     data-label="Administration" data-sub="sub-admin">
-                    <i class="fa-solid fa-user-tie w-4 text-center flex-shrink-0 text-base"></i>
+                    <i class="fa-solid fa-user-tie w-4 text-center flex-shrink-0 text-base text-[#006172]"></i>
                     <span class="nav-label flex-1 text-left">Administration</span>
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>

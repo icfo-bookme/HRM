@@ -16,7 +16,7 @@
             }
 
             .leave-section-header {
-                background: linear-gradient(135deg, #1e3a8a, #1e40af);
+                background: linear-gradient(135deg, #006172, #1e40af);
                 color: white;
                 padding: 1rem 1.5rem;
                 font-weight: 600;
