@@ -63,15 +63,21 @@
             <label class="font-semibold text-sm text-slate-700 block mb-1.5">Upload File <span
                     class="text-rose-500">*</span></label>
             <div class="relative">
-                <input type="file" required name="documents[{{ $index }}][document_file]"
-                    class="file-input block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer border border-slate-300 rounded-xl p-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                <input type="file" name="documents[{{ $index }}][document_file]"
+                    class="file-input block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer border border-slate-300 rounded-xl p-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    {{ empty($document['file_path']) && empty($document['file_uploaded']) ? 'required' : '' }}>
             </div>
             @if (!empty($document['file_path']))
                 <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
                     <i class="fa-solid fa-paperclip text-slate-400"></i>
-                    Current: {{ basename($document['file_path']) }}
+                    Current: 
+                    <a href="{{ Storage::url($document['file_path']) }}" target="_blank" 
+                       class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium inline-flex items-center gap-1">
+                        <i class="fa-solid fa-eye text-[10px]"></i>
+                        {{ basename($document['file_path']) }}
+                    </a>
                 </p>
-                <input type="hidden" name="documents[{{ $index }}][file_path]"
+                <input type="hidden" name="documents[{{ $index }}][existing_file]"
                     value="{{ $document['file_path'] }}">
             @endif
             <div class="file-info mt-2 {{ empty($document['file_path']) ? 'hidden' : '' }}">

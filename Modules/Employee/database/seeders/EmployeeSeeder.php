@@ -871,92 +871,115 @@ class EmployeeSeeder extends Seeder
             $fullName = $data['first_name'] . ' ' . $data['last_name'];
             $employee = Employee::updateOrCreate(
                 ['employee_code' => $employeeCode],
-                'employee_code' => $employeeCode,
-                'branch_id' => $branchId,
-                'department_id' => $departmentId,
-                'designation_id' => $designationId,
-                'grade_id' => $gradeId,
-                'shift_id' => $shiftId,
-                'employment_type' => $data['employment_type'],
-                'joining_date' => $data['joining_date'],
-                'status' => $data['status'],
-                'portal_active' => 1,
-                'created_at' => Carbon::now()->subDays(count($employeeData) - $index),
-            ]);
+                [
+                    'employee_code' => $employeeCode,
+                    'branch_id' => $branchId,
+                    'department_id' => $departmentId,
+                    'designation_id' => $designationId,
+                    'grade_id' => $gradeId,
+                    'shift_id' => $shiftId,
+                    'employment_type' => $data['employment_type'],
+                    'joining_date' => $data['joining_date'],
+                    'status' => $data['status'],
+                    'portal_active' => 1,
+                    'created_at' => Carbon::now()->subDays(count($employeeData) - $index),
+                ]
+            );
 
             // Create personal info (including name, contact, and other personal fields)
-            EmployeePersonalInfo::create(array_merge(
-                [
-                    'employee_id' => $employee->id,
-                    'first_name' => $data['first_name'],
-                    'last_name' => $data['last_name'],
-                    'full_name' => $fullName,
-                    'display_name' => $fullName,
-                    'phone' => $data['phone'],
-                    'email' => $data['email'],
-                    'gender' => $data['gender'],
-                    'date_of_birth' => $data['date_of_birth'],
-                    'nationality' => $data['nationality'],
-                ],
-                $data['personal'] ?? []
-            ));
+            EmployeePersonalInfo::updateOrCreate(
+                ['employee_id' => $employee->id],
+                array_merge(
+                    [
+                        'employee_id' => $employee->id,
+                        'first_name' => $data['first_name'],
+                        'last_name' => $data['last_name'],
+                        'full_name' => $fullName,
+                        'display_name' => $fullName,
+                        'phone' => $data['phone'],
+                        'email' => $data['email'],
+                        'gender' => $data['gender'],
+                        'date_of_birth' => $data['date_of_birth'],
+                        'nationality' => $data['nationality'],
+                    ],
+                    $data['personal'] ?? []
+                )
+            );
 
             // Create present address
             if (isset($data['present_address'])) {
-                EmployeeAddress::create(array_merge(
-                    ['employee_id' => $employee->id, 'address_type' => 'present', 'is_primary' => 1],
-                    $data['present_address']
-                ));
+                EmployeeAddress::updateOrCreate(
+                    ['employee_id' => $employee->id, 'address_type' => 'present'],
+                    array_merge(
+                        ['employee_id' => $employee->id, 'address_type' => 'present', 'is_primary' => 1],
+                        $data['present_address']
+                    )
+                );
             }
 
             // Create permanent address
             if (isset($data['permanent_address'])) {
-                EmployeeAddress::create(array_merge(
-                    ['employee_id' => $employee->id, 'address_type' => 'permanent', 'is_primary' => 0],
-                    $data['permanent_address']
-                ));
+                EmployeeAddress::updateOrCreate(
+                    ['employee_id' => $employee->id, 'address_type' => 'permanent'],
+                    array_merge(
+                        ['employee_id' => $employee->id, 'address_type' => 'permanent', 'is_primary' => 0],
+                        $data['permanent_address']
+                    )
+                );
             }
 
             // Create education records
             if (isset($data['educations'])) {
                 foreach ($data['educations'] as $edu) {
-                    EmployeeEducation::create(array_merge(
-                        ['employee_id' => $employee->id],
-                        $edu,
-                        ['created_at' => Carbon::now()]
-                    ));
+                    EmployeeEducation::updateOrCreate(
+                        ['employee_id' => $employee->id, 'degree' => $edu['degree'], 'institution' => $edu['institution']],
+                        array_merge(
+                            ['employee_id' => $employee->id],
+                            $edu,
+                            ['created_at' => Carbon::now()]
+                        )
+                    );
                 }
             }
 
             // Create experience records
             if (isset($data['experiences'])) {
                 foreach ($data['experiences'] as $exp) {
-                    EmployeeExperience::create(array_merge(
-                        ['employee_id' => $employee->id],
-                        $exp,
-                        ['created_at' => Carbon::now()]
-                    ));
+                    EmployeeExperience::updateOrCreate(
+                        ['employee_id' => $employee->id, 'company_name' => $exp['company_name'], 'from_date' => $exp['from_date']],
+                        array_merge(
+                            ['employee_id' => $employee->id],
+                            $exp,
+                            ['created_at' => Carbon::now()]
+                        )
+                    );
                 }
             }
 
             // Create skills
             if (isset($data['skills'])) {
                 foreach ($data['skills'] as $skill) {
-                    EmployeeSkill::create(array_merge(
-                        ['employee_id' => $employee->id, 'is_active' => 1],
-                        $skill
-                    ));
+                    EmployeeSkill::updateOrCreate(
+                        ['employee_id' => $employee->id, 'skill_name' => $skill['skill_name']],
+                        array_merge(
+                            ['employee_id' => $employee->id, 'is_active' => 1],
+                            $skill
+                        )
+                    );
                 }
             }
 
             // Create languages
             if (isset($data['languages'])) {
                 foreach ($data['languages'] as $lang) {
-                    EmployeeLanguage::create(array_merge(
-                        ['employee_id' => $employee->id],
-                        $lang,
-                        ['created_at' => Carbon::now()]
-                    ));
+                    EmployeeLanguage::updateOrCreate(
+                        ['employee_id' => $employee->id, 'language_name' => $lang['language_name']],
+                        array_merge(
+                            ['employee_id' => $employee->id],
+                            $lang,
+                            ['created_at' => Carbon::now()]
+                        )
+                    );
                 }
             }
         }

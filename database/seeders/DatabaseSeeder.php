@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -60,5 +62,48 @@ class DatabaseSeeder extends Seeder
         $this->call([
             \Modules\Kpi\Database\Seeders\KpiDatabaseSeeder::class,
         ]);
+
+        $this->command->info('--- Seeding Users ---');
+        $this->seedUsers();
+    }
+
+    private function seedUsers(): void
+    {
+        $adminRole = Role::where('slug', 'admin')->first();
+        $managerRole = Role::where('slug', 'manager')->first();
+        $employeeRole = Role::where('slug', 'employee')->first();
+
+        $users = [
+            [
+                'name'       => 'Admin User',
+                'email'      => 'admin@company.com',
+                'password'   => Hash::make('password'),
+                'employee_id'=> 1,
+                'role_id'    => $adminRole?->id,
+            ],
+            [
+                'name'       => 'Manager User',
+                'email'      => 'manager@company.com',
+                'password'   => Hash::make('password'),
+                'employee_id'=> 2,
+                'role_id'    => $managerRole?->id,
+            ],
+            [
+                'name'       => 'Employee User',
+                'email'      => 'employee@company.com',
+                'password'   => Hash::make('password'),
+                'employee_id'=> 3,
+                'role_id'    => $employeeRole?->id,
+            ],
+        ];
+
+        foreach ($users as $userData) {
+            User::updateOrCreate(
+                ['email' => $userData['email']],
+                $userData
+            );
+        }
+
+        $this->command->info('✓ Users seeded: ' . count($users) . ' records (password: password)');
     }
 }

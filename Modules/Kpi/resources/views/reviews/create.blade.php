@@ -8,18 +8,31 @@
             </div>
 
             <form id="createReviewForm" class="p-6">
-                <input type="hidden" name="employee_id" value="{{ $employee->id }}">
+                {{-- Employee Selection --}}
+                <div class="mb-6">
+                    <x-form-select2 label="Select Employee" name="employee_id" id="employee_id"
+                        placeholder="-- Select Employee --" required>
+                        @foreach($employees as $emp)
+                            <option value="{{ $emp['id'] }}" 
+                                {{ ($employee?->id ?? '') == $emp['id'] ? 'selected' : '' }}>
+                                {{ $emp['name'] }} ({{ $emp['code'] }}) - {{ $emp['department'] }}
+                            </option>
+                        @endforeach
+                    </x-form-select2>
+                </div>
 
-                {{-- Employee Info --}}
-                <div class="mb-6 bg-blue-50 border border-blue-100 rounded-lg p-4">
+                {{-- Selected Employee Info (shown after selection) --}}
+                <div id="employeeInfoDisplay" class="mb-6 bg-blue-50 border border-blue-100 rounded-lg p-4 {{ $employee ? '' : 'hidden' }}">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
-                            {{ $employee->personalInfo?->full_name ? strtoupper(substr($employee->personalInfo->full_name, 0, 2)) : 'NA' }}
+                            {{ $employee?->personalInfo?->full_name ? strtoupper(substr($employee->personalInfo->full_name, 0, 2)) : 'NA' }}
                         </div>
-                        <div>
+                        <div id="employeeInfoContent">
+                            @if($employee)
                             <p class="font-semibold text-gray-800">{{ $employee->personalInfo?->full_name ?? 'N/A' }}</p>
                             <p class="text-sm text-gray-500">{{ $employee->employee_code ?? 'N/A' }}</p>
                             <p class="text-sm text-gray-500">{{ $employee->department?->name ?? 'N/A' }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -107,6 +120,39 @@
     @push('scripts')
         <script>
             $(document).ready(function() {
+                // When employee changes via select2, update info display
+                $('#employee_id').on('change', function() {
+                    const empId = $(this).val();
+                    if (empId) {
+                        // Fetch employee details via AJAX
+                        let fetchUrl = "{{ url('employees') }}/" + empId + "/profile-info";
+                        $.ajax({
+                            url: fetchUrl,
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function(res) {
+                                if (res.status === 'success') {
+                                    const emp = res.employee;
+                                    const name = emp.full_name || 'N/A';
+                                    const code = emp.employee_code || 'N/A';
+                                    const dept = emp.department?.name || 'N/A';
+                                    const initials = name.substring(0, 2).toUpperCase();
+                                    
+                                    $('#employeeInfoDisplay').removeClass('hidden');
+                                    $('#employeeInfoDisplay .rounded-full').text(initials);
+                                    $('#employeeInfoContent').html(`
+                                        <p class="font-semibold text-gray-800">${name}</p>
+                                        <p class="text-sm text-gray-500">${code}</p>
+                                        <p class="text-sm text-gray-500">${dept}</p>
+                                    `);
+                                }
+                            }
+                        });
+                    } else {
+                        $('#employeeInfoDisplay').addClass('hidden');
+                    }
+                });
+
                 // Toggle behavior fields
                 $('#give_behavior').on('change', function() {
                     if ($(this).is(':checked')) {

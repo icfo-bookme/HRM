@@ -4,11 +4,11 @@
         <i class="fa-solid fa-bars text-[15px]" id="collapseIcon"></i>
     </button>
     <!-- Search -->
-    <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3  w-96">
+    {{-- <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3  w-96">
         <i class="fas fa-search text-gray-200 text-xs"></i>
         <input type="text" placeholder="Search"
             class="bg-transparent border-none outline-none focus:outline-none focus:ring-0 text-sm text-gray-700 placeholder-gray-400 w-full" />
-    </div>
+    </div> --}}
 
     <!-- Right side -->
     <div class="flex items-center gap-3">

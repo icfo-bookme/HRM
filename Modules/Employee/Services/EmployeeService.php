@@ -2,6 +2,7 @@
 
 namespace Modules\Employee\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Employee\Models\Employee;
 use Modules\Employee\Models\EmployeePersonalInfo;
@@ -43,7 +44,7 @@ class EmployeeService
     public function getEmployeeDataTable($request)
     {
         $query = Employee::with(['personalInfo', 'department', 'designation'])
-            ->select('employees.*') ->orderBy('id', 'desc');
+            ->select('employees.*')->orderBy('id', 'desc');
 
         // Apply filters
         if ($request->filled('department_id')) {
@@ -61,9 +62,11 @@ class EmployeeService
             // Index column
             ->addIndexColumn()
 
-            // Employee Name (from personalInfo relation)
+            // Employee Name (from personalInfo relation) - clickable to profile
             ->addColumn('employee', function ($employee) {
-                return $employee->full_name;
+                $name = e($employee->full_name);
+                $profileUrl = route('employee.profile', $employee->id);
+                return '<a href="' . $profileUrl . '" class="text-indigo-600 hover:text-indigo-900 font-medium hover:underline">' . $name . '</a>';
             })
 
             // Department safe
@@ -98,22 +101,36 @@ class EmployeeService
 
             // Action buttons
             ->addColumn('action', function ($employee) {
-                return '
-                <div class="flex items-center gap-3">
-                    <a href="' . route('employee.edit', $employee->id) . '"
-                       class="text-indigo-600 hover:text-indigo-900 font-medium">
-                       <i class="fa-solid fa-pen-to-square mr-1"></i> 
+                $user = Auth::user();
+                $html = '';
+
+                // Always show profile view button if user has view permission
+                if ($user && $user->hasPermission('employees.view')) {
+                    $profileUrl = route('employee.profile', $employee->id);
+                    $html .= '<a href="' . $profileUrl . '"
+                       class="text-blue-600 hover:text-blue-900 font-medium mx-1" title="View Profile">
+                       <i class="fa-regular fa-eye"></i>
+                    </a>';
+                }
+
+                // Edit/Delete buttons - only if user has action access permission
+                if ($user && $user->hasPermission('employee-list-action-access')) {
+                    $editUrl = route('employee.edit', $employee->id);
+                    $html .= '<a href="' . $editUrl . '"
+                       class="text-indigo-600 hover:text-indigo-900 font-medium mx-1" title="Edit">
+                       <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                     <button onclick="employeeDelete(' . $employee->id . ')"
-                       class="text-red-600 hover:text-red-900 font-medium">
-                       <i class="fa-solid fa-trash mr-1"></i> 
-                    </button>
-                </div>
-             ';
+                       class="text-red-600 hover:text-red-900 font-medium mx-1" title="Delete">
+                       <i class="fa-solid fa-trash"></i>
+                    </button>';
+                }
+
+                return $html ? '<div class="flex items-center gap-1">' . $html . '</div>' : '';
             })
 
             // Allow HTML rendering
-            ->rawColumns(['status', 'action'])
+            ->rawColumns(['employee', 'status', 'action'])
 
             // Final response (IMPORTANT)
             ->make(true);
@@ -133,7 +150,7 @@ class EmployeeService
                 // Step 2: Personal Info
                 if (!empty($wizardData['step2'])) {
                     $personalInfoData = $wizardData['step2'];
-                    
+
                     EmployeePersonalInfo::create(array_merge($personalInfoData, [
                         'employee_id' => $employee->id,
                     ]));
@@ -261,12 +278,12 @@ class EmployeeService
             } else {
                 // Year-end crossing (e.g., Dec 25 - Jan 3)
                 $q->whereRaw("DATE_FORMAT(date_of_birth, '%m%d') BETWEEN ? AND 1231", [$startMD])
-                  ->orWhereRaw("DATE_FORMAT(date_of_birth, '%m%d') BETWEEN 0101 AND ?", [$endMD]);
+                    ->orWhereRaw("DATE_FORMAT(date_of_birth, '%m%d') BETWEEN 0101 AND ?", [$endMD]);
             }
         })
-        ->active()
-        ->with('personalInfo', 'department', 'designation')
-        ->get();
+            ->active()
+            ->with('personalInfo', 'department', 'designation')
+            ->get();
 
         // Map to add computed fields: birthday_this_year, days_until
         return $employees->map(function ($employee) {

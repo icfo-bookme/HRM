@@ -35,7 +35,7 @@ Route::middleware(['auth'])->prefix('kpi')->name('kpi.')->group(function () {
 
     // Monthly Reviews (Behavior, Bonus, Penalty)
     Route::get('/reviews', [KpiReviewController::class, 'index'])->name('reviews.index');
-    Route::get('/reviews/create/{employee}', [KpiReviewController::class, 'create'])->name('reviews.create');
+    Route::get('/reviews/create/{employee?}', [KpiReviewController::class, 'create'])->name('reviews.create');
     Route::post('/reviews', [KpiReviewController::class, 'store'])->name('reviews.store');
     Route::get('/reviews/{id}', [KpiReviewController::class, 'show'])->name('reviews.show');
     Route::get('/reviews/{id}/edit', [KpiReviewController::class, 'edit'])->name('reviews.edit');

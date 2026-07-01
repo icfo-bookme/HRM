@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Modules\Employee\Models\Employee;
 use Yajra\DataTables\DataTables;
 
 class UserService
@@ -70,6 +71,30 @@ class UserService
                     $data['password'] = Hash::make($data['password']);
                     $user = User::create($data);
                     $message = 'User created successfully.';
+                }
+
+                // If employee_id is provided, activate the employee
+                if (!empty($data['employee_id'])) {
+                    $employee = Employee::find($data['employee_id']);
+                    if ($employee) {
+                        $needsUpdate = false;
+
+                        // Activate portal if inactive
+                        if (!$employee->portal_active) {
+                            $employee->portal_active = true;
+                            $needsUpdate = true;
+                        }
+
+                        // Set status to Active if inactive
+                        if ($employee->status === 'Inactive') {
+                            $employee->status = 'Active';
+                            $needsUpdate = true;
+                        }
+
+                        if ($needsUpdate) {
+                            $employee->save();
+                        }
+                    }
                 }
 
                 return [

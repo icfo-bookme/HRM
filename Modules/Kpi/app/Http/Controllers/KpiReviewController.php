@@ -57,9 +57,21 @@ class KpiReviewController extends Controller
     /**
      * Show the form for creating a new review.
      */
-    public function create(Employee $employee)
+    public function create(?Employee $employee = null)
     {
-        return view('kpi::reviews.create', compact('employee'));
+        $employees = Employee::with('personalInfo', 'department')
+            ->active()
+            ->get()
+            ->map(function ($emp) {
+                return [
+                    'id' => $emp->id,
+                    'name' => $emp->full_name ?: ($emp->personalInfo?->full_name ?? 'N/A'),
+                    'code' => $emp->employee_code,
+                    'department' => $emp->department?->name ?? '',
+                ];
+            });
+
+        return view('kpi::reviews.create', compact('employee', 'employees'));
     }
 
     /**

@@ -61,19 +61,19 @@
                                 {{ $method }}</option>
                         @endforeach
                     </x-form-select>
-                    <x-form-select label="Verification Status" name="verification_status" id="verification_status" placeholder="-- Select Status --">
+                    {{-- <x-form-select label="Verification Status" name="verification_status" id="verification_status" placeholder="-- Select Status --">
                         @foreach (['Pending', 'Verified', 'Rejected'] as $status)
                             <option value="{{ $status }}"
                                 {{ old('verification_status', $data['verification_status'] ?? '') === $status ? 'selected' : '' }}>
                                 {{ $status }}</option>
                         @endforeach
-                    </x-form-select>
+                    </x-form-select> --}}
                 </div>
 
-                <div class="grid gap-6 sm:grid-cols-2">
+                {{-- <div class="grid gap-6 sm:grid-cols-2">
                     <x-form-input label="Verified At" name="verified_at" id="verified_at" type="date"
                         value="{{ old('verified_at', $data['verified_at'] ?? '') }}" />
-                </div>
+                </div> --}}
 
                 <div class="flex justify-between items-center pt-4 border-t border-slate-200">
                     <a href="{{ route('employee.create.step3') }}"

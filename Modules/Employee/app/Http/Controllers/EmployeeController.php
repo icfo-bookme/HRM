@@ -3,7 +3,6 @@
 namespace Modules\Employee\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Modules\Employee\Http\Requests\StoreEmployeeStepFiveRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Modules\Branch\Models\Branch;
@@ -61,17 +60,27 @@ class EmployeeController extends Controller
         $designations = Designation::all()->pluck('title', 'id');
         $grades = SalaryGrade::all()->pluck('name', 'id');
         $shifts = Shift::all()->pluck('name', 'id');
-        $employeeCode = Employee::max('id') + 1;
-        $employeeCode = 'EMP-' . str_pad($employeeCode, 4, '0', STR_PAD_LEFT);
         $employee = Employee::active()->get();
 
         $data = session('employee_creation.step1', []);
+
+        // Use existing employee_code from session if available, otherwise generate new
+        if (!empty($data['employee_code'])) {
+            $employeeCode = $data['employee_code'];
+        } else {
+            $employeeCode = Employee::max('id') + 1;
+            $employeeCode = 'EMP-' . str_pad($employeeCode, 4, '0', STR_PAD_LEFT);
+        }
 
         // On validation failure, merge old() input to preserve submitted data
         if (session()->has('errors')) {
             $oldData = old();
             if (!empty($oldData)) {
                 $data = array_merge($data, $oldData);
+            }
+            // Re-check employee_code from old input after merge
+            if (!empty(old('employee_code'))) {
+                $employeeCode = old('employee_code');
             }
         }
 
@@ -97,7 +106,10 @@ class EmployeeController extends Controller
                 Storage::disk('public')->delete($existingData['profile_photo']);
             }
 
-            $validated['profile_photo'] = $request->file('profile_photo')->store('employee/profile-photos', 'public');
+            $employeeCode = $validated['employee_code'] ?? 'EMP';
+            $ext = $request->file('profile_photo')->getClientOriginalExtension();
+            $filename = $employeeCode . ' - profile.' . $ext;
+            $validated['profile_photo'] = $request->file('profile_photo')->storeAs('employee/profile-photos', $filename, 'public');
         } elseif (!empty($existingData['profile_photo'])) {
             $validated['profile_photo'] = $existingData['profile_photo'];
         }
@@ -113,6 +125,19 @@ class EmployeeController extends Controller
     public function createStepTwo()
     {
         $data = session('employee_creation.step2', []);
+        $step1Code = session('employee_creation.step1.employee_code', '');
+
+        // If employee code has changed, clear stale file references from step2 data
+        if (!empty($data['profile_photo']) && !empty($step1Code)) {
+            if (!str_contains($data['profile_photo'], $step1Code)) {
+                $data['profile_photo'] = null;
+            }
+        }
+        if (!empty($data['signature_file']) && !empty($step1Code)) {
+            if (!str_contains($data['signature_file'], $step1Code)) {
+                $data['signature_file'] = null;
+            }
+        }
 
         // On validation failure, merge old() input to preserve submitted data
         if (session()->has('errors')) {
@@ -141,16 +166,20 @@ class EmployeeController extends Controller
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $path = $file->store('employee/profile-photos', 'public');
-            $data['profile_photo'] = $path;
+            $employeeCode = session('employee_creation.step1.employee_code', 'EMP');
+            $ext = $file->getClientOriginalExtension();
+            $filename = $employeeCode . ' - profile.' . $ext;
+            $data['profile_photo'] = $file->storeAs('employee/profile-photos', $filename, 'public');
         } elseif (!empty($existingData['profile_photo'])) {
             $data['profile_photo'] = $existingData['profile_photo'];
         }
 
         if ($request->hasFile('signature_file')) {
             $file = $request->file('signature_file');
-            $path = $file->store('employee/signature', 'public');
-            $data['signature_file'] = $path;
+            $employeeCode = session('employee_creation.step1.employee_code', 'EMP');
+            $ext = $file->getClientOriginalExtension();
+            $filename = $employeeCode . ' - signature.' . $ext;
+            $data['signature_file'] = $file->storeAs('employee/signature', $filename, 'public');
         } elseif (!empty($existingData['signature_file'])) {
             $data['signature_file'] = $existingData['signature_file'];
         }
@@ -245,20 +274,44 @@ class EmployeeController extends Controller
     {
         $existingData = session('employee_creation.step5', []);
 
-        // On validation failure, merge old() input to preserve submitted data
-        // including dynamically-added document rows
+        // On validation failure, merge old() input and uploaded files
         if (session()->has('errors')) {
             $oldDocuments = old('documents', []);
 
             if (!empty($oldDocuments)) {
-                // Merge old() documents over existing ones to preserve
-                // any new rows added via JavaScript before they were saved
                 $existingData['documents'] = $oldDocuments;
             } else {
                 $oldData = old();
                 if (!empty($oldData)) {
                     $existingData = array_merge($existingData, $oldData);
                 }
+            }
+
+            // Merge uploaded files into documents from session storage
+            $uploadedFiles = session('employee_creation.step5_uploaded_files', []);
+            if (!empty($uploadedFiles)) {
+                foreach ($uploadedFiles as $index => $fileInfo) {
+                    if (!isset($existingData['documents'][$index])) {
+                        $existingData['documents'][$index] = [];
+                    }
+                    $existingData['documents'][$index]['file_path'] = $fileInfo['file_path'];
+                    $existingData['documents'][$index]['file_size'] = $fileInfo['file_size'] ?? null;
+                    $existingData['documents'][$index]['file_uploaded'] = true;
+                }
+            }
+        }
+
+        // Also pass any previously uploaded files from session
+        $uploadedFiles = session('employee_creation.step5_uploaded_files', []);
+        if (!empty($uploadedFiles) && !session()->has('errors')) {
+            // Merge uploaded files into documents for fresh display
+            foreach ($uploadedFiles as $index => $fileInfo) {
+                if (!isset($existingData['documents'][$index])) {
+                    $existingData['documents'][$index] = [];
+                }
+                $existingData['documents'][$index]['file_path'] = $fileInfo['file_path'];
+                $existingData['documents'][$index]['file_size'] = $fileInfo['file_size'] ?? null;
+                $existingData['documents'][$index]['file_uploaded'] = true;
             }
         }
 
@@ -267,7 +320,7 @@ class EmployeeController extends Controller
         ]);
     }
 
-    public function storeStepFive(StoreEmployeeStepFiveRequest $request)
+    public function storeStepFive(Request $request)
     {
         if ($request->boolean('skip')) {
             $this->employeeService->saveWizardStep([
@@ -277,36 +330,114 @@ class EmployeeController extends Controller
             return redirect()->route('employee.create.step6');
         }
 
-        $validated = $request->validated();
-        $existingData = session('employee_creation.step5', []);
-        $existingDocuments = $existingData['documents'] ?? [];
+        // Get all input data including existing_file references
+        $allInput = $request->all();
+        $documentsInput = $allInput['documents'] ?? [];
+        $uploadedFiles = [];
+        $uploadErrors = [];
 
+        // Process file uploads and existing file references
+        foreach ($documentsInput as $index => $docData) {
+            // Check if a new file was uploaded for this document
+            if ($request->hasFile("documents.{$index}.document_file")) {
+                $uploadedFile = $request->file("documents.{$index}.document_file");
+
+                // Validate file type
+                $allowedMimes = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
+                $extension = strtolower($uploadedFile->getClientOriginalExtension());
+
+                if (!in_array($extension, $allowedMimes) && !in_array($uploadedFile->getMimeType(), ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])) {
+                    $uploadErrors["documents.{$index}.document_file"] = 'Allowed file types: PDF, JPG, JPEG, PNG, WEBP.';
+                    continue;
+                }
+
+                // Validate file size (5MB max)
+                if ($uploadedFile->getSize() > 5 * 1024 * 1024) {
+                    $uploadErrors["documents.{$index}.document_file"] = 'Document size cannot exceed 5 MB.';
+                    continue;
+                }
+
+                // Generate custom filename: employee_code - category.ext
+                $category = $docData['category'] ?? 'document';
+                $extension = $uploadedFile->getClientOriginalExtension();
+                $employeeCode = session('employee_creation.step1.employee_code', 'EMP');
+                $customFilename = $employeeCode . ' - ' . $category . '.' . $extension;
+
+                // Store with custom filename
+                $filePath = $uploadedFile->storeAs('employee/documents', $customFilename, 'public');
+                $uploadedFiles[$index] = [
+                    'file_path' => $filePath,
+                    'file_size' => $uploadedFile->getSize(),
+                    'mime_type' => $uploadedFile->getMimeType(),
+                ];
+            }
+            // Check if there's an existing file reference (from previous failed attempt)
+            elseif (!empty($docData['existing_file'])) {
+                $uploadedFiles[$index] = [
+                    'file_path' => $docData['existing_file'],
+                    'file_size' => $docData['file_size'] ?? null,
+                    'mime_type' => $docData['mime_type'] ?? null,
+                ];
+            }
+            // Check if there's a file_path from session data
+            elseif (!empty($docData['file_path'])) {
+                $uploadedFiles[$index] = [
+                    'file_path' => $docData['file_path'],
+                    'file_size' => $docData['file_size'] ?? null,
+                    'mime_type' => $docData['mime_type'] ?? null,
+                ];
+            }
+        }
+
+        // If there are upload errors, redirect back
+        if (!empty($uploadErrors)) {
+            if (!empty($uploadedFiles)) {
+                session()->put('employee_creation.step5_uploaded_files', $uploadedFiles);
+            }
+            return redirect()->back()
+                ->withErrors($uploadErrors)
+                ->withInput();
+        }
+
+        // Validate the rest of the form data
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'documents' => ['required', 'array', 'min:1'],
+            'documents.*.category' => ['required', 'string', 'max:500'],
+            'documents.*.document_name' => ['nullable', 'string', 'max:300'],
+            'documents.*.document_number' => ['nullable', 'string', 'max:100'],
+            'documents.*.issuing_authority' => ['nullable', 'string', 'max:300'],
+            'documents.*.issue_date' => ['nullable', 'date'],
+            'documents.*.expiry_date' => ['nullable', 'date'],
+            'documents.*.notes' => ['nullable', 'string'],
+        ], [
+            'documents.required' => 'Please add at least one document.',
+            'documents.*.category.required' => 'Document category is required.',
+        ]);
+
+        if ($validator->fails()) {
+            if (!empty($uploadedFiles)) {
+                session()->put('employee_creation.step5_uploaded_files', $uploadedFiles);
+            }
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $validated = $validator->validated();
+        $existingData = session('employee_creation.step5', []);
         $documents = [];
 
         foreach ($validated['documents'] ?? [] as $index => $document) {
+            $fileInfo = $uploadedFiles[$index] ?? null;
+            $filePath = $fileInfo['file_path'] ?? null;
+            $fileSize = $fileInfo['file_size'] ?? null;
+            $mimeType = $fileInfo['mime_type'] ?? null;
 
-            $filePath = null;
-            $fileSize = null;
-            $mimeType = null;
-
-            if (
-                isset($document['document_file']) &&
-                $document['document_file'] instanceof \Illuminate\Http\UploadedFile
-            ) {
-                $file = $document['document_file'];
-
-                $filePath = $file->store(
-                    'employee/documents',
-                    'public'
-                );
-
-                $fileSize = $file->getSize();
-                $mimeType = $file->getMimeType();
-            } elseif (isset($existingDocuments[$index]['file_path'])) {
-                // Preserve existing file path when going back to this step
-                $filePath = $existingDocuments[$index]['file_path'];
-                $fileSize = $existingDocuments[$index]['file_size'] ?? null;
-                $mimeType = $existingDocuments[$index]['mime_type'] ?? null;
+            // Fallback to existing session data
+            if (!$filePath && isset($existingData['documents'][$index]['file_path'])) {
+                $filePath = $existingData['documents'][$index]['file_path'];
+                $fileSize = $existingData['documents'][$index]['file_size'] ?? null;
+                $mimeType = $existingData['documents'][$index]['mime_type'] ?? null;
             }
 
             $documents[] = [
@@ -317,12 +448,13 @@ class EmployeeController extends Controller
                 'issue_date'         => $document['issue_date'] ?? null,
                 'expiry_date'        => $document['expiry_date'] ?? null,
                 'notes'              => $document['notes'] ?? null,
-
                 'file_path'          => $filePath,
                 'file_size'          => $fileSize,
                 'mime_type'          => $mimeType,
             ];
         }
+
+        session()->forget('employee_creation.step5_uploaded_files');
 
         $this->employeeService->saveWizardStep([
             'documents' => $documents
@@ -579,29 +711,52 @@ class EmployeeController extends Controller
         return redirect()->back()->with('error', $result['message']);
     }
 
+    public function profile($id)
+    {
+        $employee = Employee::with([
+            'personalInfo',
+            'addresses',
+            'banking',
+            'documents',
+            'educations',
+            'experiences',
+            'skills',
+            'languages',
+            'dependents',
+            'department',
+            'designation',
+            'branch',
+            'shift',
+            'salaryGrade',
+            'manager.personalInfo',
+        ])->findOrFail($id);
+
+        return view('employee::profile', compact('employee'));
+    }
+
     public function show($id)
     {
-        return view('employee::show');
+        $employee = Employee::with([
+            'personalInfo',
+            'addresses',
+            'banking',
+            'documents',
+            'educations',
+            'experiences',
+            'skills',
+            'languages',
+            'dependents',
+            'department',
+            'designation',
+        ])->findOrFail($id);
+
+        return view('employee::profile', compact('employee'));
     }
 
     public function edit($id)
     {
         return redirect()->route('employee::edit', $id);
     }
-
-    // public function update(Request $request, $id)
-    // {
-    //     $section = $request->query('section', 'basic');
-
-    //     switch ($section) {
-    //         case 'personal':
-    //             return app(\App\Http\Controllers\Dashboard\EmployeeEditController::class)->updatePersonal($request, $id);
-    //         case 'documents':
-    //             return app(\App\Http\Controllers\Dashboard\EmployeeEditController::class)->updateDocuments($request, $id);
-    //         default:
-    //             return app(\App\Http\Controllers\Dashboard\EmployeeEditController::class)->updateBasic($request, $id);
-    //     }
-    // }
 
     public function destroy($id)
     {

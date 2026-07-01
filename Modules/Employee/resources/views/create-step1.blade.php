@@ -134,7 +134,7 @@
                         type="date" value="{{ old('contract_end_date', $data['contract_end_date'] ?? '') }}" />
                 </div>
 
-                <div class="grid gap-6 sm:grid-cols-2">
+                {{-- <div class="grid gap-6 sm:grid-cols-2">
                     <x-form-select label="Status" name="status" id="status" placeholder="-- Select Status --">
                         @foreach (['Active', 'Inactive', 'On Leave', 'Suspended', 'Terminated', 'Resigned', 'Retired'] as $status)
                             <option value="{{ $status }}"
@@ -152,7 +152,7 @@
                             {{ old('portal_active', $data['portal_active'] ?? '') == '0' ? 'selected' : '' }}>No
                         </option>
                     </x-form-select>
-                </div>
+                </div> --}}
 
                 <div class="flex justify-end pt-4 border-t border-slate-200">
                     <button type="submit"

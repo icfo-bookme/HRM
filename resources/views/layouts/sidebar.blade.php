@@ -115,6 +115,12 @@
                     <i class="nav-chevron fas fa-chevron-down text-[10px] flex-shrink-0"></i>
                 </button>
                 <div class="submenu sub-indent" id="sub-ntc">
+                      @permission('notices.manage')
+                        <a href="{{ route('notice.create') }}"
+                            class="flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-[13px] transition-colors">
+                            <i class="fas fa-add w-3.5 text-center"></i><span>Add Notice</span>
+                        </a>
+                    @endpermission
                     @permission('notices.view')
                         <a href="{{ route('notice.list') }}"
                             class="flex items-center gap-2.5 pl-9 pr-3 py-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 text-[13px] transition-colors">
