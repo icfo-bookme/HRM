@@ -16,74 +16,37 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y sshpass
 
     - name: Deploy to VPS
-      env:
-        SSHPASS: ${{ secrets.SERVER_PASSWORD }}
       run: |
-        sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-          mkdir -p /var/www/hrm
+        sshpass -p 'krs@L@Hrm@2026' ssh -o StrictHostKeyChecking=no root@187.77.128.105 "
           cd /var/www/hrm
 
-          # Git: clone or fetch+reset
-          if [ ! -d .git ]; then
-            rm -rf /var/www/hrm
-            git clone https://github.com/icfo-bookme/HRM.git /var/www/hrm
-            cd /var/www/hrm
-          else
-            git fetch --all
-            git reset --hard origin/main
-            git clean -fd
-          fi
+          # Git pull
+          git fetch --all
+          git reset --hard origin/main
+          git clean -fd
 
-          # Find composer
-          COMPOSER=\$(which composer 2>/dev/null || which composer.phar 2>/dev/null || echo '/usr/bin/composer')
-
-          # Composer install
+          # Composer
           export COMPOSER_ALLOW_SUPERUSER=1
-          /usr/bin/php8.4 \$COMPOSER install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+          /usr/bin/php8.4 \$(which composer) install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-          # Create .env
+          # .env
           cp -f .env.example .env
           /usr/bin/php8.4 artisan key:generate --force
 
-          # Update .env
-          sed -i 's/APP_ENV=.*/APP_ENV=production/' .env
-          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/' .env
-          sed -i 's|APP_URL=.*|APP_URL=http://187.77.128.105:8001|' .env
-          sed -i 's/DB_DATABASE=.*/DB_DATABASE=hrmv1/' .env
-          sed -i 's/DB_USERNAME=.*/DB_USERNAME=hrm_user/' .env
-
-          # Clear cache
+          # Cache clear
           /usr/bin/php8.4 artisan config:clear
           /usr/bin/php8.4 artisan route:clear
           /usr/bin/php8.4 artisan view:clear
 
-          # NPM build
+          # NPM
           npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
           npm run build
 
-          # Migrate - run each migration individually to skip existing tables
+          # Migrate
           /usr/bin/php8.4 artisan migrate --force 2>&1 || true
 
           # Permissions
           chmod -R 775 storage bootstrap/cache
-          chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
-          echo '✅ Deployment completed!'
-        "
-
-    - name: Setup Nginx on VPS
-      env:
-        SSHPASS: ${{ secrets.SERVER_PASSWORD }}
-      run: |
-        sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-          cp /var/www/hrm/deploy/nginx.conf /etc/nginx/sites-available/hrm
-          if [ ! -f /etc/nginx/sites-enabled/hrm ]; then
-            ln -s /etc/nginx/sites-available/hrm /etc/nginx/sites-enabled/
-          fi
-          if [ -f /etc/nginx/sites-enabled/default ]; then
-            rm /etc/nginx/sites-enabled/default
-          fi
-          nginx -t
-          systemctl reload nginx || systemctl restart nginx
-          echo '✅ Nginx configured!'
+          echo '✅ Done'
         "
