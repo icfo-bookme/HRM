@@ -14,10 +14,10 @@
         "laravel/tinker": "^2.10.1",
         "nwidart/laravel-modules": "^12.0",
         "wikimedia/composer-merge-plugin": "^2.1",
-        "yajra/laravel-datatables-oracle": "^12.7"
+        "yajra/laravel-datatables-oracle": "^12.7",
+        "fakerphp/faker": "^1.24"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.24",
         "laravel/breeze": "^2.4",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
