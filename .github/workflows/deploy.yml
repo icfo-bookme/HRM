@@ -35,34 +35,44 @@ jobs:
             git clean -fd
           fi
 
-          # Create .env AFTER git clean (so it doesn't get deleted)
+          # STEP 1: Composer install FIRST (before .env, because artisan needs vendor/autoload.php)
+          echo '=== Composer install ==='
+          export COMPOSER_ALLOW_SUPERUSER=1
+          /usr/bin/php8.4 /usr/local/bin/composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+          # STEP 2: Create .env
+          echo '=== Create .env ==='
           cp -f .env.example .env
+
+          # STEP 3: Generate APP_KEY (needs vendor/autoload.php from composer)
+          echo '=== Generate APP_KEY ==='
           /usr/bin/php8.4 artisan key:generate --force
 
-          # Update .env
+          # STEP 4: Update .env
+          echo '=== Update .env ==='
           sed -i 's/APP_ENV=.*/APP_ENV=production/' .env
           sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/' .env
           sed -i 's|APP_URL=.*|APP_URL=http://187.77.128.105:8001|' .env
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=hrmv1/' .env
           sed -i 's/DB_USERNAME=.*/DB_USERNAME=hrm_user/' .env
 
-          # Clear cache
+          # STEP 5: Clear cache
+          echo '=== Clear cache ==='
           /usr/bin/php8.4 artisan config:clear
           /usr/bin/php8.4 artisan route:clear
           /usr/bin/php8.4 artisan view:clear
 
-          # Composer
-          export COMPOSER_ALLOW_SUPERUSER=1
-          /usr/bin/php8.4 /usr/local/bin/composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-
-          # NPM
+          # STEP 6: NPM build
+          echo '=== NPM build ==='
           npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
           npm run build
 
-          # Migrate
+          # STEP 7: Migrate
+          echo '=== Migrate ==='
           /usr/bin/php8.4 artisan migrate --force
 
-          # Permissions
+          # STEP 8: Permissions
+          echo '=== Permissions ==='
           chmod -R 775 storage bootstrap/cache
           chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
