@@ -69,10 +69,10 @@ jobs:
         SSHPASS: ${{ secrets.SERVER_PASSWORD }}
       run: |
         sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-          # Copy Nginx config from repo to sites-available
+          # Copy/update Nginx config from repo
           cp /var/www/hrm/deploy/nginx.conf /etc/nginx/sites-available/hrm &&
 
-          # Enable site (create symlink if not exists)
+          # Enable site if not already enabled
           if [ ! -f /etc/nginx/sites-enabled/hrm ]; then
             ln -s /etc/nginx/sites-available/hrm /etc/nginx/sites-enabled/
           fi &&
