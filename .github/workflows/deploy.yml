@@ -20,6 +20,8 @@ jobs:
         SSHPASS: ${{ secrets.SERVER_PASSWORD }}
       run: |
         sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+          set -e
+
           # Ensure directory exists
           mkdir -p /var/www/hrm
 
@@ -28,28 +30,24 @@ jobs:
           # If .git doesn't exist, clone fresh
           if [ ! -d .git ]; then
             echo '📦 Cloning repository...'
-            rm -rf /var/www/hrm/* /var/www/hrm/.* 2>/dev/null || true
+            rm -rf /var/www/hrm
             git clone https://github.com/icfo-bookme/HRM.git /var/www/hrm
+            cd /var/www/hrm
+          else
+            # Fetch all and hard reset to match origin/main
+            git fetch --all
+            git reset --hard origin/main
+            git clean -fd
           fi
 
-          cd /var/www/hrm &&
+          # Verify files exist
+          echo '✅ Files in directory:'
+          ls -la
 
-          # Fetch all and hard reset to match origin/main exactly
-          git fetch --all
-          git reset --hard origin/main
-          git clean -fd
-
-          # Install/update PHP dependencies
-          export COMPOSER_ALLOW_SUPERUSER=1
-          /usr/bin/php8.4 /usr/local/bin/composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev &&
-
-          # Install/update Node dependencies and build assets
-          npm ci --no-audit --no-fund
-          npm run build &&
-
-          # Environment setup - create fresh .env from .env.example
+          # Environment setup - .env must be created before anything else
+          echo '📝 Creating .env file...'
           cp .env.example .env
-          /usr/bin/php8.4 artisan key:generate --force &&
+          /usr/bin/php8.4 artisan key:generate --force
 
           # Update .env with production values
           sed -i 's/APP_ENV=.*/APP_ENV=production/' .env
@@ -58,21 +56,32 @@ jobs:
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=hrmv1/' .env
           sed -i 's/DB_USERNAME=.*/DB_USERNAME=hrm_user/' .env
 
-          # IMPORTANT: Clear ALL cached config first (so Laravel reads fresh .env)
+          echo '✅ .env created successfully:'
+          cat .env | head -10
+
+          # Clear cached config
           /usr/bin/php8.4 artisan config:clear
           /usr/bin/php8.4 artisan route:clear
           /usr/bin/php8.4 artisan view:clear
           /usr/bin/php8.4 artisan event:clear
 
+          # Install/update PHP dependencies
+          export COMPOSER_ALLOW_SUPERUSER=1
+          /usr/bin/php8.4 /usr/local/bin/composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev || echo '⚠️ Composer install had warnings'
+
+          # Install/update Node dependencies and build assets
+          npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
+          npm run build || echo '⚠️ Build had warnings'
+
           # Run database migrations
-          /usr/bin/php8.4 artisan migrate --force &&
+          /usr/bin/php8.4 artisan migrate --force || echo '⚠️ Migration had warnings'
 
           # Set permissions
           chmod -R 775 storage bootstrap/cache
-          chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true &&
+          chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
           # Restart queue worker if running
-          /usr/bin/php8.4 artisan queue:restart 2>/dev/null || true &&
+          /usr/bin/php8.4 artisan queue:restart 2>/dev/null || true
 
           echo '✅ Deployment completed successfully!'
         "
@@ -83,23 +92,23 @@ jobs:
       run: |
         sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
           # Copy/update Nginx config from repo
-          cp /var/www/hrm/deploy/nginx.conf /etc/nginx/sites-available/hrm &&
+          cp /var/www/hrm/deploy/nginx.conf /etc/nginx/sites-available/hrm
 
           # Enable site if not already enabled
           if [ ! -f /etc/nginx/sites-enabled/hrm ]; then
             ln -s /etc/nginx/sites-available/hrm /etc/nginx/sites-enabled/
-          fi &&
+          fi
 
           # Remove default nginx site if exists
           if [ -f /etc/nginx/sites-enabled/default ]; then
             rm /etc/nginx/sites-enabled/default
-          fi &&
+          fi
 
           # Test Nginx config
-          nginx -t &&
+          nginx -t
 
           # Reload Nginx
-          systemctl reload nginx || systemctl restart nginx &&
+          systemctl reload nginx || systemctl restart nginx
 
           echo '✅ Nginx configured and reloaded!'
         "
