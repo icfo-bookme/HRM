@@ -44,12 +44,14 @@ jobs:
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=hrmv1/' .env
           sed -i 's/DB_USERNAME=.*/DB_USERNAME=hrm_user/' .env
 
+          # IMPORTANT: Clear ALL cached config first (so Laravel reads fresh .env)
+          /usr/bin/php8.4 artisan config:clear
+          /usr/bin/php8.4 artisan route:clear
+          /usr/bin/php8.4 artisan view:clear
+          /usr/bin/php8.4 artisan event:clear
+
           # Run database migrations
           /usr/bin/php8.4 artisan migrate --force &&
-
-          # Clear and cache
-          /usr/bin/php8.4 artisan optimize:clear
-          /usr/bin/php8.4 artisan optimize &&
 
           # Set permissions
           chmod -R 775 storage bootstrap/cache
