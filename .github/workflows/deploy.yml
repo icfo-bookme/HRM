@@ -20,62 +20,53 @@ jobs:
         SSHPASS: ${{ secrets.SERVER_PASSWORD }}
       run: |
         sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-          echo '=== STEP 1: Setup directory ==='
+          set -e
           mkdir -p /var/www/hrm
           cd /var/www/hrm
 
-          echo '=== STEP 2: Git clone/pull ==='
+          # Git: clone or fetch+reset
           if [ ! -d .git ]; then
-            echo 'Fresh clone...'
             rm -rf /var/www/hrm
             git clone https://github.com/icfo-bookme/HRM.git /var/www/hrm
             cd /var/www/hrm
           else
-            echo 'Fetch and reset...'
             git fetch --all
             git reset --hard origin/main
             git clean -fd
           fi
 
-          echo '=== STEP 3: Create .env ==='
+          # Create .env AFTER git clean (so it doesn't get deleted)
           cp -f .env.example .env
-          ls -la .env
-          echo '.env created successfully'
-
-          echo '=== STEP 4: Generate APP_KEY ==='
           /usr/bin/php8.4 artisan key:generate --force
 
-          echo '=== STEP 5: Update .env values ==='
+          # Update .env
           sed -i 's/APP_ENV=.*/APP_ENV=production/' .env
           sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/' .env
           sed -i 's|APP_URL=.*|APP_URL=http://187.77.128.105:8001|' .env
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=hrmv1/' .env
           sed -i 's/DB_USERNAME=.*/DB_USERNAME=hrm_user/' .env
 
-          echo '=== STEP 6: Verify .env ==='
-          head -6 .env
-
-          echo '=== STEP 7: Clear cache ==='
+          # Clear cache
           /usr/bin/php8.4 artisan config:clear
           /usr/bin/php8.4 artisan route:clear
           /usr/bin/php8.4 artisan view:clear
 
-          echo '=== STEP 8: Composer install ==='
+          # Composer
           export COMPOSER_ALLOW_SUPERUSER=1
           /usr/bin/php8.4 /usr/local/bin/composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-          echo '=== STEP 9: NPM build ==='
+          # NPM
           npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
           npm run build
 
-          echo '=== STEP 10: Migrate ==='
+          # Migrate
           /usr/bin/php8.4 artisan migrate --force
 
-          echo '=== STEP 11: Permissions ==='
+          # Permissions
           chmod -R 775 storage bootstrap/cache
           chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
-          echo '=== ✅ DEPLOYMENT COMPLETE ==='
+          echo '✅ Deployment completed!'
         "
 
     - name: Setup Nginx on VPS
