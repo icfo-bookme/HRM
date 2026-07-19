@@ -18,6 +18,7 @@ jobs:
     - name: Deploy to VPS
       env:
         SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
         sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
           cd /var/www/hrm &&
@@ -33,7 +34,7 @@ jobs:
           npm ci --no-audit --no-fund
           npm run build &&
 
-          # Environment setup - always fresh .env from example
+          # Environment setup - create fresh .env
           cp .env.example .env
           /usr/bin/php8.4 artisan key:generate --force &&
 
@@ -44,8 +45,8 @@ jobs:
           sed -i 's/DB_DATABASE=.*/DB_DATABASE=hrmv1/' .env
           sed -i 's/DB_USERNAME=.*/DB_USERNAME=hrm_user/' .env
 
-          # Fix: DB_PASSWORD - use different delimiter since password may have special chars
-          sed -i \"s|DB_PASSWORD=.*|DB_PASSWORD=${{ secrets.DB_PASSWORD }}|\" .env &&
+          # Set DB_PASSWORD directly (avoid sed escaping issues)
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD='"'"'${DB_PASSWORD}'"'"'/' .env &&
 
           # Run database migrations
           /usr/bin/php8.4 artisan migrate --force &&
