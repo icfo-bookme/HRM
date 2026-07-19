@@ -17,7 +17,7 @@ jobs:
 
     - name: Deploy to VPS
       run: |
-        sshpass -p 'krs@L@Hrm@2026' ssh -o StrictHostKeyChecking=no root@187.77.128.105 "
+        sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
           cd /var/www/hrm
 
           # Git pull
@@ -31,6 +31,7 @@ jobs:
 
           # .env
           cp -f .env.example .env
+          sed -i 's|^DB_PASSWORD=.*|DB_PASSWORD=${{ secrets.DB_PASSWORD }}|' .env
           /usr/bin/php8.4 artisan key:generate --force
 
           # Cache clear
