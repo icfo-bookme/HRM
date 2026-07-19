@@ -20,10 +20,22 @@ jobs:
         SSHPASS: ${{ secrets.SERVER_PASSWORD }}
       run: |
         sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+          # If directory doesn't exist or is empty, clone fresh
+          if [ ! -d /var/www/hrm/.git ]; then
+            echo '📦 Cloning repository for the first time...'
+            rm -rf /var/www/hrm
+            git clone https://github.com/icfo-bookme/HRM.git /var/www/hrm
+          fi
+
           cd /var/www/hrm &&
 
-          # Pull latest code
-          git pull origin main &&
+          # Ensure correct remote
+          git remote set-url origin https://github.com/icfo-bookme/HRM.git 2>/dev/null || true &&
+
+          # Fetch all and hard reset to match origin/main exactly
+          git fetch --all
+          git reset --hard origin/main
+          git clean -fd
 
           # Install/update PHP dependencies
           export COMPOSER_ALLOW_SUPERUSER=1
