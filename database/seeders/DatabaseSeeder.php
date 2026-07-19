@@ -100,9 +100,14 @@ class DatabaseSeeder extends Seeder
         foreach ($users as $userData) {
             $existingUser = User::where('email', $userData['email'])->first();
 
+            if (! $existingUser && ! empty($userData['employee_id'])) {
+                $existingUser = User::where('employee_id', $userData['employee_id'])->first();
+            }
+
             if ($existingUser) {
                 $existingUser->fill([
                     'name' => $userData['name'],
+                    'email' => $userData['email'],
                     'password' => $userData['password'],
                     'role_id' => $userData['role_id'],
                 ]);
@@ -119,7 +124,21 @@ class DatabaseSeeder extends Seeder
 
                 $existingUser->save();
             } else {
-                User::create($userData);
+                $employeeConflict = User::where('employee_id', $userData['employee_id'])->exists();
+
+                if (! $employeeConflict) {
+                    User::create($userData);
+                } else {
+                    $conflictingUser = User::where('employee_id', $userData['employee_id'])->first();
+                    if ($conflictingUser) {
+                        $conflictingUser->fill([
+                            'name' => $userData['name'],
+                            'email' => $userData['email'],
+                            'password' => $userData['password'],
+                            'role_id' => $userData['role_id'],
+                        ])->save();
+                    }
+                }
             }
         }
 
