@@ -1,0 +1,22 @@
+{
+    "name": "modules/kpi",
+    "description": "KPI (Key Performance Indicator) System Module",
+    "type": "module",
+    "autoload": {
+        "psr-4": {
+            "Modules\\Kpi\\": "app/",
+            "Modules\\Kpi\\Database\\Factories\\": "database/factories/",
+            "Modules\\Kpi\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "require": {
+        "nwidart/laravel-modules": "^12.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Kpi\\Providers\\KpiServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "Branch": true,
+    "Company": true,
+    "Department": true,
+    "Designations": true,
+    "Designation": true,
+    "SalaryGrade": true,
+    "Employee": true,
+    "Shift": true,
+    "Attendance": true,
+    "Holidays": true,
+    "Notice": true,
+    "Leave": true,
+    "Setting": true,
+    "Salary": true,
+    "Loan": true,
+    "Kpi": true,
+    "KPI": true
+}

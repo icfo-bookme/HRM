@@ -1,0 +1,11 @@
+{
+    "name": "KPI",
+    "alias": "kpi",
+    "description": "KPI (Key Performance Indicator) System - Track employee performance with target vs obtained scoring",
+    "keywords": ["kpi", "performance", "points", "evaluation"],
+    "priority": 0,
+    "providers": [
+        "Modules\\Kpi\\Providers\\KpiServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,11 @@
+{
+    "name": "SalaryGrade",
+    "alias": "salarygrade",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\SalaryGrade\\Providers\\SalaryGradeServiceProvider"
+    ],
+    "files": []
+}

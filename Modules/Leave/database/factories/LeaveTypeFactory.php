@@ -1,0 +1,303 @@
+<?php
+
+namespace Modules\Leave\Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\Leave\Models\LeaveType;
+
+class LeaveTypeFactory extends Factory
+{
+    protected $model = LeaveType::class;
+
+    public function definition(): array
+    {
+        $leaveTypes = [
+            'Annual Leave' => [
+                'days_per_year' => 15,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => true,
+                'max_carry_days' => 5,
+                'max_consecutive_days' => 30,
+                'requires_document' => false,
+                'min_days_notice' => 1,
+                'applicable_gender' => 'All',
+                'color_code' => '#3B82F6',
+                'description' => 'Standard annual leave for all employees.',
+            ],
+            'Sick Leave' => [
+                'days_per_year' => 10,
+                'is_paid' => true,
+                'is_half_day_allowed' => true,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 5,
+                'requires_document' => true,
+                'min_days_notice' => 0,
+                'applicable_gender' => 'All',
+                'color_code' => '#EF4444',
+                'description' => 'Leave for medical reasons. Medical certificate required for more than 3 consecutive days.',
+            ],
+            'Casual Leave' => [
+                'days_per_year' => 5,
+                'is_paid' => true,
+                'is_half_day_allowed' => true,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 3,
+                'requires_document' => false,
+                'min_days_notice' => 0,
+                'applicable_gender' => 'All',
+                'color_code' => '#F59E0B',
+                'description' => 'Short leave for personal tasks and emergencies.',
+            ],
+            'Maternity Leave' => [
+                'days_per_year' => 120,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 120,
+                'requires_document' => true,
+                'min_days_notice' => 30,
+                'applicable_gender' => 'Female',
+                'color_code' => '#EC4899',
+                'description' => 'Maternity leave for female employees as per company policy.',
+            ],
+            'Paternity Leave' => [
+                'days_per_year' => 7,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 7,
+                'requires_document' => true,
+                'min_days_notice' => 7,
+                'applicable_gender' => 'Male',
+                'color_code' => '#8B5CF6',
+                'description' => 'Paternity leave for new fathers.',
+            ],
+            'Marriage Leave' => [
+                'days_per_year' => 5,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 5,
+                'requires_document' => true,
+                'min_days_notice' => 7,
+                'applicable_gender' => 'All',
+                'color_code' => '#F43F5E',
+                'description' => "Leave for employee's own wedding.",
+            ],
+            'Bereavement Leave' => [
+                'days_per_year' => 3,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 3,
+                'requires_document' => false,
+                'min_days_notice' => 0,
+                'applicable_gender' => 'All',
+                'color_code' => '#6B7280',
+                'description' => 'Leave in case of death of an immediate family member.',
+            ],
+            'Study Leave' => [
+                'days_per_year' => 10,
+                'is_paid' => false,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 10,
+                'requires_document' => true,
+                'min_days_notice' => 14,
+                'applicable_gender' => 'All',
+                'color_code' => '#10B981',
+                'description' => 'Unpaid leave for educational purposes and examinations.',
+            ],
+            'Compensatory Off' => [
+                'days_per_year' => 0,
+                'is_paid' => true,
+                'is_half_day_allowed' => true,
+                'carry_forward' => true,
+                'max_carry_days' => 30,
+                'max_consecutive_days' => 0,
+                'requires_document' => false,
+                'min_days_notice' => 0,
+                'applicable_gender' => 'All',
+                'color_code' => '#14B8A6',
+                'description' => 'Compensatory time off for overtime or holiday work.',
+            ],
+            'Unpaid Leave' => [
+                'days_per_year' => 0,
+                'is_paid' => false,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 0,
+                'requires_document' => true,
+                'min_days_notice' => 3,
+                'applicable_gender' => 'All',
+                'color_code' => '#9CA3AF',
+                'description' => 'Leave without pay for personal reasons when other leave types are exhausted.',
+            ],
+        ];
+
+        $name = $this->faker->randomElement(array_keys($leaveTypes));
+        $config = $leaveTypes[$name];
+
+        return array_merge($config, [
+            'name' => $name,
+            'is_active' => true,
+        ]);
+    }
+
+    /**
+     * Configure the factory to create a specific type of leave.
+     */
+    public function ofType(string $name): static
+    {
+        $leaveTypes = [
+            'Annual Leave' => [
+                'days_per_year' => 15,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => true,
+                'max_carry_days' => 5,
+                'max_consecutive_days' => 30,
+                'requires_document' => false,
+                'min_days_notice' => 1,
+                'applicable_gender' => 'All',
+                'color_code' => '#3B82F6',
+                'description' => 'Standard annual leave for all employees.',
+            ],
+            'Sick Leave' => [
+                'days_per_year' => 10,
+                'is_paid' => true,
+                'is_half_day_allowed' => true,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 5,
+                'requires_document' => true,
+                'min_days_notice' => 0,
+                'applicable_gender' => 'All',
+                'color_code' => '#EF4444',
+                'description' => 'Leave for medical reasons. Medical certificate required for more than 3 consecutive days.',
+            ],
+            'Casual Leave' => [
+                'days_per_year' => 5,
+                'is_paid' => true,
+                'is_half_day_allowed' => true,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 3,
+                'requires_document' => false,
+                'min_days_notice' => 0,
+                'applicable_gender' => 'All',
+                'color_code' => '#F59E0B',
+                'description' => 'Short leave for personal tasks and emergencies.',
+            ],
+            'Maternity Leave' => [
+                'days_per_year' => 120,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 120,
+                'requires_document' => true,
+                'min_days_notice' => 30,
+                'applicable_gender' => 'Female',
+                'color_code' => '#EC4899',
+                'description' => 'Maternity leave for female employees as per company policy.',
+            ],
+            'Paternity Leave' => [
+                'days_per_year' => 7,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 7,
+                'requires_document' => true,
+                'min_days_notice' => 7,
+                'applicable_gender' => 'Male',
+                'color_code' => '#8B5CF6',
+                'description' => 'Paternity leave for new fathers.',
+            ],
+            'Marriage Leave' => [
+                'days_per_year' => 5,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 5,
+                'requires_document' => true,
+                'min_days_notice' => 7,
+                'applicable_gender' => 'All',
+                'color_code' => '#F43F5E',
+                'description' => "Leave for employee's own wedding.",
+            ],
+            'Bereavement Leave' => [
+                'days_per_year' => 3,
+                'is_paid' => true,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 3,
+                'requires_document' => false,
+                'min_days_notice' => 0,
+                'applicable_gender' => 'All',
+                'color_code' => '#6B7280',
+                'description' => 'Leave in case of death of an immediate family member.',
+            ],
+            'Study Leave' => [
+                'days_per_year' => 10,
+                'is_paid' => false,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 10,
+                'requires_document' => true,
+                'min_days_notice' => 14,
+                'applicable_gender' => 'All',
+                'color_code' => '#10B981',
+                'description' => 'Unpaid leave for educational purposes and examinations.',
+            ],
+            'Compensatory Off' => [
+                'days_per_year' => 0,
+                'is_paid' => true,
+                'is_half_day_allowed' => true,
+                'carry_forward' => true,
+                'max_carry_days' => 30,
+                'max_consecutive_days' => 0,
+                'requires_document' => false,
+                'min_days_notice' => 0,
+                'applicable_gender' => 'All',
+                'color_code' => '#14B8A6',
+                'description' => 'Compensatory time off for overtime or holiday work.',
+            ],
+            'Unpaid Leave' => [
+                'days_per_year' => 0,
+                'is_paid' => false,
+                'is_half_day_allowed' => false,
+                'carry_forward' => false,
+                'max_carry_days' => 0,
+                'max_consecutive_days' => 0,
+                'requires_document' => true,
+                'min_days_notice' => 3,
+                'applicable_gender' => 'All',
+                'color_code' => '#9CA3AF',
+                'description' => 'Leave without pay for personal reasons when other leave types are exhausted.',
+            ],
+        ];
+
+        if (!isset($leaveTypes[$name])) {
+            throw new \InvalidArgumentException("Unknown leave type: {$name}");
+        }
+
+        return $this->state(array_merge($leaveTypes[$name], [
+            'name' => $name,
+            'is_active' => true,
+        ]));
+    }
+}

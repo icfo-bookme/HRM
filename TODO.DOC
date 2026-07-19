@@ -1,0 +1,195 @@
+================================================================================
+                   LOAN MODULE - ISSUES & IMPROVEMENTS TODO LIST
+================================================================================
+Last Updated: 18 Jun 2026
+================================================================================
+
+A. CRITICAL BUGS (Must Fix)
+================================================================================
+
+A1. [CRITICAL] Missing CSRF Token in AJAX Requests
+   Files: Modules/Loan/resources/views/index.blade.php (lines 143-157, 175-191, 207-223, 237-253)
+          Modules/Loan/resources/views/show.blade.php (lines 306-321, 339-354, 371-386)
+   Issue: All AJAX POST/DELETE calls (loanApprove, loanReject, loanDisburse, loanDelete)
+          do not include the _token parameter in the request data. Laravel's VerifyCsrfToken
+          middleware will reject these requests with a 419 status error.
+   Fix: Add `_token: "{{ csrf_token() }}"` to the data object in each AJAX call.
+
+
+
+A3. [CRITICAL] No Employee Authorization on Loan Creation
+   File: Modules/Loan/app/Http/Controllers/LoanController.php (lines 57-80)
+   Issue: The store() method validates employee_id exists but does NOT verify it belongs
+          to the authenticated user. A user could submit a loan for any employee.
+          Also, the hidden input in create.blade.php can be manipulated via browser tools.
+   Fix: Force employee_id to auth()->user()->employee->id instead of accepting from request.
+
+A4. [CRITICAL] Loan Number Generation Is Fragile
+   File: Modules/Loan/app/Services/LoanService.php (lines 149-157)
+   Issue: Uses substr($lastLoan->loan_number, -4) to extract sequence number. This assumes
+          the loan number always ends with exactly 4 digits (e.g., LN-2026-0001). If sequence
+          exceeds 9999 → LN-2026-10000, substr returns "0000" instead of "10000", causing
+          duplicate loan numbers and unique constraint violations.
+   Fix: Use preg_match('/LN-\d{4}-(\d+)/', ...) to extract the numeric sequence properly,
+        or explode by '-' and cast the last segment to int.
+
+A5. [CRITICAL] Installments Never Marked As Overdue
+   File: Modules/Loan/app/Models/LoanInstallment.php (scope exists but no auto-marking)
+   Issue: Installments past their due_date remain in 'Pending' status. There is no
+          scheduled job (artisan command) or logic that automatically marks past-due
+          installments as 'Overdue'. Payroll deduction queries rely on this status.
+   Fix: Create an artisan command (e.g., loan:check-overdue) to update installments
+        where due_date < now() AND status = 'Pending' → 'Overdue'. Schedule via cron.
+
+================================================================================
+
+B. FUNCTIONAL ISSUES
+================================================================================
+
+B1. [HIGH] No Authorization/Policies for Loan Actions
+   Files: Modules/Loan/app/Services/LoanService.php (approveLoan, rejectLoan, disburseLoan)
+   Issue: Any authenticated user can call approve/reject/disburse endpoints. There is no
+          role/permission check to ensure only authorized personnel (e.g., HR/Admin) can
+          perform these actions. The approveLoan method uses auth()->id() without verification.
+   Fix: Implement Laravel Policies or Gate checks (e.g., $user->can('approve-loan')).
+
+B2. [HIGH] Floating Point Rounding Inconsistencies in Summary
+   File: Modules/Loan/app/Services/LoanService.php (lines 351-368)
+   Issue: The getLoanById() summary calculates totals from individual installments, which
+          may differ slightly from loan's total_payable due to floating point rounding
+          (e.g., 1000 / 3 = 333.333..., rounded to 333.33, 3 × 333.33 = 999.99 ≠ 1000.00).
+   Fix: The last installment should absorb the rounding difference (e.g., last installment
+        = total_payable - sum(previous_installments)).
+
+B3. [HIGH] Remaining Amount Not Updated After Loan Disbursement
+   File: Modules/Loan/app/Services/LoanService.php (lines 291-314)
+   Issue: disburseLoan() updates status to 'Disbursed' but does NOT update remaining_amount.
+          remaining_amount was set to total_payable during creation and never adjusted.
+   Fix: Ensure remaining_amount = total_payable after disbursement (recalculate to be safe).
+
+B4. [MEDIUM] SaveLoan On Update Destroys Installment Integrity
+   File: Modules/Loan/app/Services/LoanService.php (lines 169-176)
+   Issue: If an approved/disbursed loan could somehow be edited (guarded by status check),
+          but the update doesn't handle existing installment records. If interest/amount
+          changes, generated installments become invalid.
+   Fix: On update of already-approved loans, warn user or force deletion/recreation of
+        installment schedule.
+
+B5. [MEDIUM] Variable $loan_id Not Passed For Update In saveLoan()
+   File: Modules/Loan/app/Http/Controllers/LoanController.php (line 132-133)
+   Issue: $validated['loan_id'] = $id is set but interest_rate is also set after, and
+          the method unsets $data['loan_id'] inside saveLoan() using unset($data['loan_id']).
+          This is redundant but not necessarily broken.
+   Fix: Either pass loan_id as separate parameter or use proper update pathway.
+
+================================================================================
+
+C. ROUTING / URL STRUCTURE ISSUES
+================================================================================
+
+C1. [MEDIUM] Potential Route Collision: loans/dataTable vs loans/{id}/show
+   File: Modules/Loan/routes/web.php (lines 9-10)
+   Issue: If another route like loans/{id} (GET) were added, loans/dataTable could be
+          interpreted as {id}=dataTable. Currently safe because specific routes are defined
+          before any generic ones, but susceptible to future reordering.
+   Recommendation: Keep routes in correct order. Consider prefixing admin routes:
+        Route::prefix('admin')->group(...) or use explicit route names.
+
+================================================================================
+
+D. VIEW / UI ISSUES
+================================================================================
+
+D1. [MEDIUM] Unused Variable In my.blade.php
+   File: Modules/Loan/resources/views/my.blade.php
+   File: Modules/Loan/app/Http/Controllers/LoanController.php (line 229)
+   Issue: The myLoans() method passes both $employee and $loanSummary to the view,
+          but my.blade.php only uses $loanSummary. $employee is never rendered.
+   Fix: Remove $employee from compact() in controller.
+
+D2. [MEDIUM] No Edit View Exists
+   File: Modules/Loan/app/Http/Controllers/LoanController.php (line 114)
+   Issue: edit() method references 'loan::edit' view but no edit.blade.php file exists
+          in Modules/Loan/resources/views/. This will throw a ViewNotFoundException.
+   Fix: Create edit.blade.php view or redirect show page with edit capabilities.
+
+D3. [MEDIUM] No Loading/Disabled State on Action Buttons
+   Files: All views
+   Issue: Action buttons (Approve, Reject, Disburse, Delete) have no disabled state during
+          AJAX calls. Users can click multiple times, triggering duplicate requests.
+   Fix: Disable button and show spinner during AJAX call using beforeSend/complete.
+
+D4. [LOW] Missing Loan Type Column in My Loans DataTable
+   File: Modules/Loan/resources/views/my.blade.php (line 42)
+   File: Modules/Loan/app/Services/LoanService.php (lines 107-144)
+   Issue: The my-loans DataTable shows 'loan_type' as plain text without the colored badge
+          that the admin DataTable has. Inconsistent UX.
+   Fix: Add same loan_type badge rendering in getMyLoanDataTable().
+
+================================================================================
+
+E. DATABASE / MIGRATION ISSUES
+================================================================================
+
+E1. [MEDIUM] Existing Rows Missing loan_number
+   File: Modules/Loan/Database/Migrations/2026_06_17_000003_add_loan_number_to_loans_table.php
+   Issue: The migration adds loan_number column but does NOT backfill existing rows.
+          All pre-existing loans will have NULL loan_number, which violates the unique
+          constraint (MySQL treats NULLs as distinct, but application expects values).
+   Fix: Add a backfill query in the migration:
+        DB::statement("UPDATE loans SET loan_number = CONCAT('LN-', YEAR(created_at), '-', LPAD(id, 4, '0')) WHERE loan_number IS NULL");
+
+E2. [LOW] try-catch Suppression of SQL Errors
+   File: Modules/Loan/Database/Migrations/2026_06_17_000003_add_loan_number_to_loans_table.php
+   Issue: Using empty try-catch blocks to suppress duplicate index errors makes debugging
+          difficult. Better to use Schema::hasIndex() or conditional checks.
+   Fix: Ideally use if (!Schema::hasIndex(...)) or catch specific exception types.
+
+================================================================================
+
+F. PERFORMANCE / CODE QUALITY
+================================================================================
+
+F1. [MEDIUM] N+1 Query In getEmployeeLoanSummary()
+   File: Modules/Loan/app/Services/LoanService.php (lines 507-525)
+   Issue: getEmployeeLoanSummary() calls sum() on collection after loading all records.
+          For employees with many loans, this loads unnecessary data into memory.
+   Fix: Use aggregate queries: Loan::where(...)->sum('remaining_amount') etc.
+
+F2. [LOW] Hardcoded Status Strings Throughout Code
+   Files: Multiple
+   Issue: Status values ('Pending', 'Approved', 'Rejected', 'Disbursed', 'Completed',
+          'Cancelled') are hardcoded as strings in many places (controllers, services,
+          views). Typo risk (e.g., 'Cancelled' vs 'Canceled').
+   Fix: Define constants in the Loan model (e.g., STATUS_PENDING = 'Pending') and use
+        Loan::STATUS_PENDING throughout.
+
+F3. [LOW] Missing return type declarations
+   Files: All PHP files
+   Issue: Many methods lack proper return type hints (e.g., array, Collection).
+   Fix: Add return types for better IDE support and code clarity.
+
+================================================================================
+
+G. MISSING FEATURES
+================================================================================
+
+G1. [MEDIUM] No Loan Cancellation Feature
+   Issue: There's no route/controller method to cancel an approved/disbursed loan.
+          The deleteLoan() method handles deletion but loan status 'Cancelled' is never
+          set programmatically.
+   Fix: Add a cancel() method and route.
+
+G2. [MEDIUM] No Export Functionality for Installment Schedule
+   Issue: The show page displays installments in HTML table but there's no PDF/Excel
+          export option for the installment schedule.
+   Fix: Add export buttons using Laravel Excel or DomPDF.
+
+G3. [LOW] No Email/Notification on Status Change
+   Issue: When a loan is approved/rejected/disbursed, the employee receives no
+          notification.
+   Fix: Dispatch notification events in approveLoan(), rejectLoan(), disburseLoan().
+
+================================================================================
+END OF TODO LIST
+================================================================================

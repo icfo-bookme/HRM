@@ -1,0 +1,65 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install sshpass
+      run: sudo apt-get update && sudo apt-get install -y sshpass
+
+    - name: Deploy to VPS
+      env:
+        SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+      run: |
+        sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+          cd /var/www/hrm &&
+
+          # Pull latest code
+          git pull origin main &&
+
+          # Install/update PHP dependencies
+          export COMPOSER_ALLOW_SUPERUSER=1
+          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev &&
+
+          # Install/update Node dependencies and build assets
+          npm ci --no-audit --no-fund
+          npm run build &&
+
+          # Environment setup
+          if [ ! -f .env ]; then
+            cp .env.example .env
+            php artisan key:generate
+          fi &&
+
+          # Update .env with production values
+          sed -i 's/APP_ENV=.*/APP_ENV=production/' .env
+          sed -i 's/APP_DEBUG=.*/APP_DEBUG=false/' .env
+          sed -i 's|APP_URL=.*|APP_URL=http://187.77.128.105:8001|' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=hrmv1/' .env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=hrm_user/' .env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/' .env &&
+
+          # Run database migrations
+          php artisan migrate --force &&
+
+          # Clear and cache
+          php artisan optimize:clear
+          php artisan optimize &&
+
+          # Set permissions
+          chmod -R 775 storage bootstrap/cache
+          chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true &&
+
+          # Restart queue worker if running
+          php artisan queue:restart 2>/dev/null || true &&
+
+          echo '✅ Deployment completed successfully!'
+        "
