@@ -63,3 +63,30 @@ jobs:
 
           echo '✅ Deployment completed successfully!'
         "
+
+    - name: Setup Nginx on VPS
+      env:
+        SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+      run: |
+        sshpass -e ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+          # Copy Nginx config from repo to sites-available
+          cp /var/www/hrm/deploy/nginx.conf /etc/nginx/sites-available/hrm &&
+
+          # Enable site (create symlink if not exists)
+          if [ ! -f /etc/nginx/sites-enabled/hrm ]; then
+            ln -s /etc/nginx/sites-available/hrm /etc/nginx/sites-enabled/
+          fi &&
+
+          # Remove default nginx site if exists
+          if [ -f /etc/nginx/sites-enabled/default ]; then
+            rm /etc/nginx/sites-enabled/default
+          fi &&
+
+          # Test Nginx config
+          nginx -t &&
+
+          # Reload Nginx
+          systemctl reload nginx || systemctl restart nginx &&
+
+          echo '✅ Nginx configured and reloaded!'
+        "
