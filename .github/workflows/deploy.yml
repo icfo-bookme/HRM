@@ -35,16 +35,20 @@ jobs:
             git clean -fd
           fi
 
-          # STEP 1: Composer install FIRST (before .env, because artisan needs vendor/autoload.php)
+          # Find composer
+          COMPOSER=\$(which composer 2>/dev/null || which composer.phar 2>/dev/null || echo '/usr/bin/composer')
+          echo \"Using composer at: \$COMPOSER\"
+
+          # STEP 1: Composer install FIRST
           echo '=== Composer install ==='
           export COMPOSER_ALLOW_SUPERUSER=1
-          /usr/bin/php8.4 /usr/local/bin/composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+          /usr/bin/php8.4 \$COMPOSER install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
           # STEP 2: Create .env
           echo '=== Create .env ==='
           cp -f .env.example .env
 
-          # STEP 3: Generate APP_KEY (needs vendor/autoload.php from composer)
+          # STEP 3: Generate APP_KEY
           echo '=== Generate APP_KEY ==='
           /usr/bin/php8.4 artisan key:generate --force
 
