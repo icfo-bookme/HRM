@@ -98,10 +98,29 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($users as $userData) {
-            User::updateOrCreate(
-                ['email' => $userData['email']],
-                $userData
-            );
+            $existingUser = User::where('email', $userData['email'])->first();
+
+            if ($existingUser) {
+                $existingUser->fill([
+                    'name' => $userData['name'],
+                    'password' => $userData['password'],
+                    'role_id' => $userData['role_id'],
+                ]);
+
+                if ($existingUser->employee_id !== $userData['employee_id']) {
+                    $employeeConflict = User::where('employee_id', $userData['employee_id'])
+                        ->where('id', '!=', $existingUser->id)
+                        ->exists();
+
+                    if (! $employeeConflict) {
+                        $existingUser->employee_id = $userData['employee_id'];
+                    }
+                }
+
+                $existingUser->save();
+            } else {
+                User::create($userData);
+            }
         }
 
         $this->command->info('✓ Users seeded: ' . count($users) . ' records (password: password)');
