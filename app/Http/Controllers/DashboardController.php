@@ -15,6 +15,7 @@ use Modules\Employee\Services\EmployeeService;
 use Modules\Attendance\Models\Attendance;
 use Modules\Leave\Models\LeaveType;
 use Modules\Leave\Models\LeaveApplication;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -239,5 +240,63 @@ class DashboardController extends Controller
             'leaveSummary',
             'attendanceRate',
         ));
+    }
+
+    /**
+     * Get attendance percentage chart data for a given period (week or month).
+     * Week: shows each day of the current week (Sun-Sat) with daily attendance %
+     * Month: shows each day of the current month with daily attendance %
+     * Percentage = (present count / total active employees) * 100
+     */
+    public function attendanceChartData(Request $request)
+    {
+        $period = $request->get('period', 'month');
+        $totalActiveEmployees = Employee::where('status', 'Active')->count();
+        $totalActiveEmployees = max($totalActiveEmployees, 1); // avoid division by zero
+
+        $labels = [];
+        $data = [];
+
+        if ($period === 'week') {
+            // Current week: Sunday to Saturday
+            $weekStart = now()->startOfWeek(Carbon::SUNDAY);
+            $weekEnd = now()->endOfWeek(Carbon::SATURDAY);
+
+            for ($day = clone $weekStart; $day->lte($weekEnd); $day->addDay()) {
+                $dateStr = $day->format('Y-m-d');
+
+                $presentCount = Attendance::where('attendance_date', $dateStr)
+                    ->where('is_absent', false)
+                    ->count();
+
+                $percentage = round(($presentCount / $totalActiveEmployees) * 100);
+
+                $labels[] = $day->format('D'); // Sun, Mon, Tue, etc.
+                $data[] = $percentage;
+            }
+        } else {
+            // Current month: each day of the month
+            $daysInMonth = now()->daysInMonth;
+
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $date = now()->startOfMonth()->addDays($day - 1);
+                $dateStr = $date->format('Y-m-d');
+
+                $presentCount = Attendance::where('attendance_date', $dateStr)
+                    ->where('is_absent', false)
+                    ->count();
+
+                $percentage = round(($presentCount / $totalActiveEmployees) * 100);
+
+                $labels[] = $date->format('d'); // 01, 02, 03, etc.
+                $data[] = $percentage;
+            }
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+            'period' => $period,
+        ]);
     }
 }

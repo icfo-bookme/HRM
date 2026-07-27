@@ -23,6 +23,7 @@
         "@fullcalendar/daygrid": "^6.1.20",
         "@fullcalendar/interaction": "^6.1.20",
         "@fullcalendar/moment": "^6.1.20",
+        "chart.js": "^4.5.1",
         "select2": "^4.1.0"
     }
 }
