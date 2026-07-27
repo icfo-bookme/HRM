@@ -43,9 +43,6 @@ jobs:
           npm ci --no-audit --no-fund 2>/dev/null || npm install --no-audit --no-fund
           npm run build
 
-          # Migrate
-          /usr/bin/php8.4 artisan migrate --force 2>&1 || true
-
           # Permissions
           chmod -R 775 storage bootstrap/cache
 

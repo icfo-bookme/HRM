@@ -61,7 +61,6 @@ class EmployeeController extends Controller
         $grades = SalaryGrade::all()->pluck('name', 'id');
         $shifts = Shift::all()->pluck('name', 'id');
         $employee = Employee::active()->with('personalInfo')->get();
-        dd($employee);
         $data = session('employee_creation.step1', []);
 
         // Use existing employee_code from session if available, otherwise generate new
