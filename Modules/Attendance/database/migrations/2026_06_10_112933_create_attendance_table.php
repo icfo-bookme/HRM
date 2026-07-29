@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('attendance', function (Blueprint $table) {
@@ -43,13 +43,13 @@ return new class extends Migration {
                 'Half Day',
                 'On Leave',
                 'Holiday',
-                'Weekend'
+                'Weekend',
             ])->default('Present');
 
             $table->enum('approval_status', [
                 'Pending',
                 'Approved',
-                'Rejected'
+                'Rejected',
             ])->default('Approved');
 
             $table->unsignedBigInteger('approved_by')->nullable();
@@ -63,7 +63,7 @@ return new class extends Migration {
                 'CSV',
                 'API',
                 'Mobile App',
-                'Web'
+                'Web',
             ])->default('Device');
 
             $table->unsignedBigInteger('created_by')->nullable();

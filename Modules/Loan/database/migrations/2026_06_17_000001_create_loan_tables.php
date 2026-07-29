@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('loan_number', 20)->unique()->comment('Professional tracking ID: LN-YYYY-XXXX');
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->enum('loan_type', ['Personal', 'Emergency', 'Education', 'Medical', 'Vehicle', 'Home', 'Other'])->default('Personal');
-            
+
             // Financial Details
             $table->decimal('loan_amount', 14, 2)->default(0);
             $table->decimal('total_interest', 14, 2)->default(0);
@@ -22,32 +22,32 @@ return new class extends Migration
             $table->integer('total_installments')->default(1);
             $table->integer('paid_installments')->default(0);
             $table->decimal('remaining_amount', 14, 2)->default(0);
-            
+
             // Purpose & Description
             $table->text('purpose')->nullable();
-            
+
             // Lifecycle Dates
             $table->date('application_date');
             $table->date('approval_date')->nullable();
             $table->date('first_installment_date')->nullable();
             $table->date('disbursement_date')->nullable();
-            
+
             // Status Lifecycle: Pending → Approved → Disbursed → Completed | Rejected | Cancelled
             $table->enum('status', ['Pending', 'Approved', 'Rejected', 'Disbursed', 'Completed', 'Cancelled'])->default('Pending');
-            
+
             // Approval Trail
             $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->text('rejection_reason')->nullable();
-            
+
             // Notes
             $table->text('notes')->nullable();
-            
+
             // Creator
             $table->foreignId('created_by')->nullable()->constrained('users');
-            
+
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Performance Indexes
             $table->index('employee_id', 'idx_loans_employee');
             $table->index('status', 'idx_loans_status');
@@ -67,7 +67,7 @@ return new class extends Migration
             $table->dateTime('paid_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             // Performance Indexes
             $table->index('loan_id', 'idx_installments_loan');
             $table->index('status', 'idx_installments_status');

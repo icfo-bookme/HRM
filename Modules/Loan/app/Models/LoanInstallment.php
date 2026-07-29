@@ -2,6 +2,7 @@
 
 namespace Modules\Loan\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Salary\Models\PayrollRun;
@@ -23,12 +24,12 @@ class LoanInstallment extends Model
     ];
 
     protected $casts = [
-        'amount'      => 'decimal:2',
+        'amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
-        'due_date'    => 'date',
-        'paid_at'     => 'datetime',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
+        'due_date' => 'date',
+        'paid_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function loan(): BelongsTo
@@ -64,8 +65,9 @@ class LoanInstallment extends Model
 
     public function scopeDueForMonth($query, string $yearMonth)
     {
-        $start = \Carbon\Carbon::parse($yearMonth)->startOfMonth();
-        $end = \Carbon\Carbon::parse($yearMonth)->endOfMonth();
+        $start = Carbon::parse($yearMonth)->startOfMonth();
+        $end = Carbon::parse($yearMonth)->endOfMonth();
+
         return $query->whereBetween('due_date', [$start, $end])
             ->whereIn('status', ['Pending', 'Overdue']);
     }

@@ -19,18 +19,18 @@ return new class extends Migration
 
             $table->enum('notice_type', [
                 'General', 'HR', 'Holiday', 'Attendance',
-                'Payroll', 'Policy', 'Training', 'Event', 'Emergency'
+                'Payroll', 'Policy', 'Training', 'Event', 'Emergency',
             ])->default('General');
 
             $table->enum('priority', [
-                'Low', 'Medium', 'High', 'Urgent'
+                'Low', 'Medium', 'High', 'Urgent',
             ])->default('Medium');
 
             $table->dateTime('publish_date');
             $table->dateTime('expiry_date')->nullable();
 
             $table->enum('target_type', [
-                'All', 'Department', 'Designation', 'Branch', 'Employee'
+                'All', 'Department', 'Designation', 'Branch', 'Employee',
             ])->default('All');
 
             $table->string('attachment_path', 500)->nullable();

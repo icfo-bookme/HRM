@@ -2,9 +2,9 @@
 
 namespace Modules\Holidays\Services;
 
-use Modules\Holidays\Models\Holiday;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Holidays\Models\Holiday;
 use Yajra\DataTables\DataTables;
 
 class HolidayService
@@ -18,7 +18,7 @@ class HolidayService
                 return view('components.action-buttons', [
                     'id' => $row->id,
                     'edit' => 'holidayEdit',
-                    'delete' => 'holidayDelete'
+                    'delete' => 'holidayDelete',
                 ])->render();
             })
             ->editColumn('holiday_date', function ($row) {
@@ -37,7 +37,8 @@ class HolidayService
                     'Festival' => 'bg-pink-100 text-pink-800',
                 ];
                 $color = $colors[$row->holiday_type] ?? 'bg-slate-100 text-slate-700';
-                return '<span class="' . $color . ' text-xs font-medium px-2.5 py-0.5 rounded-full">' . $row->holiday_type . '</span>';
+
+                return '<span class="'.$color.' text-xs font-medium px-2.5 py-0.5 rounded-full">'.$row->holiday_type.'</span>';
             })
             ->editColumn('is_recurring', function ($row) {
                 return $row->is_recurring
@@ -54,24 +55,25 @@ class HolidayService
     public function saveHoliday(array $data)
     {
         return DB::transaction(function () use ($data) {
-            $data['is_recurring'] = isset($data['is_recurring']) ? (bool)$data['is_recurring'] : false;
-            $data['yearly_recurring'] = isset($data['yearly_recurring']) ? (bool)$data['yearly_recurring'] : false;
+            $data['is_recurring'] = isset($data['is_recurring']) ? (bool) $data['is_recurring'] : false;
+            $data['yearly_recurring'] = isset($data['yearly_recurring']) ? (bool) $data['yearly_recurring'] : false;
 
-            if (!empty($data['id'])) {
+            if (! empty($data['id'])) {
                 $holiday = Holiday::findOrFail($data['id']);
                 $holiday->update($data);
 
                 return [
                     'status' => true,
                     'message' => 'Holiday updated successfully.',
-                    'data' => $holiday
+                    'data' => $holiday,
                 ];
             } else {
                 $holiday = Holiday::create($data);
+
                 return [
                     'status' => true,
                     'message' => 'Holiday created successfully.',
-                    'data' => $holiday
+                    'data' => $holiday,
                 ];
             }
         });
@@ -81,24 +83,24 @@ class HolidayService
     {
         $holiday = Holiday::find($id);
 
-        if (!$holiday) {
+        if (! $holiday) {
             return [
                 'status' => false,
-                'message' => 'Holiday not found!'
+                'message' => 'Holiday not found!',
             ];
         }
 
         return [
             'status' => true,
-            'data' => $holiday
+            'data' => $holiday,
         ];
     }
 
     public function saveHolidaysBatch(array $data, array $dates)
     {
         return DB::transaction(function () use ($data, $dates) {
-            $data['is_recurring'] = isset($data['is_recurring']) ? (bool)$data['is_recurring'] : false;
-            $data['yearly_recurring'] = isset($data['yearly_recurring']) ? (bool)$data['yearly_recurring'] : false;
+            $data['is_recurring'] = isset($data['is_recurring']) ? (bool) $data['is_recurring'] : false;
+            $data['yearly_recurring'] = isset($data['yearly_recurring']) ? (bool) $data['yearly_recurring'] : false;
 
             $created = 0;
             foreach ($dates as $date) {
@@ -107,13 +109,12 @@ class HolidayService
                     'end_date' => null,
                 ]);
 
-                // Check if a holiday with same name already exists on this date
                 $existing = Holiday::whereNull('deleted_at')
                     ->where('name', $data['name'])
                     ->where('holiday_date', $date)
                     ->first();
 
-                if (!$existing) {
+                if (! $existing) {
                     Holiday::create($holidayData);
                     $created++;
                 }
@@ -132,20 +133,20 @@ class HolidayService
     {
         $holiday = Holiday::find($id);
 
-        if (!$holiday) {
+        if (! $holiday) {
             return [
                 'status' => false,
-                'message' => 'Holiday not found or already deleted.'
+                'message' => 'Holiday not found or already deleted.',
             ];
         }
 
         $holiday->update([
-            'deleted_at' => now()
+            'deleted_at' => now(),
         ]);
 
         return [
             'status' => true,
-            'message' => 'Holiday deleted successfully.'
+            'message' => 'Holiday deleted successfully.',
         ];
     }
 }

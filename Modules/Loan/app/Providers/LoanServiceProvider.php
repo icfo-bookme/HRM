@@ -2,9 +2,10 @@
 
 namespace Modules\Loan\Providers;
 
-use Illuminate\Support\Facades\Gate;
-use Nwidart\Modules\Support\ModuleServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Gate;
+use Modules\Loan\Console\Commands\CheckOverdueInstallments;
+use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class LoanServiceProvider extends ModuleServiceProvider
 {
@@ -24,7 +25,7 @@ class LoanServiceProvider extends ModuleServiceProvider
      * @var string[]
      */
     protected array $commands = [
-        \Modules\Loan\Console\Commands\CheckOverdueInstallments::class,
+        CheckOverdueInstallments::class,
     ];
 
     /**
@@ -47,10 +48,10 @@ class LoanServiceProvider extends ModuleServiceProvider
         // Define Gates for loan management actions
         Gate::define('manage-loans', function ($user) {
             $employee = $user->employee;
-            if (!$employee || !$employee->relationLoaded('designation')) {
+            if (! $employee || ! $employee->relationLoaded('designation')) {
                 $employee?->load('designation');
             }
-            if (!$employee || !$employee->designation) {
+            if (! $employee || ! $employee->designation) {
                 return false;
             }
 
@@ -68,8 +69,6 @@ class LoanServiceProvider extends ModuleServiceProvider
 
     /**
      * Define module schedules.
-     * 
-     * @param $schedule
      */
     protected function configureSchedules(Schedule $schedule): void
     {

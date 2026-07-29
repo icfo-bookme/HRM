@@ -3,28 +3,26 @@
 namespace Modules\Notice\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Modules\Notice\Services\NoticeService;
+use App\Http\Requests\Notice\AcknowledgeNoticeRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Modules\Branch\Models\Branch;
 use Modules\Notice\Http\Requests\StoreNoticeRequest;
 use Modules\Notice\Http\Requests\UpdateNoticeRequest;
 use Modules\Notice\Models\Notice;
 use Modules\Notice\Models\NoticeAcknowledgement;
 use Modules\Notice\Models\NoticeView;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Modules\Notice\Services\NoticeService;
 
 class NoticeController extends Controller
 {
-    protected $noticeService;
+    protected NoticeService $noticeService;
 
     public function __construct(NoticeService $noticeService)
     {
         $this->noticeService = $noticeService;
     }
 
-    /**
-     * Public-facing list view - all notices in detailed card format
-     * Auto-tracks views: when employee visits, mark all active notices as "seen"
-     */
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -43,7 +41,6 @@ class NoticeController extends Controller
             ->orderBy('publish_date', 'desc')
             ->paginate(10);
 
-        // Auto-track views: mark all fetched notices as "seen" by this employee
         $noticeIds = $notices->pluck('id')->toArray();
         $existingViewNoticeIds = NoticeView::whereIn('notice_id', $noticeIds)
             ->where('employee_id', $employeeId)
@@ -52,7 +49,7 @@ class NoticeController extends Controller
 
         $newViewNoticeIds = array_diff($noticeIds, $existingViewNoticeIds);
 
-        if (!empty($newViewNoticeIds)) {
+        if (! empty($newViewNoticeIds)) {
             $now = now();
             $views = [];
             foreach ($newViewNoticeIds as $nid) {
@@ -68,9 +65,6 @@ class NoticeController extends Controller
         return view('notice::list', compact('notices'));
     }
 
-    /**
-     * Data table management view (Manage Notice)
-     */
     public function manage()
     {
         $noticeTypes = [
@@ -105,9 +99,6 @@ class NoticeController extends Controller
         return view('notice::index', compact('noticeTypes', 'priorities', 'pinnedStatus', 'statuses'));
     }
 
-    /**
-     * Show the create notice page (separate page, not drawer)
-     */
     public function create()
     {
         $noticeTypes = [
@@ -129,14 +120,11 @@ class NoticeController extends Controller
             'Urgent' => 'Urgent',
         ];
 
-        $branches = \Modules\Branch\Models\Branch::where('is_active', true)->pluck('name', 'id');
+        $branches = Branch::where('is_active', true)->pluck('name', 'id');
 
         return view('notice::create', compact('noticeTypes', 'priorities', 'branches'));
     }
 
-    /**
-     * Store notice from the dedicated create page (not AJAX)
-     */
     public function storeFromPage(StoreNoticeRequest $request)
     {
         $notice = $this->noticeService->saveNoticeFromPage($request->validated(), $request);
@@ -148,9 +136,6 @@ class NoticeController extends Controller
         return redirect()->back()->with('error', 'Failed to create notice.')->withInput();
     }
 
-    /**
-     * Show the edit notice page
-     */
     public function edit($id)
     {
         $notice = Notice::findOrFail($id);
@@ -174,14 +159,11 @@ class NoticeController extends Controller
             'Urgent' => 'Urgent',
         ];
 
-        $branches = \Modules\Branch\Models\Branch::where('is_active', true)->pluck('name', 'id');
+        $branches = Branch::where('is_active', true)->pluck('name', 'id');
 
         return view('notice::edit', compact('notice', 'noticeTypes', 'priorities', 'branches'));
     }
 
-    /**
-     * Update notice from the dedicated edit page (not AJAX)
-     */
     public function updateFromPage(UpdateNoticeRequest $request, $id)
     {
         $data = $request->validated();
@@ -204,19 +186,17 @@ class NoticeController extends Controller
     public function store(StoreNoticeRequest $request)
     {
         $result = $this->noticeService->saveNotice($request->validated(), $request);
+
         return response()->json($result);
     }
 
     public function show($id)
     {
         $result = $this->noticeService->getNoticeById($id);
+
         return response()->json($result);
     }
 
-    /**
-     * Public single notice detail view
-     * Auto-tracks view when employee opens the detail page
-     */
     public function detail($id)
     {
         $notice = Notice::with('acknowledgements.employee.personalInfo')
@@ -226,7 +206,6 @@ class NoticeController extends Controller
         $user = Auth::user();
         $employeeId = $user->employee_id;
 
-        // Auto-track view on detail page
         NoticeView::firstOrCreate([
             'notice_id' => $id,
             'employee_id' => $employeeId,
@@ -238,7 +217,6 @@ class NoticeController extends Controller
             ->where('employee_id', $employeeId)
             ->first();
 
-        // Get all viewers with employee info for "Seen by" section
         $viewers = NoticeView::with('employee.personalInfo')
             ->where('notice_id', $id)
             ->orderBy('created_at', 'desc')
@@ -247,25 +225,16 @@ class NoticeController extends Controller
         return view('notice::detail', compact('notice', 'myAcknowledgement', 'viewers'));
     }
 
-    /**
-     * Acknowledge a notice (with optional comment)
-     */
-    public function acknowledge(Request $request, $id)
+    public function acknowledge(AcknowledgeNoticeRequest $request, $id)
     {
-        $request->validate([
-            'comment' => 'nullable|string|max:1000',
-        ]);
-
         $user = Auth::user();
         $employeeId = $user->employee_id;
 
-        // Check if already acknowledged
         $existing = NoticeAcknowledgement::where('notice_id', $id)
             ->where('employee_id', $employeeId)
             ->first();
 
         if ($existing) {
-            // Update the comment if already acknowledged
             $existing->update([
                 'comment' => $request->comment,
             ]);
@@ -274,7 +243,6 @@ class NoticeController extends Controller
                 ->with('success', 'Your acknowledgment has been updated.');
         }
 
-        // Create new acknowledgment
         NoticeAcknowledgement::create([
             'notice_id' => $id,
             'employee_id' => $employeeId,
@@ -292,12 +260,14 @@ class NoticeController extends Controller
         $data['id'] = $id;
 
         $result = $this->noticeService->saveNotice($data, $request);
+
         return response()->json($result);
     }
 
     public function destroy($id)
     {
         $result = $this->noticeService->deleteNotice($id);
+
         return response()->json($result);
     }
 }

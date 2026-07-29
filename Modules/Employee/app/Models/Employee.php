@@ -3,8 +3,9 @@
 namespace Modules\Employee\Models;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -20,7 +21,7 @@ class Employee extends Model
         'department_id',
         'designation_id',
         'grade_id',
-        'shift_id', 
+        'shift_id',
         'reports_to',
         'employment_type',
         'joining_date',
@@ -171,7 +172,6 @@ class Employee extends Model
         return $this->hasOne(User::class, 'employee_id');
     }
 
-
     // Scopes
     public function scopeActive($query)
     {
@@ -206,10 +206,11 @@ class Employee extends Model
 
     public function getAgeAttribute()
     {
-        if (!$this->personalInfo?->date_of_birth) {
+        if (! $this->personalInfo?->date_of_birth) {
             return null;
         }
-        return \Carbon\Carbon::parse($this->personalInfo->date_of_birth)->age;
+
+        return Carbon::parse($this->personalInfo->date_of_birth)->age;
     }
 
     public function getFirstNameAttribute()

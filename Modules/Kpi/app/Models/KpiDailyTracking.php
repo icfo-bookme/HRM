@@ -4,8 +4,8 @@ namespace Modules\Kpi\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Modules\Employee\Models\Employee;
 use Modules\Attendance\Models\Attendance;
+use Modules\Employee\Models\Employee;
 
 class KpiDailyTracking extends Model
 {

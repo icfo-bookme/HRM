@@ -156,9 +156,9 @@
                         <label class="font-semibold text-sm text-slate-700 block mb-1">Profile Photo</label>
                         <input type="file" name="profile_photo" id="profile_photo" accept="image/*"
                             class="block w-full text-sm border border-slate-300 rounded-xl p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
-                        @if (!empty($data['profile_photo']))
+                        @if (!empty($data['profile_photo']) && Storage::disk('public')->exists($data['profile_photo']))
                             <img id="profile_preview" class="mt-3 h-24 w-24 rounded-full object-cover border" alt="Profile Preview"
-                                src="{{ asset('storage/' . $data['profile_photo']) }}">
+                                src="{{ Storage::url($data['profile_photo']) }}">
                             <p class="text-xs text-slate-500 mt-1">Current file: {{ basename($data['profile_photo']) }}</p>
                         @else
                             <img id="profile_preview" class="mt-3 h-24 w-24 rounded-full object-cover border hidden" alt="Profile Preview">
@@ -173,9 +173,9 @@
                         <label class="font-semibold text-sm text-slate-700 block mb-1">Signature File</label>
                         <input type="file" name="signature_file" id="signature_file" accept="image/*"
                             class="block w-full text-sm border border-slate-300 rounded-xl p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
-                        @if (!empty($data['signature_file']))
+                        @if (!empty($data['signature_file']) && Storage::disk('public')->exists($data['signature_file']))
                             <img id="signature_preview" class="mt-3 h-24 w-40 object-contain border rounded-lg" alt="Signature Preview"
-                                src="{{ asset('storage/' . $data['signature_file']) }}">
+                                src="{{ Storage::url($data['signature_file']) }}">
                             <p class="text-xs text-slate-500 mt-1">Current file: {{ basename($data['signature_file']) }}</p>
                         @else
                             <img id="signature_preview" class="mt-3 h-24 w-40 object-contain border rounded-lg hidden" alt="Signature Preview">

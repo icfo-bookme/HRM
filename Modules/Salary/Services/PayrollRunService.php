@@ -5,14 +5,12 @@ namespace Modules\Salary\Services;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Salary\Models\PayrollRun;
-use Modules\Salary\Models\EmployeeSalaryStructure;
-use Modules\Salary\Models\SalaryComponent;
-use Modules\Salary\Models\PayrollRunDetail;
-
-use Modules\Employee\Models\Employee;
 use Modules\Attendance\Models\Attendance;
+use Modules\Employee\Models\Employee;
 use Modules\Loan\Services\LoanService;
+use Modules\Salary\Models\EmployeeSalaryStructure;
+use Modules\Salary\Models\PayrollRun;
+use Modules\Salary\Models\PayrollRunDetail;
 use Yajra\DataTables\DataTables;
 
 class PayrollRunService
@@ -61,33 +59,36 @@ class PayrollRunService
             })
             ->editColumn('run_type', function (PayrollRun $run) {
                 $colors = [
-                    'Regular'     => 'bg-blue-100 text-blue-700',
-                    'Bonus'       => 'bg-green-100 text-green-700',
-                    'Advance'     => 'bg-yellow-100 text-yellow-700',
-                    'Adjustment'  => 'bg-purple-100 text-purple-700',
+                    'Regular' => 'bg-blue-100 text-blue-700',
+                    'Bonus' => 'bg-green-100 text-green-700',
+                    'Advance' => 'bg-yellow-100 text-yellow-700',
+                    'Adjustment' => 'bg-purple-100 text-purple-700',
                 ];
                 $color = $colors[$run->run_type] ?? 'bg-gray-100 text-gray-700';
-                return '<span class="px-2 py-1 text-xs font-medium rounded-full ' . $color . '">' . $run->run_type . '</span>';
+
+                return '<span class="px-2 py-1 text-xs font-medium rounded-full '.$color.'">'.$run->run_type.'</span>';
             })
-            ->editColumn('total_gross', fn($run) => number_format($run->total_gross, 2))
-            ->editColumn('total_net', fn($run) => number_format($run->total_net, 2))
-            ->editColumn('total_deductions', fn($run) => number_format($run->total_deductions, 2))
+            ->editColumn('total_gross', fn ($run) => number_format($run->total_gross, 2))
+            ->editColumn('total_net', fn ($run) => number_format($run->total_net, 2))
+            ->editColumn('total_deductions', fn ($run) => number_format($run->total_deductions, 2))
             ->editColumn('status', function (PayrollRun $run) {
                 $colors = [
                     'Calculated' => 'bg-yellow-100 text-yellow-700',
-                    'Approved'   => 'bg-green-100 text-green-700',
-                    'Locked'     => 'bg-purple-100 text-purple-700',
-                    'Cancelled'  => 'bg-red-100 text-red-700',
+                    'Approved' => 'bg-green-100 text-green-700',
+                    'Locked' => 'bg-purple-100 text-purple-700',
+                    'Cancelled' => 'bg-red-100 text-red-700',
                 ];
                 $color = $colors[$run->status] ?? 'bg-gray-100 text-gray-700';
-                return '<span class="px-2 py-1 text-xs font-medium rounded-full ' . $color . '">' . $run->status . '</span>';
+
+                return '<span class="px-2 py-1 text-xs font-medium rounded-full '.$color.'">'.$run->status.'</span>';
             })
-            ->editColumn('created_at', fn(PayrollRun $run) => $run->created_at->format('d M Y H:i'))
+            ->editColumn('created_at', fn (PayrollRun $run) => $run->created_at->format('d M Y H:i'))
             ->addColumn('action', function (PayrollRun $run) {
-                $btn = '<a href="' . route('payroll-runs.show-generated', $run->id) . '" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 mr-1" title="View Details"><i class="fas fa-eye"></i> View</a>';
+                $btn = '<a href="'.route('payroll-runs.show-generated', $run->id).'" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 mr-1" title="View Details"><i class="fas fa-eye"></i> View</a>';
                 if ($run->status !== 'Locked') {
-                    $btn .= '<button onclick="payrollRunDelete(' . $run->id . ')" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 ml-1" title="Delete"><i class="fas fa-trash"></i></button>';
+                    $btn .= '<button onclick="payrollRunDelete('.$run->id.')" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 ml-1" title="Delete"><i class="fas fa-trash"></i></button>';
                 }
+
                 return $btn;
             })
             ->rawColumns(['run_type', 'status', 'action'])
@@ -116,7 +117,7 @@ class PayrollRunService
         while ($current->lte($endOfMonth)) {
             $totalDays++;
             $isWeekend = in_array($current->dayOfWeek, $offDays);
-            if (!$isWeekend) {
+            if (! $isWeekend) {
                 $workingDays++;
                 $dates[] = $current->format('Y-m-d');
             }
@@ -175,6 +176,7 @@ class PayrollRunService
             if ($att === null) {
                 // No attendance record - count as absent
                 $absentCount++;
+
                 continue;
             }
 
@@ -292,7 +294,10 @@ class PayrollRunService
      */
     private function calculateDailyRate(float $basicSalary, int $workingDays): float
     {
-        if ($workingDays <= 0) return 0;
+        if ($workingDays <= 0) {
+            return 0;
+        }
+
         return $basicSalary / $workingDays;
     }
 
@@ -321,13 +326,17 @@ class PayrollRunService
                             $q->whereNull('effective_to')->orWhere('effective_to', '>=', $runMonth);
                         })->get();
 
-                    if ($structures->isEmpty()) continue;
+                    if ($structures->isEmpty()) {
+                        continue;
+                    }
                     $employeeCount++;
                     $processedEmployeeIds[] = $employee->id;
 
                     $basicSalary = 0;
                     $basicStruct = $structures->where('component.name', 'Basic Salary')->first();
-                    if ($basicStruct) $basicSalary = $basicStruct->amount;
+                    if ($basicStruct) {
+                        $basicSalary = $basicStruct->amount;
+                    }
 
                     // Calculate attendance adjustments
                     $attendanceAdjustments = $this->calculateAttendanceAdjustments($employee, $runMonth);
@@ -335,8 +344,8 @@ class PayrollRunService
                     // Daily rate for attendance-based calculations
                     $dailyRate = $this->calculateDailyRate($basicSalary, $attendanceAdjustments['working_days']);
 
-                    $earnings = $structures->filter(fn($s) => $s->component && $s->component->type === 'Earning');
-                    $deductions = $structures->filter(fn($s) => $s->component && $s->component->type === 'Deduction');
+                    $earnings = $structures->filter(fn ($s) => $s->component && $s->component->type === 'Earning');
+                    $deductions = $structures->filter(fn ($s) => $s->component && $s->component->type === 'Deduction');
                     $totalEarnings = 0;
                     $empDeductions = 0;
 
@@ -406,24 +415,24 @@ class PayrollRunService
                 $totalNet = $totalGross - $totalDeductions;
                 $monthName = Carbon::parse($runMonth)->format('F Y');
 
-                $data['total_employees']  = $employeeCount;
-                $data['total_gross']      = round($totalGross, 2);
+                $data['total_employees'] = $employeeCount;
+                $data['total_gross'] = round($totalGross, 2);
                 $data['total_deductions'] = round($totalDeductions, 2);
-                $data['total_net']        = round($totalNet, 2);
-                $data['status']           = 'Calculated';
-                $data['created_by']       = auth()->id();
-                $data['run_label']        = $data['run_label'] ?? $monthName . ' Payroll';
+                $data['total_net'] = round($totalNet, 2);
+                $data['status'] = 'Calculated';
+                $data['created_by'] = auth()->id();
+                $data['run_label'] = $data['run_label'] ?? $monthName.' Payroll';
 
                 $run = PayrollRun::create($data);
 
                 return [
-                    'status'     => 'success',
-                    'message'    => "Payroll generated successfully for {$employeeCount} employees. Loan deductions: " . number_format($totalLoanDeductions, 2) . ".",
+                    'status' => 'success',
+                    'message' => "Payroll generated successfully for {$employeeCount} employees. Loan deductions: ".number_format($totalLoanDeductions, 2).'.',
                     'payroll_run' => $run->fresh()->load(['fiscalYear', 'createdBy']),
                 ];
             });
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Error generating payroll: ' . $e->getMessage(), 'payroll_run' => null];
+            return ['status' => 'error', 'message' => 'Error generating payroll: '.$e->getMessage(), 'payroll_run' => null];
         }
     }
 
@@ -451,21 +460,25 @@ class PayrollRunService
                             $q->whereNull('effective_to')->orWhere('effective_to', '>=', $runMonth);
                         })->get();
 
-                    if ($structures->isEmpty()) continue;
+                    if ($structures->isEmpty()) {
+                        continue;
+                    }
                     $employeeCount++;
                     $totalEarnings = 0;
                     $empDeductions = 0;
 
                     $basicSalary = 0;
                     $basicStruct = $structures->where('component.name', 'Basic Salary')->first();
-                    if ($basicStruct) $basicSalary = $basicStruct->amount;
+                    if ($basicStruct) {
+                        $basicSalary = $basicStruct->amount;
+                    }
 
                     // Calculate attendance adjustments
                     $attendanceAdjustments = $this->calculateAttendanceAdjustments($employee, $runMonth);
                     $dailyRate = $this->calculateDailyRate($basicSalary, $attendanceAdjustments['working_days']);
 
-                    $earnings = $structures->filter(fn($s) => $s->component && $s->component->type === 'Earning');
-                    $deductions = $structures->filter(fn($s) => $s->component && $s->component->type === 'Deduction');
+                    $earnings = $structures->filter(fn ($s) => $s->component && $s->component->type === 'Earning');
+                    $deductions = $structures->filter(fn ($s) => $s->component && $s->component->type === 'Deduction');
 
                     foreach ($earnings as $struct) {
                         $totalEarnings += $struct->is_percentage ? ($struct->amount / 100) * $basicSalary : $struct->amount;
@@ -520,21 +533,21 @@ class PayrollRunService
                 }
 
                 $run->update([
-                    'total_employees'  => $employeeCount,
-                    'total_gross'      => round($totalGross, 2),
+                    'total_employees' => $employeeCount,
+                    'total_gross' => round($totalGross, 2),
                     'total_deductions' => round($totalDeductions, 2),
-                    'total_net'        => round($totalGross - $totalDeductions, 2),
-                    'status'           => 'Calculated',
+                    'total_net' => round($totalGross - $totalDeductions, 2),
+                    'status' => 'Calculated',
                 ]);
 
                 return [
-                    'status'     => 'success',
-                    'message'    => "Payroll recalculated successfully for {$employeeCount} employees. Loan deductions: " . number_format($totalLoanDeductions, 2) . ".",
+                    'status' => 'success',
+                    'message' => "Payroll recalculated successfully for {$employeeCount} employees. Loan deductions: ".number_format($totalLoanDeductions, 2).'.',
                     'payroll_run' => $run->fresh()->load(['fiscalYear', 'createdBy']),
                 ];
             });
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Error recalculating payroll: ' . $e->getMessage(), 'payroll_run' => null];
+            return ['status' => 'error', 'message' => 'Error recalculating payroll: '.$e->getMessage(), 'payroll_run' => null];
         }
     }
 
@@ -550,10 +563,11 @@ class PayrollRunService
                     return ['status' => 'error', 'message' => 'Payroll run is already approved.'];
                 }
                 $run->update(['status' => 'Approved', 'approved_by' => auth()->id(), 'approved_at' => now()]);
+
                 return ['status' => 'success', 'message' => 'Payroll run approved successfully.', 'payroll_run' => $run->fresh()];
             });
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Error approving payroll: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Error approving payroll: '.$e->getMessage()];
         }
     }
 
@@ -578,11 +592,10 @@ class PayrollRunService
                     $employeeIds
                 );
 
-
                 return ['status' => 'success', 'message' => 'Payroll run locked successfully.', 'payroll_run' => $run->fresh()];
             });
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Error locking payroll: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Error locking payroll: '.$e->getMessage()];
         }
     }
 
@@ -590,6 +603,7 @@ class PayrollRunService
     {
         try {
             $run = PayrollRun::with(['fiscalYear', 'approvedBy', 'createdBy', 'disbursedBy'])->findOrFail($id);
+
             return ['status' => 'success', 'payroll_run' => $run];
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => 'Payroll run not found.', 'payroll_run' => null];
@@ -609,10 +623,11 @@ class PayrollRunService
                 $this->loanService->revertInstallmentsForPayrollRun($run->id);
 
                 $run->delete();
+
                 return ['status' => 'success', 'message' => 'Payroll run deleted successfully.'];
             });
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Error deleting payroll run: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Error deleting payroll run: '.$e->getMessage()];
         }
     }
 
@@ -632,19 +647,23 @@ class PayrollRunService
                     $q->whereNull('effective_to')->orWhere('effective_to', '>=', $runMonth);
                 })->get();
 
-            if ($structures->isEmpty()) continue;
+            if ($structures->isEmpty()) {
+                continue;
+            }
 
             // Attendance adjustments
             $attendanceAdjustments = $this->calculateAttendanceAdjustments($employee, $runMonth);
 
             $basicSalary = 0;
             $basicStruct = $structures->where('component.name', 'Basic Salary')->first();
-            if ($basicStruct) $basicSalary = $basicStruct->amount;
+            if ($basicStruct) {
+                $basicSalary = $basicStruct->amount;
+            }
 
             $dailyRate = $this->calculateDailyRate($basicSalary, $attendanceAdjustments['working_days']);
 
-            $earnings = $structures->filter(fn($s) => $s->component && $s->component->type === 'Earning');
-            $deductions = $structures->filter(fn($s) => $s->component && $s->component->type === 'Deduction');
+            $earnings = $structures->filter(fn ($s) => $s->component && $s->component->type === 'Earning');
+            $deductions = $structures->filter(fn ($s) => $s->component && $s->component->type === 'Deduction');
 
             $componentDetails = [];
             $totalEarnings = 0;
@@ -656,7 +675,7 @@ class PayrollRunService
                 $calculatedAmount = 0;
                 if ($struct->is_percentage) {
                     $calculatedAmount = ($struct->amount / 100) * $basicSalary;
-                    $calcDesc = $struct->amount . '% of Basic (' . number_format($basicSalary, 2) . ')';
+                    $calcDesc = $struct->amount.'% of Basic ('.number_format($basicSalary, 2).')';
                 } else {
                     $calculatedAmount = $struct->amount;
                     $calcDesc = 'Fixed amount';
@@ -664,14 +683,14 @@ class PayrollRunService
                 $totalEarnings += $calculatedAmount;
 
                 $componentDetails[] = [
-                    'component_id'     => $struct->component_id,
-                    'name'             => $struct->component->name,
-                    'type'             => 'Earning',
+                    'component_id' => $struct->component_id,
+                    'name' => $struct->component->name,
+                    'type' => 'Earning',
                     'calculation_type' => $struct->component->calculation_type,
-                    'value'            => $struct->amount,
-                    'is_pct'           => $struct->is_percentage,
-                    'calc'             => $calcDesc,
-                    'amount'           => round($calculatedAmount, 2),
+                    'value' => $struct->amount,
+                    'is_pct' => $struct->is_percentage,
+                    'calc' => $calcDesc,
+                    'amount' => round($calculatedAmount, 2),
                 ];
             }
 
@@ -683,20 +702,20 @@ class PayrollRunService
                 $otMultiplier = $attendanceAdjustments['overtime_multiplier'];
                 if ($otRatePerHour > 0) {
                     $overtimePay = $overtimeHours * $otRatePerHour;
-                    $calcDesc = $attendanceAdjustments['total_overtime_minutes'] . ' min overtime @ ' . number_format($otRatePerHour, 2) . '/hr';
+                    $calcDesc = $attendanceAdjustments['total_overtime_minutes'].' min overtime @ '.number_format($otRatePerHour, 2).'/hr';
                 } else {
                     $overtimePay = $overtimeHours * $hourlyRate * $otMultiplier;
-                    $calcDesc = $attendanceAdjustments['total_overtime_minutes'] . ' min overtime @ ' . number_format($hourlyRate * $otMultiplier, 2) . '/hr (' . $otMultiplier . 'x)';
+                    $calcDesc = $attendanceAdjustments['total_overtime_minutes'].' min overtime @ '.number_format($hourlyRate * $otMultiplier, 2).'/hr ('.$otMultiplier.'x)';
                 }
                 $totalEarnings += $overtimePay;
 
                 $componentDetails[] = [
-                    'name'     => 'Overtime Pay',
-                    'type'     => 'Earning',
-                    'value'    => $overtimePay,
-                    'is_pct'   => false,
-                    'calc'     => $calcDesc,
-                    'amount'   => round($overtimePay, 2),
+                    'name' => 'Overtime Pay',
+                    'type' => 'Earning',
+                    'value' => $overtimePay,
+                    'is_pct' => false,
+                    'calc' => $calcDesc,
+                    'amount' => round($overtimePay, 2),
                 ];
             }
 
@@ -708,10 +727,10 @@ class PayrollRunService
 
                 if ($struct->is_percentage || $calcType === 'Percentage of Basic') {
                     $calculatedAmount = ($struct->amount / 100) * $basicSalary;
-                    $calcDesc = $struct->amount . '% of Basic (' . number_format($basicSalary, 2) . ')';
+                    $calcDesc = $struct->amount.'% of Basic ('.number_format($basicSalary, 2).')';
                 } elseif ($calcType === 'Percentage of Gross') {
                     $calculatedAmount = ($struct->amount / 100) * $totalEarnings;
-                    $calcDesc = $struct->amount . '% of Gross (' . number_format($totalEarnings, 2) . ')';
+                    $calcDesc = $struct->amount.'% of Gross ('.number_format($totalEarnings, 2).')';
                 } else {
                     $calculatedAmount = $struct->amount;
                     $calcDesc = 'Fixed amount';
@@ -719,14 +738,14 @@ class PayrollRunService
                 $totalDeductions += $calculatedAmount;
 
                 $componentDetails[] = [
-                    'component_id'     => $struct->component_id,
-                    'name'             => $struct->component->name,
-                    'type'             => 'Deduction',
+                    'component_id' => $struct->component_id,
+                    'name' => $struct->component->name,
+                    'type' => 'Deduction',
                     'calculation_type' => $struct->component->calculation_type,
-                    'value'            => $struct->amount,
-                    'is_pct'           => $struct->is_percentage,
-                    'calc'             => $calcDesc,
-                    'amount'           => round($calculatedAmount, 2),
+                    'value' => $struct->amount,
+                    'is_pct' => $struct->is_percentage,
+                    'calc' => $calcDesc,
+                    'amount' => round($calculatedAmount, 2),
                 ];
             }
 
@@ -734,12 +753,12 @@ class PayrollRunService
             if ($attendanceAdjustments['late_deduction'] > 0) {
                 $totalDeductions += $attendanceAdjustments['late_deduction'];
                 $componentDetails[] = [
-                    'name'     => 'Late Deduction',
-                    'type'     => 'Deduction',
-                    'value'    => $attendanceAdjustments['late_deduction'],
-                    'is_pct'   => false,
-                    'calc'     => $attendanceAdjustments['total_late_minutes'] . ' min late',
-                    'amount'   => round($attendanceAdjustments['late_deduction'], 2),
+                    'name' => 'Late Deduction',
+                    'type' => 'Deduction',
+                    'value' => $attendanceAdjustments['late_deduction'],
+                    'is_pct' => false,
+                    'calc' => $attendanceAdjustments['total_late_minutes'].' min late',
+                    'amount' => round($attendanceAdjustments['late_deduction'], 2),
                 ];
             }
 
@@ -748,12 +767,12 @@ class PayrollRunService
                 $halfDayDeduction = $attendanceAdjustments['half_day_count'] * $dailyRate * $halfDayPercent;
                 $totalDeductions += $halfDayDeduction;
                 $componentDetails[] = [
-                    'name'     => 'Half Day Deduction',
-                    'type'     => 'Deduction',
-                    'value'    => $halfDayDeduction,
-                    'is_pct'   => true,
-                    'calc'     => $attendanceAdjustments['half_day_count'] . ' half day(s) @ ' . $attendanceAdjustments['half_day_deduction_percent'] . '%',
-                    'amount'   => round($halfDayDeduction, 2),
+                    'name' => 'Half Day Deduction',
+                    'type' => 'Deduction',
+                    'value' => $halfDayDeduction,
+                    'is_pct' => true,
+                    'calc' => $attendanceAdjustments['half_day_count'].' half day(s) @ '.$attendanceAdjustments['half_day_deduction_percent'].'%',
+                    'amount' => round($halfDayDeduction, 2),
                 ];
             }
 
@@ -761,12 +780,12 @@ class PayrollRunService
                 $absentDeduction = $attendanceAdjustments['absent_count'] * $dailyRate * $attendanceAdjustments['absent_deduction_days'];
                 $totalDeductions += $absentDeduction;
                 $componentDetails[] = [
-                    'name'     => 'Absent Deduction',
-                    'type'     => 'Deduction',
-                    'value'    => $absentDeduction,
-                    'is_pct'   => false,
-                    'calc'     => $attendanceAdjustments['absent_count'] . ' day(s) absent @ ' . number_format($dailyRate, 2) . '/day',
-                    'amount'   => round($absentDeduction, 2),
+                    'name' => 'Absent Deduction',
+                    'type' => 'Deduction',
+                    'value' => $absentDeduction,
+                    'is_pct' => false,
+                    'calc' => $attendanceAdjustments['absent_count'].' day(s) absent @ '.number_format($dailyRate, 2).'/day',
+                    'amount' => round($absentDeduction, 2),
                 ];
             }
 
@@ -775,24 +794,24 @@ class PayrollRunService
             if ($loanDeduction > 0) {
                 $totalDeductions += $loanDeduction;
                 $componentDetails[] = [
-                    'name'     => 'Loan Installment',
-                    'type'     => 'Deduction',
-                    'value'    => $loanDeduction,
-                    'is_pct'   => false,
-                    'calc'     => 'Monthly installment',
-                    'amount'   => round($loanDeduction, 2),
+                    'name' => 'Loan Installment',
+                    'type' => 'Deduction',
+                    'value' => $loanDeduction,
+                    'is_pct' => false,
+                    'calc' => 'Monthly installment',
+                    'amount' => round($loanDeduction, 2),
                 ];
             }
 
             $previewData[] = [
-                'employee_id'   => $employee->id,
+                'employee_id' => $employee->id,
                 'employee_name' => $employee->personalInfo?->full_name ?? 'N/A',
                 'employee_code' => $employee->employee_code,
-                'basic_salary'  => $basicSalary,
-                'gross'         => round($totalEarnings, 2),
-                'deductions'    => round($totalDeductions, 2),
-                'net'           => round($totalEarnings - $totalDeductions, 2),
-                'components'    => $componentDetails,
+                'basic_salary' => $basicSalary,
+                'gross' => round($totalEarnings, 2),
+                'deductions' => round($totalDeductions, 2),
+                'net' => round($totalEarnings - $totalDeductions, 2),
+                'components' => $componentDetails,
                 // Attendance summary
                 'attendance_summary' => [
                     'present' => $attendanceAdjustments['present_count'],
@@ -808,12 +827,12 @@ class PayrollRunService
 
         return [
             'employees' => $previewData,
-            'totals'    => [
-                'count'      => count($previewData),
-                'gross'      => round(array_sum(array_column($previewData, 'gross')), 2),
+            'totals' => [
+                'count' => count($previewData),
+                'gross' => round(array_sum(array_column($previewData, 'gross')), 2),
                 'deductions' => round(array_sum(array_column($previewData, 'deductions')), 2),
-                'net'        => round(array_sum(array_column($previewData, 'net')), 2),
-            ]
+                'net' => round(array_sum(array_column($previewData, 'net')), 2),
+            ],
         ];
     }
 
@@ -840,7 +859,7 @@ class PayrollRunService
                 'payment_status',
                 'created_by',
                 'created_at'
-            )->orderBy('id','desc');
+            )->orderBy('id', 'desc');
 
         // Filters
         if ($request->filled('employee_id')) {
@@ -856,10 +875,10 @@ class PayrollRunService
                 return $d->payrollRun?->run_label ?? 'N/A';
             })
 
-            ->editColumn('basic_salary', fn($d) => number_format($d->basic_salary, 2))
-            ->editColumn('gross', fn($d) => number_format($d->gross, 2))
-            ->editColumn('deductions', fn($d) => number_format($d->deductions, 2))
-            ->editColumn('net', fn($d) => number_format($d->net, 2))
+            ->editColumn('basic_salary', fn ($d) => number_format($d->basic_salary, 2))
+            ->editColumn('gross', fn ($d) => number_format($d->gross, 2))
+            ->editColumn('deductions', fn ($d) => number_format($d->deductions, 2))
+            ->editColumn('net', fn ($d) => number_format($d->net, 2))
             ->editColumn('created_by', function ($d) {
                 return $d->createdBy?->name ?? 'System';
             })
@@ -867,13 +886,15 @@ class PayrollRunService
                 if ($d->payment_status) {
                     return '<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700"><i class="fas fa-check-circle"></i> Paid</span>';
                 }
+
                 return '<span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Unpaid</span>';
             })
             ->addColumn('action', function ($d) {
                 if ($d->payment_status) {
                     return '<span class="px-3 py-1.5 text-xs font-semibold text-green-700 bg-green-100 rounded-lg"><i class="fas fa-check"></i> Paid</span>';
                 }
-                return '<button onclick="markAsPaid(' . $d->id . ')" class="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition flex items-center gap-1"><i class="fas fa-credit-card"></i> Pay</button>';
+
+                return '<button onclick="markAsPaid('.$d->id.')" class="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition flex items-center gap-1"><i class="fas fa-credit-card"></i> Pay</button>';
             })
             ->rawColumns(['payment_status', 'action'])
             ->make(true);
@@ -891,13 +912,12 @@ class PayrollRunService
             }
             $detail->update(['payment_status' => 1]);
             $this->loanService->markProgressInstallmentsPaidForEmployee($detail->employee_id, $detail->payroll_run_id);
+
             return ['status' => 'success', 'message' => 'Payment marked as paid successfully.'];
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Error: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Error: '.$e->getMessage()];
         }
     }
-
-
 
     // ========================================================================
     // Snapshot Helpers (used when locking / viewing locked payroll runs)
@@ -921,25 +941,25 @@ class PayrollRunService
 
         foreach ($preview['employees'] as $emp) {
             $chunks[] = [
-                'payroll_run_id'    => $run->id,
-                'employee_id'       => $emp['employee_id'],
-                'employee_name'     => $emp['employee_name'],
-                'employee_code'     => $emp['employee_code'],
-                'basic_salary'      => $emp['basic_salary'],
-                'gross'             => $emp['gross'],
-                'deductions'        => $emp['deductions'],
-                'net'               => $emp['net'],
+                'payroll_run_id' => $run->id,
+                'employee_id' => $emp['employee_id'],
+                'employee_name' => $emp['employee_name'],
+                'employee_code' => $emp['employee_code'],
+                'basic_salary' => $emp['basic_salary'],
+                'gross' => $emp['gross'],
+                'deductions' => $emp['deductions'],
+                'net' => $emp['net'],
                 'component_details' => json_encode($emp['components']),
                 'attendance_summary' => json_encode($emp['attendance_summary']),
-                'payment_status'    => 0,
-                'created_by'        => $userId,
-                'created_at'        => $now,
-                'updated_at'        => $now,
+                'payment_status' => 0,
+                'created_by' => $userId,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 
         // Bulk insert for performance
-        if (!empty($chunks)) {
+        if (! empty($chunks)) {
             PayrollRunDetail::insert($chunks);
         }
     }
@@ -956,22 +976,22 @@ class PayrollRunService
 
         $employees = [];
         $totals = [
-            'count'      => 0,
-            'gross'      => 0,
+            'count' => 0,
+            'gross' => 0,
             'deductions' => 0,
-            'net'        => 0,
+            'net' => 0,
         ];
 
         foreach ($details as $detail) {
             $employees[] = [
-                'employee_id'       => $detail->employee_id,
-                'employee_name'     => $detail->employee_name,
-                'employee_code'     => $detail->employee_code,
-                'basic_salary'      => (float) $detail->basic_salary,
-                'gross'             => (float) $detail->gross,
-                'deductions'        => (float) $detail->deductions,
-                'net'               => (float) $detail->net,
-                'components'        => $detail->component_details ?? [],
+                'employee_id' => $detail->employee_id,
+                'employee_name' => $detail->employee_name,
+                'employee_code' => $detail->employee_code,
+                'basic_salary' => (float) $detail->basic_salary,
+                'gross' => (float) $detail->gross,
+                'deductions' => (float) $detail->deductions,
+                'net' => (float) $detail->net,
+                'components' => $detail->component_details ?? [],
                 'attendance_summary' => $detail->attendance_summary ?? [],
             ];
 
@@ -986,13 +1006,11 @@ class PayrollRunService
         $totals['net'] = round($totals['net'], 2);
 
         return [
-            'run'       => $run,
+            'run' => $run,
             'employees' => $employees,
-            'totals'    => $totals,
+            'totals' => $totals,
         ];
     }
-
-
 
     public function getPayrollRunWithEmployees(int $id): array
     {
@@ -1005,10 +1023,11 @@ class PayrollRunService
 
         // Otherwise, dynamically calculate from live salary structure data
         $preview = $this->previewPayroll($run->run_month->format('Y-m-d'));
+
         return [
-            'run'       => $run,
+            'run' => $run,
             'employees' => $preview['employees'],
-            'totals'    => $preview['totals'],
+            'totals' => $preview['totals'],
         ];
     }
 }

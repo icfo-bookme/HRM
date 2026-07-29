@@ -9,6 +9,7 @@ use Modules\Kpi\Services\KpiDailyService;
 class ProcessDailyKpi extends Command
 {
     protected $signature = 'kpi:process-daily {--date= : The date to process (Y-m-d format)}';
+
     protected $description = 'Process daily KPI attendance data for all employees';
 
     protected KpiDailyService $dailyService;
@@ -33,10 +34,12 @@ class ProcessDailyKpi extends Command
             if ($result['errors'] > 0) {
                 $this->warn("⚠ Errors: {$result['errors']} employees");
             }
+
             return Command::SUCCESS;
         }
 
         $this->error("✗ Error: {$result['message']}");
+
         return Command::FAILURE;
     }
 }

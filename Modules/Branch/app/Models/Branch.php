@@ -10,8 +10,9 @@ use Modules\Company\Models\Company;
 
 class Branch extends Model
 {
-    use HasFactory;
     use CustomSoftDeletes;
+    use HasFactory;
+
     protected $table = 'branches';
 
     protected $fillable = [
@@ -34,22 +35,20 @@ class Branch extends Model
     ];
 
     protected $casts = [
-        'is_head_office' => 'boolean', 
-        'is_active'      => 'boolean', 
-        'metadata'       => 'array',   
-        'latitude'       => 'decimal:8',
-        'longitude'      => 'decimal:8',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
+        'is_head_office' => 'boolean',
+        'is_active' => 'boolean',
+        'metadata' => 'array',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
-
 
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class, 'company_id', 'id');
     }
 
-   
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

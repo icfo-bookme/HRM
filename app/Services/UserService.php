@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,14 +19,14 @@ class UserService
         if ($search = $request->get('search')['value'] ?? null) {
             $query->where(function ($q) use ($search) {
                 $q->where('users.name', 'like', "%{$search}%")
-                  ->orWhere('users.email', 'like', "%{$search}%");
+                    ->orWhere('users.email', 'like', "%{$search}%");
             });
         }
 
         return DataTables::of($query)
             ->addIndexColumn()
             ->editColumn('role_id', function ($user) {
-                if (!$user->role) {
+                if (! $user->role) {
                     return '<span class="text-gray-400 text-xs">No Role</span>';
                 }
                 $colors = [
@@ -35,15 +34,16 @@ class UserService
                     'manager' => 'bg-blue-100 text-blue-700',
                 ];
                 $class = $colors[$user->role->slug] ?? 'bg-green-100 text-green-700';
-                return '<span class="px-2.5 py-1 rounded-full text-xs font-medium ' . $class . '">' . e($user->role->name) . '</span>';
+
+                return '<span class="px-2.5 py-1 rounded-full text-xs font-medium '.$class.'">'.e($user->role->name).'</span>';
             })
             ->editColumn('created_at', function ($user) {
                 return $user->created_at->format('d M Y');
             })
             ->addColumn('action', function ($user) {
                 return view('components.action-buttons', [
-                    'id'     => $user->id,
-                    'edit'   => 'userEdit',
+                    'id' => $user->id,
+                    'edit' => 'userEdit',
                     'delete' => 'userDelete',
                 ])->render();
             })
@@ -59,7 +59,7 @@ class UserService
 
                 if ($userId) {
                     $user = User::findOrFail($userId);
-                    if (isset($data['password']) && !empty($data['password'])) {
+                    if (isset($data['password']) && ! empty($data['password'])) {
                         $data['password'] = Hash::make($data['password']);
                     } else {
                         unset($data['password']);
@@ -74,13 +74,13 @@ class UserService
                 }
 
                 // If employee_id is provided, activate the employee
-                if (!empty($data['employee_id'])) {
+                if (! empty($data['employee_id'])) {
                     $employee = Employee::find($data['employee_id']);
                     if ($employee) {
                         $needsUpdate = false;
 
                         // Activate portal if inactive
-                        if (!$employee->portal_active) {
+                        if (! $employee->portal_active) {
                             $employee->portal_active = true;
                             $needsUpdate = true;
                         }
@@ -98,16 +98,16 @@ class UserService
                 }
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => $message,
-                    'user'    => $user->fresh()->load('role'),
+                    'user' => $user->fresh()->load('role'),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error saving user: ' . $e->getMessage(),
-                'user'    => null,
+                'status' => 'error',
+                'message' => 'Error saving user: '.$e->getMessage(),
+                'user' => null,
             ];
         }
     }
@@ -116,15 +116,16 @@ class UserService
     {
         try {
             $user = User::with('role')->findOrFail($id);
+
             return [
                 'status' => 'success',
-                'user'   => $user,
+                'user' => $user,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'User not found.',
-                'user'    => null,
+                'user' => null,
             ];
         }
     }
@@ -132,22 +133,23 @@ class UserService
     public function deleteUser(int $id): array
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::with('role')->findOrFail($id);
             if ($user->isAdmin()) {
                 return [
-                    'status'  => 'error',
+                    'status' => 'error',
                     'message' => 'Cannot delete admin users.',
                 ];
             }
             $user->delete();
+
             return [
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => 'User deleted successfully.',
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting user: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting user: '.$e->getMessage(),
             ];
         }
     }

@@ -4,6 +4,7 @@ namespace Modules\Kpi\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Modules\Kpi\Models\KpiIndicator;
 
 class KpiIndicatorSeeder extends Seeder
 {
@@ -85,7 +86,7 @@ class KpiIndicatorSeeder extends Seeder
         ];
 
         foreach ($indicators as $indicator) {
-            \Modules\Kpi\Models\KpiIndicator::updateOrCreate(
+            KpiIndicator::updateOrCreate(
                 ['category_id' => $indicator['category_id'], 'key' => $indicator['key']],
                 $indicator
             );

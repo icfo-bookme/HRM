@@ -14,9 +14,9 @@ class StoreSkillCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => 'required|string|max:100|unique:skill_categories,name',
+            'name' => 'required|string|max:100|unique:skill_categories,name',
             'description' => 'nullable|string|max:500',
-            'is_active'   => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
         ];
     }
 
@@ -24,7 +24,7 @@ class StoreSkillCategoryRequest extends FormRequest
     {
         return [
             'name.required' => 'Skill category name is required.',
-            'name.unique'   => 'This skill category name already exists.',
+            'name.unique' => 'This skill category name already exists.',
         ];
     }
 }

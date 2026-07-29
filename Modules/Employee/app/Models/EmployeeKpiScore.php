@@ -2,14 +2,15 @@
 
 namespace Modules\Employee\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeeKpiScore extends Model
 {
     use HasFactory;
 
     protected $table = 'employee_kpi_scores';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -42,6 +43,7 @@ class EmployeeKpiScore extends Model
         if ($maxScore) {
             $query->where('score', '<=', $maxScore);
         }
+
         return $query;
     }
 }

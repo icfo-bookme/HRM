@@ -2,6 +2,7 @@
 
 namespace Modules\Salary\Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +19,7 @@ class PayrollRunSeeder extends Seeder
 
         if ($fiscalYears->isEmpty()) {
             $this->command->info('No fiscal years found. Skipping PayrollRunSeeder.');
+
             return;
         }
 
@@ -25,8 +27,8 @@ class PayrollRunSeeder extends Seeder
         $payrollRuns = [];
 
         foreach ($fiscalYears as $fy) {
-            $fyStart = \Carbon\Carbon::parse($fy->start_date);
-            $fyEnd = \Carbon\Carbon::parse($fy->end_date);
+            $fyStart = Carbon::parse($fy->start_date);
+            $fyEnd = Carbon::parse($fy->end_date);
             $currentMonth = $now->startOfMonth();
 
             // Generate monthly runs for each fiscal year (up to current month)
@@ -52,40 +54,40 @@ class PayrollRunSeeder extends Seeder
                 $totalNet = $totalGross - $totalDeductions;
 
                 $payrollRuns[] = [
-                    'fiscal_year_id'  => $fy->id,
-                    'run_month'       => $monthCursor->format('Y-m-d'),
-                    'run_label'       => "{$monthLabel} - {$fy->label}",
-                    'run_type'        => 'Regular',
+                    'fiscal_year_id' => $fy->id,
+                    'run_month' => $monthCursor->format('Y-m-d'),
+                    'run_label' => "{$monthLabel} - {$fy->label}",
+                    'run_type' => 'Regular',
                     'total_employees' => $employeeCount,
-                    'total_gross'     => $totalGross,
-                    'total_net'       => $totalNet,
+                    'total_gross' => $totalGross,
+                    'total_net' => $totalNet,
                     'total_deductions' => $totalDeductions,
-                    'status'          => $status,
-                    'approved_by'     => in_array($status, ['Approved', 'Disbursed', 'Locked']) ? $userId : null,
-                    'approved_at'     => in_array($status, ['Approved', 'Disbursed', 'Locked']) ? $monthCursor->copy()->addDays(25)->format('Y-m-d H:i:s') : null,
-                    'disbursed_by'    => in_array($status, ['Disbursed', 'Locked']) ? $userId : null,
-                    'disbursed_at'    => in_array($status, ['Disbursed', 'Locked']) ? $monthCursor->copy()->addDays(28)->format('Y-m-d H:i:s') : null,
-                    'notes'           => $this->getNotesForMonth($monthCursor, $status),
-                    'created_by'      => $userId,
-                    'created_at'      => $monthCursor->copy()->subDays(5)->format('Y-m-d H:i:s'),
-                    'updated_at'      => $now->format('Y-m-d H:i:s'),
+                    'status' => $status,
+                    'approved_by' => in_array($status, ['Approved', 'Disbursed', 'Locked']) ? $userId : null,
+                    'approved_at' => in_array($status, ['Approved', 'Disbursed', 'Locked']) ? $monthCursor->copy()->addDays(25)->format('Y-m-d H:i:s') : null,
+                    'disbursed_by' => in_array($status, ['Disbursed', 'Locked']) ? $userId : null,
+                    'disbursed_at' => in_array($status, ['Disbursed', 'Locked']) ? $monthCursor->copy()->addDays(28)->format('Y-m-d H:i:s') : null,
+                    'notes' => $this->getNotesForMonth($monthCursor, $status),
+                    'created_by' => $userId,
+                    'created_at' => $monthCursor->copy()->subDays(5)->format('Y-m-d H:i:s'),
+                    'updated_at' => $now->format('Y-m-d H:i:s'),
                 ];
 
                 $monthCursor = $nextMonth;
             }
         }
 
-        if (!empty($payrollRuns)) {
+        if (! empty($payrollRuns)) {
             foreach ($payrollRuns as $run) {
                 DB::table('payroll_runs')->updateOrInsert(
                     [
                         'run_month' => $run['run_month'],
-                        'run_type'  => $run['run_type'],
+                        'run_type' => $run['run_type'],
                     ],
                     $run
                 );
             }
-            $this->command->info(count($payrollRuns) . ' payroll runs created successfully.');
+            $this->command->info(count($payrollRuns).' payroll runs created successfully.');
         } else {
             $this->command->info('No payroll runs to seed.');
         }
@@ -96,10 +98,19 @@ class PayrollRunSeeder extends Seeder
      */
     private function getStatusForMonth(int $monthsAgo): string
     {
-        if ($monthsAgo >= 3) return 'Locked';
-        if ($monthsAgo === 2) return 'Disbursed';
-        if ($monthsAgo === 1) return 'Approved';
-        if ($monthsAgo === 0) return 'Calculated';
+        if ($monthsAgo >= 3) {
+            return 'Locked';
+        }
+        if ($monthsAgo === 2) {
+            return 'Disbursed';
+        }
+        if ($monthsAgo === 1) {
+            return 'Approved';
+        }
+        if ($monthsAgo === 0) {
+            return 'Calculated';
+        }
+
         return 'Draft';
     }
 
@@ -111,18 +122,19 @@ class PayrollRunSeeder extends Seeder
     {
         $baseGross = 45000;
         $seasonalMultiplier = match ($month) {
-            12              => 1.3,  // December (holiday bonus season)
-            6, 7            => 1.1,  // Mid-year adjustments
-            1               => 1.15, // New year increments
-            default         => 1.0,
+            12 => 1.3,  // December (holiday bonus season)
+            6, 7 => 1.1,  // Mid-year adjustments
+            1 => 1.15, // New year increments
+            default => 1.0,
         };
+
         return round($baseGross * $seasonalMultiplier, 2);
     }
 
     /**
      * Generate realistic notes for payroll runs.
      */
-    private function getNotesForMonth(\Carbon\Carbon $month, string $status): ?string
+    private function getNotesForMonth(Carbon $month, string $status): ?string
     {
         $monthNum = $month->month;
         $notes = [

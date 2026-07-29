@@ -158,8 +158,8 @@ class RolePermissionSeeder extends Seeder
         $employeeRole->syncPermissions($employeePermissionIds);
 
         $this->command->info('Roles and Permissions seeded successfully!');
-        $this->command->info('  - Admin: ' . $adminRole->permissions()->count() . ' permissions');
-        $this->command->info('  - Manager: ' . $managerRole->permissions()->count() . ' permissions');
-        $this->command->info('  - Employee: ' . $employeeRole->permissions()->count() . ' permissions');
+        $this->command->info('  - Admin: '.$adminRole->permissions()->count().' permissions');
+        $this->command->info('  - Manager: '.$managerRole->permissions()->count().' permissions');
+        $this->command->info('  - Employee: '.$employeeRole->permissions()->count().' permissions');
     }
 }

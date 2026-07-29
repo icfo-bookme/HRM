@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('attendance_devices', function (Blueprint $table) {
@@ -23,7 +23,7 @@ return new class extends Migration {
                 'Card',
                 'Mobile App',
                 'Web',
-                'Manual'
+                'Manual',
             ]);
 
             $table->string('brand', 100)->nullable();
@@ -39,7 +39,7 @@ return new class extends Migration {
                 'WAN',
                 'WiFi',
                 'Cloud API',
-                'USB'
+                'USB',
             ])->default('LAN');
 
             $table->string('firmware_version', 50)->nullable();
@@ -54,7 +54,7 @@ return new class extends Migration {
                 'Online',
                 'Offline',
                 'Syncing',
-                'Error'
+                'Error',
             ])->default('Offline');
 
             $table->boolean('is_active')->default(true);

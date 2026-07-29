@@ -22,7 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Attendance Report Routes
     Route::get('/attendance/report', [AttendanceReportController::class, 'index'])->name('attendance.report');
     Route::get('/dataTable/attendance-report', [AttendanceReportController::class, 'dataTable'])->name('attendance.report.dataTable');
-    
+
     // Overtime Report Routes
     Route::get('/attendance/overtime-report', [AttendanceReportController::class, 'overtimeIndex'])->name('attendance.overtime');
     Route::get('/dataTable/attendance-overtime', [AttendanceReportController::class, 'overtimeDataTable'])->name('attendance.overtime.dataTable');

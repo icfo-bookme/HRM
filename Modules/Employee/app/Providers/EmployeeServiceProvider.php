@@ -2,9 +2,9 @@
 
 namespace Modules\Employee\Providers;
 
-use Nwidart\Modules\Support\ModuleServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use Modules\Employee\Console\Commands\CheckUpcomingBirthdays;
+use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class EmployeeServiceProvider extends ModuleServiceProvider
 {
@@ -39,8 +39,8 @@ class EmployeeServiceProvider extends ModuleServiceProvider
 
     /**
      * Define module schedules.
-     * 
-     * @param $schedule
+     *
+     * @param  $schedule
      */
     // protected function configureSchedules(Schedule $schedule): void
     // {

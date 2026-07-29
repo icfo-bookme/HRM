@@ -3,6 +3,7 @@
 namespace Modules\Employee\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Employee\StoreWeekendRequest;
 use Illuminate\Http\Request;
 use Modules\Employee\Services\EmployeeWeekendService;
 
@@ -27,9 +28,9 @@ class EmployeeWeekendController extends Controller
         return view('employee::weekends.index', compact('employees', 'search'));
     }
 
-    public function store(Request $request)
+    public function store(StoreWeekendRequest $request)
     {
-        $result = $this->weekendService->storeWeekend($request);
+        $result = $this->weekendService->storeWeekend($request->validated());
 
         if ($result['status'] === 'success') {
             return response()->json($result);

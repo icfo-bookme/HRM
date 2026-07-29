@@ -22,8 +22,8 @@ class PermissionService
             })
             ->addColumn('action', function ($perm) {
                 return view('components.action-buttons', [
-                    'id'     => $perm->id,
-                    'edit'   => 'permissionEdit',
+                    'id' => $perm->id,
+                    'edit' => 'permissionEdit',
                     'delete' => 'permissionDelete',
                 ])->render();
             })
@@ -39,8 +39,18 @@ class PermissionService
 
                 if ($permId) {
                     $permission = Permission::findOrFail($permId);
+                    $slug = Str::slug($data['name']);
+                    // Check if slug already exists (excluding current permission)
+                    if (Permission::where('slug', $slug)->where('id', '!=', $permId)->exists()) {
+                        return [
+                            'status' => 'error',
+                            'message' => 'A permission with this name already exists (slug: '.$slug.').',
+                            'permission' => null,
+                        ];
+                    }
                     $permission->update([
-                        'name'        => $data['name'],
+                        'name' => $data['name'],
+                        'slug' => $slug,
                         'description' => $data['description'] ?? null,
                     ]);
                     $message = 'Permission updated successfully.';
@@ -49,30 +59,30 @@ class PermissionService
                     // Check if slug already exists
                     if (Permission::where('slug', $slug)->exists()) {
                         return [
-                            'status'     => 'error',
-                            'message'    => 'A permission with this name already exists (slug: ' . $slug . ').',
+                            'status' => 'error',
+                            'message' => 'A permission with this name already exists (slug: '.$slug.').',
                             'permission' => null,
                         ];
                     }
                     $permission = Permission::create([
-                        'name'        => $data['name'],
-                        'slug'        => $slug,
-                        'group'       => $data['group'] ?? 'General',
+                        'name' => $data['name'],
+                        'slug' => $slug,
+                        'group' => $data['group'] ?? 'General',
                         'description' => $data['description'] ?? null,
                     ]);
                     $message = 'Permission created successfully.';
                 }
 
                 return [
-                    'status'     => 'success',
-                    'message'    => $message,
+                    'status' => 'success',
+                    'message' => $message,
                     'permission' => $permission->fresh(),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'     => 'error',
-                'message'    => 'Error saving permission: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error saving permission: '.$e->getMessage(),
                 'permission' => null,
             ];
         }
@@ -82,14 +92,15 @@ class PermissionService
     {
         try {
             $permission = Permission::findOrFail($id);
+
             return [
-                'status'     => 'success',
+                'status' => 'success',
                 'permission' => $permission,
             ];
         } catch (\Exception $e) {
             return [
-                'status'     => 'error',
-                'message'    => 'Permission not found.',
+                'status' => 'error',
+                'message' => 'Permission not found.',
                 'permission' => null,
             ];
         }
@@ -102,14 +113,15 @@ class PermissionService
             // Detach from all roles first
             $permission->roles()->detach();
             $permission->delete();
+
             return [
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => 'Permission deleted successfully.',
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting permission: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting permission: '.$e->getMessage(),
             ];
         }
     }

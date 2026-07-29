@@ -2,11 +2,14 @@
 
 namespace Modules\Kpi\Http\Controllers;
 
+use App\Http\Requests\Kpi\CompleteTaskRequest;
+use App\Http\Requests\Kpi\StoreTaskRequest;
+use App\Http\Requests\Kpi\UpdateTaskRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Modules\Kpi\Services\KpiTaskService;
-use Modules\Kpi\Models\KpiTask;
 use Modules\Employee\Models\Employee;
+use Modules\Kpi\Models\KpiTask;
+use Modules\Kpi\Services\KpiTaskService;
 
 class KpiTaskController extends Controller
 {
@@ -17,65 +20,44 @@ class KpiTaskController extends Controller
         $this->taskService = $taskService;
     }
 
-    /**
-     * Display a listing of tasks.
-     */
     public function index(Request $request)
-    { 
+    {
         if ($request->ajax()) {
             $employeeId = auth()->user()->employee?->id;
+
             return $this->taskService->getTaskDataTable($request, $employeeId);
         }
 
         $employees = Employee::with('personalInfo')->active()->get();
+
         return view('kpi::tasks.index', compact('employees'));
     }
 
-    /**
-     * Show the form for creating a new task.
-     */
     public function create()
     {
         $employees = Employee::with('personalInfo')->active()->get();
+
         return view('kpi::tasks.create', compact('employees'));
     }
 
-    /**
-     * Store a newly created task.
-     */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'target_score' => 'required|numeric|min:0.1|max:999999.99',
-            'priority' => 'required|in:Low,Medium,High,Critical',
-            'deadline' => 'nullable|date|after_or_equal:today',
-        ]);
+        $result = $this->taskService->createTask($request->validated());
 
-        $result = $this->taskService->createTask($validated);
+        if ($result['status'] === 'success') {
+            return response()->json([
+                'status' => 'success',
+                'message' => $result['message'],
+                'task' => $result['task'],
+            ]);
+        }
 
-       if ($result['status'] === 'success') {
         return response()->json([
-            'status' => 'success',
+            'status' => 'error',
             'message' => $result['message'],
-            'task' => $result['task'],
-        ]);
+        ], 422);
     }
 
-    return response()->json([
-        'status' => 'error',
-        'message' => $result['message'],
-    ], 422);
-     
-
-        return back()->with('error', $result['message'])->withInput();
-    }
-
-    /**
-     * Display the specified task.
-     */
     public function show(int $id)
     {
         $task = KpiTask::with(['employee.personalInfo', 'employee.department', 'assignedBy.personalInfo'])
@@ -91,37 +73,23 @@ class KpiTaskController extends Controller
         return view('kpi::tasks.show', compact('task'));
     }
 
-    /**
-     * Show the form for editing the specified task.
-     */
     public function edit(int $id)
     {
         $task = KpiTask::findOrFail($id);
 
-        if (!in_array($task->status, ['Pending', 'In Progress'])) {
+        if (! in_array($task->status, ['Pending', 'In Progress'])) {
             return redirect()->route('kpi.tasks.index')
                 ->with('error', 'Only pending or in-progress tasks can be edited.');
         }
 
         $employees = Employee::with('personalInfo')->active()->get();
+
         return view('kpi::tasks.edit', compact('task', 'employees'));
     }
 
-    /**
-     * Update the specified task.
-     */
-    public function update(Request $request, int $id)
+    public function update(UpdateTaskRequest $request, int $id)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'target_score' => 'required|numeric|min:0.1|max:999999.99',
-            'priority' => 'required|in:Low,Medium,High,Critical',
-            'deadline' => 'nullable|date',
-            'status' => 'nullable|in:Pending,In Progress',
-        ]);
-
-        $result = $this->taskService->updateTask($id, $validated);
+        $result = $this->taskService->updateTask($id, $request->validated());
 
         if ($result['status'] === 'success') {
             return redirect()->route('kpi.tasks.index')
@@ -131,15 +99,9 @@ class KpiTaskController extends Controller
         return back()->with('error', $result['message'])->withInput();
     }
 
-    /**
-     * Mark task as completed.
-     */
-    public function complete(Request $request, int $id)
+    public function complete(CompleteTaskRequest $request, int $id)
     {
-        $validated = $request->validate([
-            'obtained_score' => 'required|numeric|min:0|max:999999.99',
-            'completion_note' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         $result = $this->taskService->completeTask(
             $id,
@@ -159,9 +121,6 @@ class KpiTaskController extends Controller
         return back()->with('error', $result['message']);
     }
 
-    /**
-     * Remove the specified task.
-     */
     public function destroy(int $id)
     {
         $result = $this->taskService->deleteTask($id);

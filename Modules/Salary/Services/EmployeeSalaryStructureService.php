@@ -36,7 +36,7 @@ class EmployeeSalaryStructureService
 
         return DataTables::of($query)
             ->editColumn('employee_id', function ($structure) {
-                return $structure->employee?->employee_code . ' - ' . ($structure->employee?->personalInfo?->full_name ?? 'N/A');
+                return $structure->employee?->employee_code.' - '.($structure->employee?->personalInfo?->full_name ?? 'N/A');
             })
             ->editColumn('component_id', function ($structure) {
                 return $structure->component?->name ?? 'N/A';
@@ -44,8 +44,9 @@ class EmployeeSalaryStructureService
             ->editColumn('amount', function ($structure) {
                 $value = number_format($structure->amount, 2);
                 if ($structure->is_percentage) {
-                    return $value . ' %';
+                    return $value.' %';
                 }
+
                 return $value;
             })
             ->editColumn('effective_from', function (EmployeeSalaryStructure $structure) {
@@ -59,8 +60,8 @@ class EmployeeSalaryStructureService
             })
             ->addColumn('action', function (EmployeeSalaryStructure $structure) {
                 return view('components.action-buttons', [
-                    'id'     => $structure->id,
-                    'edit'   => 'employeeSalaryStructureEdit',
+                    'id' => $structure->id,
+                    'edit' => 'employeeSalaryStructureEdit',
                     'delete' => 'employeeSalaryStructureDelete',
                 ])->render();
             })
@@ -68,7 +69,6 @@ class EmployeeSalaryStructureService
             ->make(true);
     }
 
-   
     public function saveEmployeeSalaryStructure(array $data): array
     {
         try {
@@ -79,23 +79,23 @@ class EmployeeSalaryStructureService
                     $structure = EmployeeSalaryStructure::findOrFail($structureId);
                     $structure->update($data);
                     $message = 'Employee salary structure updated successfully.';
-                    $status  = 'success';
+                    $status = 'success';
                 } else {
                     $structure = EmployeeSalaryStructure::create($data);
-                    $message  = 'Employee salary structure created successfully.';
-                    $status   = 'success';
+                    $message = 'Employee salary structure created successfully.';
+                    $status = 'success';
                 }
 
                 return [
-                    'status'    => $status,
-                    'message'   => $message,
+                    'status' => $status,
+                    'message' => $message,
                     'structure' => $structure->fresh()->load(['employee', 'component']),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'    => 'error',
-                'message'   => 'Error saving employee salary structure: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error saving employee salary structure: '.$e->getMessage(),
                 'structure' => null,
             ];
         }
@@ -108,14 +108,15 @@ class EmployeeSalaryStructureService
     {
         try {
             $structure = EmployeeSalaryStructure::with(['employee', 'component'])->findOrFail($id);
+
             return [
-                'status'    => 'success',
+                'status' => 'success',
                 'structure' => $structure,
             ];
         } catch (\Exception $e) {
             return [
-                'status'    => 'error',
-                'message'   => 'Employee salary structure not found.',
+                'status' => 'error',
+                'message' => 'Employee salary structure not found.',
                 'structure' => null,
             ];
         }
@@ -132,19 +133,18 @@ class EmployeeSalaryStructureService
                 $structure->delete();
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Employee salary structure deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting employee salary structure: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting employee salary structure: '.$e->getMessage(),
             ];
         }
     }
 
-  
     public function getStructureByEmployee(int $employeeId)
     {
         return EmployeeSalaryStructure::with('component')

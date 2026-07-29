@@ -2,11 +2,10 @@
 
 namespace Modules\Notice\Services;
 
-use Modules\Notice\Models\Notice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Modules\Notice\Models\Notice;
 use Yajra\DataTables\DataTables;
 
 class NoticeService
@@ -32,13 +31,14 @@ class NoticeService
         return DataTables::of($query)
             ->addColumn('action', function ($row) {
                 $editUrl = route('notice.edit', $row->id);
+
                 return '
                     <div class="flex items-center gap-3">
-                        <a href="' . $editUrl . '"
+                        <a href="'.$editUrl.'"
                            class="text-indigo-600 hover:text-indigo-900 font-medium">
                            <i class="fa-solid fa-pen-to-square mr-1"></i>
                         </a>
-                        <button onclick="noticeDelete(' . $row->id . ')"
+                        <button onclick="noticeDelete('.$row->id.')"
                            class="text-red-600 hover:text-red-900 font-medium">
                            <i class="fa-solid fa-trash mr-1"></i>
                         </button>
@@ -48,34 +48,38 @@ class NoticeService
             ->addColumn('attachment', function ($row) {
                 if ($row->attachment_path) {
                     $fileName = basename($row->attachment_path);
-                    return '<a href="' . Storage::url($row->attachment_path) . '" target="_blank" class="text-indigo-600 hover:text-indigo-800 underline text-xs">' . $fileName . '</a>';
+
+                    return '<a href="'.Storage::url($row->attachment_path).'" target="_blank" class="text-indigo-600 hover:text-indigo-800 underline text-xs">'.$fileName.'</a>';
                 }
+
                 return '-';
             })
             ->editColumn('notice_type', function ($row) {
                 $colors = [
-                    'General'    => 'bg-slate-100 text-slate-800',
-                    'HR'         => 'bg-blue-100 text-blue-800',
-                    'Holiday'    => 'bg-green-100 text-green-800',
+                    'General' => 'bg-slate-100 text-slate-800',
+                    'HR' => 'bg-blue-100 text-blue-800',
+                    'Holiday' => 'bg-green-100 text-green-800',
                     'Attendance' => 'bg-yellow-100 text-yellow-800',
-                    'Payroll'    => 'bg-purple-100 text-purple-800',
-                    'Policy'     => 'bg-indigo-100 text-indigo-800',
-                    'Training'   => 'bg-pink-100 text-pink-800',
-                    'Event'      => 'bg-orange-100 text-orange-800',
-                    'Emergency'  => 'bg-red-100 text-red-800',
+                    'Payroll' => 'bg-purple-100 text-purple-800',
+                    'Policy' => 'bg-indigo-100 text-indigo-800',
+                    'Training' => 'bg-pink-100 text-pink-800',
+                    'Event' => 'bg-orange-100 text-orange-800',
+                    'Emergency' => 'bg-red-100 text-red-800',
                 ];
                 $color = $colors[$row->notice_type] ?? 'bg-slate-100 text-slate-700';
-                return '<span class="' . $color . ' text-xs font-medium px-2.5 py-0.5 rounded-full">' . $row->notice_type . '</span>';
+
+                return '<span class="'.$color.' text-xs font-medium px-2.5 py-0.5 rounded-full">'.$row->notice_type.'</span>';
             })
             ->editColumn('priority', function ($row) {
                 $colors = [
-                    'Low'    => 'bg-green-100 text-green-800',
+                    'Low' => 'bg-green-100 text-green-800',
                     'Medium' => 'bg-yellow-100 text-yellow-800',
-                    'High'   => 'bg-orange-100 text-orange-800',
+                    'High' => 'bg-orange-100 text-orange-800',
                     'Urgent' => 'bg-red-100 text-red-800',
                 ];
                 $color = $colors[$row->priority] ?? 'bg-slate-100 text-slate-700';
-                return '<span class="' . $color . ' text-xs font-medium px-2.5 py-0.5 rounded-full">' . $row->priority . '</span>';
+
+                return '<span class="'.$color.' text-xs font-medium px-2.5 py-0.5 rounded-full">'.$row->priority.'</span>';
             })
             ->editColumn('is_pinned', function ($row) {
                 return $row->is_pinned
@@ -103,9 +107,9 @@ class NoticeService
     public function saveNotice(array $data, $request = null)
     {
         return DB::transaction(function () use ($data, $request) {
-            $data['is_popup'] = isset($data['is_popup']) ? (bool)$data['is_popup'] : false;
-            $data['is_pinned'] = isset($data['is_pinned']) ? (bool)$data['is_pinned'] : false;
-            $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
+            $data['is_popup'] = isset($data['is_popup']) ? (bool) $data['is_popup'] : false;
+            $data['is_pinned'] = isset($data['is_pinned']) ? (bool) $data['is_pinned'] : false;
+            $data['is_active'] = isset($data['is_active']) ? (bool) $data['is_active'] : true;
 
             // Handle file upload
             if ($request && $request->hasFile('attachment')) {
@@ -114,7 +118,7 @@ class NoticeService
                 $data['attachment_path'] = $path;
             }
 
-            if (!empty($data['id'])) {
+            if (! empty($data['id'])) {
                 $notice = Notice::findOrFail($data['id']);
 
                 // Handle removal of existing attachment
@@ -130,14 +134,15 @@ class NoticeService
                 return [
                     'status' => true,
                     'message' => 'Notice updated successfully.',
-                    'data' => $notice
+                    'data' => $notice,
                 ];
             } else {
                 $notice = Notice::create($data);
+
                 return [
                     'status' => true,
                     'message' => 'Notice created successfully.',
-                    'data' => $notice
+                    'data' => $notice,
                 ];
             }
         });
@@ -146,9 +151,9 @@ class NoticeService
     public function saveNoticeFromPage(array $data, $request = null)
     {
         return DB::transaction(function () use ($data, $request) {
-            $data['is_popup'] = isset($data['is_popup']) ? (bool)$data['is_popup'] : false;
-            $data['is_pinned'] = isset($data['is_pinned']) ? (bool)$data['is_pinned'] : false;
-            $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
+            $data['is_popup'] = isset($data['is_popup']) ? (bool) $data['is_popup'] : false;
+            $data['is_pinned'] = isset($data['is_pinned']) ? (bool) $data['is_pinned'] : false;
+            $data['is_active'] = isset($data['is_active']) ? (bool) $data['is_active'] : true;
 
             // Handle file upload
             if ($request && $request->hasFile('attachment')) {
@@ -157,7 +162,7 @@ class NoticeService
                 $data['attachment_path'] = $path;
             }
 
-            if (!empty($data['id'])) {
+            if (! empty($data['id'])) {
                 $notice = Notice::findOrFail($data['id']);
 
                 // Handle removal of existing attachment
@@ -169,10 +174,12 @@ class NoticeService
                 }
 
                 $notice->update($data);
+
                 return $notice;
             }
 
             $notice = Notice::create($data);
+
             return $notice;
         });
     }
@@ -181,16 +188,16 @@ class NoticeService
     {
         $notice = Notice::find($id);
 
-        if (!$notice) {
+        if (! $notice) {
             return [
                 'status' => false,
-                'message' => 'Notice not found!'
+                'message' => 'Notice not found!',
             ];
         }
 
         return [
             'status' => true,
-            'data' => $notice
+            'data' => $notice,
         ];
     }
 
@@ -198,10 +205,10 @@ class NoticeService
     {
         $notice = Notice::find($id);
 
-        if (!$notice) {
+        if (! $notice) {
             return [
                 'status' => false,
-                'message' => 'Notice not found or already deleted.'
+                'message' => 'Notice not found or already deleted.',
             ];
         }
 
@@ -211,12 +218,12 @@ class NoticeService
         }
 
         $notice->update([
-            'deleted_at' => now()
+            'deleted_at' => now(),
         ]);
 
         return [
             'status' => true,
-            'message' => 'Notice deleted successfully.'
+            'message' => 'Notice deleted successfully.',
         ];
     }
 }

@@ -2,11 +2,15 @@
 
 namespace Modules\Leave\Services;
 
+use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Leave\Models\LeaveApplication;
-use Modules\Employee\Models\EmployeeLeaveBalance;
 use Modules\Attendance\Models\Attendance;
+use Modules\Employee\Models\EmployeeLeaveBalance;
+use Modules\Leave\Models\LeaveApplication;
+use Modules\Leave\Models\LeaveType;
+use Modules\Setting\Models\FiscalYear;
 use Yajra\DataTables\DataTables;
 
 class LeaveApplicationService
@@ -67,15 +71,18 @@ class LeaveApplicationService
                 });
             })
             ->editColumn('application_no', function ($app) {
-                return '<span class="font-mono text-xs text-slate-500">' . e($app->application_no ?? '—') . '</span>';
+                return '<span class="font-mono text-xs text-slate-500">'.e($app->application_no ?? '—').'</span>';
             })
             ->editColumn('employee', function ($app) {
                 $emp = $app->employee;
-                if (!$emp) return 'N/A';
+                if (! $emp) {
+                    return 'N/A';
+                }
                 $name = $emp->full_name ?: $emp->employee_code;
                 $code = $emp->employee_code;
-                return '<div class="text-sm font-medium text-slate-800">' . e($name) . '</div>' .
-                    '<div class="text-xs text-slate-400">' . e($code) . '</div>';
+
+                return '<div class="text-sm font-medium text-slate-800">'.e($name).'</div>'.
+                    '<div class="text-xs text-slate-400">'.e($code).'</div>';
             })
             ->editColumn('leave_type', function ($app) {
                 return $app->leaveType?->name ?? 'N/A';
@@ -88,7 +95,8 @@ class LeaveApplicationService
             })
             ->editColumn('total_days', function ($app) {
                 $half = $app->is_half_day ? ' <span class="text-xs text-amber-500">(Half)</span>' : '';
-                return '<span class="font-semibold">' . number_format($app->total_days, 1) . '</span>' . $half;
+
+                return '<span class="font-semibold">'.number_format($app->total_days, 1).'</span>'.$half;
             })
             ->editColumn('status', function ($app) {
                 return $app->status_badge;
@@ -99,8 +107,8 @@ class LeaveApplicationService
             ->addColumn('action', function ($app) use ($showApproveButtons) {
 
                 $buttons = view('components.action-buttons', [
-                    'id'     => $app->id,
-                    'edit'   => 'leaveApplicationEdit',
+                    'id' => $app->id,
+                    'edit' => 'leaveApplicationEdit',
                     'delete' => 'leaveApplicationDelete',
                 ])->render();
 
@@ -111,7 +119,7 @@ class LeaveApplicationService
         <button
             type="button"
             class="bg-orange-600 text-white rounded-md mt-1 p-1"
-            onclick="disapproveLeave(' . $app->id . ')">
+            onclick="disapproveLeave('.$app->id.')">
             <i class="fa fa-undo"></i> Disapprove
         </button>
     ';
@@ -120,7 +128,7 @@ class LeaveApplicationService
         <button
             type="button"
             class="bg-green-700 text-white rounded-md mt-1 p-1"
-            onclick="approveLeave(' . $app->id . ')">
+            onclick="approveLeave('.$app->id.')">
             <i class="fa fa-check"></i> Approve
         </button>
     ';
@@ -140,7 +148,7 @@ class LeaveApplicationService
                 $applicationId = $data['application_id'] ?? null;
 
                 // Auto-generate application number for new records
-                if (!$applicationId && empty($data['application_no'])) {
+                if (! $applicationId && empty($data['application_no'])) {
                     $data['application_no'] = LeaveApplication::generateApplicationNo();
                 }
 
@@ -148,15 +156,15 @@ class LeaveApplicationService
                     $application = LeaveApplication::findOrFail($applicationId);
                     $application->update($data);
                     $message = 'Leave application updated successfully.';
-                    $status  = 'success';
+                    $status = 'success';
                 } else {
                     $application = LeaveApplication::create($data);
                     $message = 'Leave application submitted successfully.';
-                    $status  = 'success';
+                    $status = 'success';
 
                     // Check balance availability for the applied leave type
-                    if (!empty($data['leave_type_id']) && !empty($data['employee_id'])) {
-                        $leaveType = \Modules\Leave\Models\LeaveType::find($data['leave_type_id']);
+                    if (! empty($data['leave_type_id']) && ! empty($data['employee_id'])) {
+                        $leaveType = LeaveType::find($data['leave_type_id']);
                         if ($leaveType && $leaveType->affects_balance) {
                             $balance = EmployeeLeaveBalance::where('employee_id', $data['employee_id'])
                                 ->where('leave_type_id', $data['leave_type_id'])
@@ -164,15 +172,15 @@ class LeaveApplicationService
 
                             $totalDays = $data['total_days'] ?? 0;
 
-                            if (!$balance) {
+                            if (! $balance) {
                                 // No balance record exists
-                                $message .= ' ⚠️ Warning: No leave balance found for "' . $leaveType->name . '". Please contact HR to set up your balance.';
+                                $message .= ' ⚠️ Warning: No leave balance found for "'.$leaveType->name.'". Please contact HR to set up your balance.';
                             } else {
                                 $currentRemaining = $balance->opening_balance + $balance->earned_days - $balance->used_days - $balance->encashed_days - $balance->lapsed_days - $balance->pending_days;
 
                                 if ($currentRemaining < $totalDays) {
                                     $shortage = $totalDays - max(0, $currentRemaining);
-                                    $message .= ' ⚠️ Warning: Insufficient leave balance! You have only ' . max(0, $currentRemaining) . ' ' . $leaveType->name . ' day(s) remaining, but applying for ' . $totalDays . ' day(s). You are ' . $shortage . ' day(s) short.';
+                                    $message .= ' ⚠️ Warning: Insufficient leave balance! You have only '.max(0, $currentRemaining).' '.$leaveType->name.' day(s) remaining, but applying for '.$totalDays.' day(s). You are '.$shortage.' day(s) short.';
                                 }
                             }
                         }
@@ -180,38 +188,39 @@ class LeaveApplicationService
                 }
 
                 return [
-                    'status'  => $status,
+                    'status' => $status,
                     'message' => $message,
-                    'data'    => $application->fresh()->load(['employee.personalInfo', 'leaveType', 'approvedBy', 'substitute']),
+                    'data' => $application->fresh()->load(['employee.personalInfo', 'leaveType', 'approvedBy', 'substitute']),
                 ];
             });
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             $errorMsg = $e->getMessage();
 
             if (str_contains($errorMsg, 'leave_applications_application_no_unique') || str_contains($errorMsg, 'Duplicate entry')) {
                 // Regenerate and retry once
                 if (empty($data['application_no'])) {
                     $data['application_no'] = LeaveApplication::generateApplicationNo();
+
                     return $this->saveLeaveApplication($data);
                 }
 
                 return [
-                    'status'  => 'error',
+                    'status' => 'error',
                     'message' => 'Duplicate application number. Please try again.',
-                    'data'    => null,
+                    'data' => null,
                 ];
             }
 
             return [
-                'status'  => 'error',
-                'message' => 'Error saving leave application: ' . $e->getMessage(),
-                'data'    => null,
+                'status' => 'error',
+                'message' => 'Error saving leave application: '.$e->getMessage(),
+                'data' => null,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error saving leave application: ' . $e->getMessage(),
-                'data'    => null,
+                'status' => 'error',
+                'message' => 'Error saving leave application: '.$e->getMessage(),
+                'data' => null,
             ];
         }
     }
@@ -224,13 +233,13 @@ class LeaveApplicationService
 
             return [
                 'status' => 'success',
-                'data'   => $application,
+                'data' => $application,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Leave application not found.',
-                'data'    => null,
+                'data' => null,
             ];
         }
     }
@@ -242,9 +251,9 @@ class LeaveApplicationService
                 $application = LeaveApplication::findOrFail($id);
 
                 // Only allow deletion of Draft or Cancelled applications
-                if (!in_array($application->status, [LeaveApplication::STATUS_DRAFT, LeaveApplication::STATUS_CANCELLED])) {
+                if (! in_array($application->status, [LeaveApplication::STATUS_DRAFT, LeaveApplication::STATUS_CANCELLED])) {
                     return [
-                        'status'  => 'error',
+                        'status' => 'error',
                         'message' => 'Only draft or cancelled applications can be deleted.',
                     ];
                 }
@@ -252,14 +261,14 @@ class LeaveApplicationService
                 $application->delete();
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Leave application deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting leave application: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting leave application: '.$e->getMessage(),
             ];
         }
     }
@@ -273,7 +282,7 @@ class LeaveApplicationService
             ->where('leave_type_id', $leaveTypeId)
             ->first();
 
-        if (!$balance) {
+        if (! $balance) {
             return null;
         }
 
@@ -300,8 +309,8 @@ class LeaveApplicationService
      */
     private function createLeaveAttendance(int $employeeId, string $fromDate, string $toDate, bool $isHalfDay = false, ?string $halfDayPeriod = null): void
     {
-        $start = \Carbon\Carbon::parse($fromDate);
-        $end = \Carbon\Carbon::parse($toDate);
+        $start = Carbon::parse($fromDate);
+        $end = Carbon::parse($toDate);
 
         for ($date = $start; $date->lte($end); $date->addDay()) {
             $attendanceDate = $date->format('Y-m-d');
@@ -311,7 +320,7 @@ class LeaveApplicationService
                 ->where('attendance_date', $attendanceDate)
                 ->first();
 
-            if (!$existing) {
+            if (! $existing) {
                 $attendanceData = [
                     'employee_id' => $employeeId,
                     'attendance_date' => $attendanceDate,
@@ -353,8 +362,8 @@ class LeaveApplicationService
      */
     private function deleteLeaveAttendance(int $employeeId, string $fromDate, string $toDate): void
     {
-        $start = \Carbon\Carbon::parse($fromDate);
-        $end = \Carbon\Carbon::parse($toDate);
+        $start = Carbon::parse($fromDate);
+        $end = Carbon::parse($toDate);
 
         for ($date = $start; $date->lte($end); $date->addDay()) {
             $attendanceDate = $date->format('Y-m-d');
@@ -377,7 +386,7 @@ class LeaveApplicationService
 
                 if ($application->status !== LeaveApplication::STATUS_APPROVED) {
                     return [
-                        'status'  => 'error',
+                        'status' => 'error',
                         'message' => 'Only approved applications can be disapproved.',
                     ];
                 }
@@ -390,7 +399,7 @@ class LeaveApplicationService
                 );
 
                 $application->update([
-                    'status'      => LeaveApplication::STATUS_PENDING,
+                    'status' => LeaveApplication::STATUS_PENDING,
                     'approved_by' => null,
                     'approved_at' => null,
                 ]);
@@ -406,15 +415,15 @@ class LeaveApplicationService
                 }
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Leave application has been disapproved and reverted to Pending.',
-                    'data'    => $application->fresh()->load(['employee.personalInfo', 'leaveType']),
+                    'data' => $application->fresh()->load(['employee.personalInfo', 'leaveType']),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error disapproving leave: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error disapproving leave: '.$e->getMessage(),
             ];
         }
     }
@@ -444,14 +453,14 @@ class LeaveApplicationService
                 $leaveTypeName = $application->leaveType->name;
                 $totalDays = $application->total_days;
 
-                if (!$balance) {
+                if (! $balance) {
                     $warning = "⚠️ {$empName} has NO leave balance record for '{$leaveTypeName}'. If approved, a balance record will be created with {$totalDays} day(s) used (negative balance). Continue?";
                 } else {
                     $currentRemaining = $balance->opening_balance + $balance->earned_days - $balance->used_days - $balance->encashed_days - $balance->lapsed_days - $balance->pending_days;
 
                     if ($currentRemaining < $totalDays) {
                         $shortage = $totalDays - max(0, $currentRemaining);
-                        $warning = "⚠️ {$empName} has insufficient '{$leaveTypeName}' balance! Only " . max(0, $currentRemaining) . " day(s) remaining, applying for {$totalDays} day(s). Balance will go negative by {$shortage} day(s). Continue with approval?";
+                        $warning = "⚠️ {$empName} has insufficient '{$leaveTypeName}' balance! Only ".max(0, $currentRemaining)." day(s) remaining, applying for {$totalDays} day(s). Balance will go negative by {$shortage} day(s). Continue with approval?";
                     }
                 }
             }
@@ -463,7 +472,7 @@ class LeaveApplicationService
         } catch (\Exception $e) {
             return [
                 'can_approve' => false,
-                'warning' => 'Error checking balance: ' . $e->getMessage(),
+                'warning' => 'Error checking balance: '.$e->getMessage(),
             ];
         }
     }
@@ -479,13 +488,13 @@ class LeaveApplicationService
 
                 if ($application->status !== LeaveApplication::STATUS_PENDING) {
                     return [
-                        'status'  => 'error',
+                        'status' => 'error',
                         'message' => 'Only pending applications can be approved.',
                     ];
                 }
 
                 $application->update([
-                    'status'      => LeaveApplication::STATUS_APPROVED,
+                    'status' => LeaveApplication::STATUS_APPROVED,
                     'approved_by' => $approvedBy,
                     'approved_at' => now(),
                 ]);
@@ -496,9 +505,9 @@ class LeaveApplicationService
                         ->where('leave_type_id', $application->leave_type_id)
                         ->first();
 
-                    if (!$balance) {
+                    if (! $balance) {
                         // No balance record exists - create one
-                        $fiscalYear = \Modules\Setting\Models\FiscalYear::where('is_current', true)->first();
+                        $fiscalYear = FiscalYear::where('is_current', true)->first();
 
                         $balanceData = [
                             'employee_id' => $application->employee_id,
@@ -536,15 +545,15 @@ class LeaveApplicationService
                 );
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Leave application approved successfully. Attendance marked as "On Leave" for the leave period.',
-                    'data'    => $application->fresh()->load(['employee.personalInfo', 'leaveType']),
+                    'data' => $application->fresh()->load(['employee.personalInfo', 'leaveType']),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error approving leave: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error approving leave: '.$e->getMessage(),
             ];
         }
     }
@@ -552,7 +561,7 @@ class LeaveApplicationService
     /**
      * Reject a leave application
      */
-    public function reject(int $id, int $approvedBy, string $reason = null): array
+    public function reject(int $id, int $approvedBy, ?string $reason = null): array
     {
         try {
             return DB::transaction(function () use ($id, $approvedBy, $reason) {
@@ -560,28 +569,28 @@ class LeaveApplicationService
 
                 if ($application->status !== LeaveApplication::STATUS_PENDING) {
                     return [
-                        'status'  => 'error',
+                        'status' => 'error',
                         'message' => 'Only pending applications can be rejected.',
                     ];
                 }
 
                 $application->update([
-                    'status'           => LeaveApplication::STATUS_REJECTED,
-                    'approved_by'      => $approvedBy,
+                    'status' => LeaveApplication::STATUS_REJECTED,
+                    'approved_by' => $approvedBy,
                     'rejection_reason' => $reason,
-                    'approved_at'      => now(),
+                    'approved_at' => now(),
                 ]);
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Leave application rejected.',
-                    'data'    => $application->fresh()->load(['employee.personalInfo', 'leaveType']),
+                    'data' => $application->fresh()->load(['employee.personalInfo', 'leaveType']),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error rejecting leave: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error rejecting leave: '.$e->getMessage(),
             ];
         }
     }

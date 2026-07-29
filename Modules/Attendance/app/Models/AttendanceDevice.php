@@ -2,15 +2,15 @@
 
 namespace Modules\Attendance\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Modules\Branch\Models\Branch;
 use App\Traits\CustomSoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Modules\Branch\Models\Branch;
 
 class AttendanceDevice extends Model
 {
-    use HasFactory;
     use CustomSoftDeletes;
+    use HasFactory;
 
     protected $table = 'attendance_devices';
 
@@ -40,7 +40,7 @@ class AttendanceDevice extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'metadata'  => 'array',
+        'metadata' => 'array',
         'last_sync_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

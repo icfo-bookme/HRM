@@ -2,8 +2,8 @@
 
 namespace Modules\Employee\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeeSalaryStructure extends Model
 {
@@ -43,17 +43,15 @@ class EmployeeSalaryStructure extends Model
         return $this->belongsTo(Employee::class, 'created_by');
     }
 
-  
-
     public function scopeActive($query)
     {
         return $query->whereNull('effective_to')
-                    ->orWhereDate('effective_to', '>=', now());
+            ->orWhereDate('effective_to', '>=', now());
     }
 
     public function scopeHistory($query)
     {
         return $query->whereNotNull('effective_to')
-                    ->whereDate('effective_to', '<', now());
+            ->whereDate('effective_to', '<', now());
     }
 }

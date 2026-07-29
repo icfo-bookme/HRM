@@ -2,17 +2,19 @@
 
 namespace Modules\Employee\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeePersonalInfo extends Model
 {
     use HasFactory;
 
     protected $table = 'employee_personal_info';
+
     protected $primaryKey = 'employee_id';
 
     public $incrementing = false;
+
     public $timestamps = false; // because you already use created_at & updated_at manually
 
     protected $fillable = [

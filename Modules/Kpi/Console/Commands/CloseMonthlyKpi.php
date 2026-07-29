@@ -2,14 +2,14 @@
 
 namespace Modules\Kpi\Console\Commands;
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Modules\Kpi\Services\KpiMonthlyService;
 use Modules\Employee\Models\Employee;
+use Modules\Kpi\Services\KpiMonthlyService;
 
 class CloseMonthlyKpi extends Command
 {
     protected $signature = 'kpi:close-monthly {--year= : Year} {--month= : Month}';
+
     protected $description = 'Calculate and close monthly KPI scores for all employees';
 
     protected KpiMonthlyService $monthlyService;

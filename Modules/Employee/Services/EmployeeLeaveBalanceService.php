@@ -2,6 +2,7 @@
 
 namespace Modules\Employee\Services;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Employee\Models\EmployeeLeaveBalance;
@@ -77,8 +78,8 @@ class EmployeeLeaveBalanceService
             })
             ->addColumn('action', function ($balance) {
                 return view('components.action-buttons', [
-                    'id'     => $balance->id,
-                    'edit'   => 'employeeLeaveBalanceEdit',
+                    'id' => $balance->id,
+                    'edit' => 'employeeLeaveBalanceEdit',
                     'delete' => 'employeeLeaveBalanceDelete',
                 ])->render();
             })
@@ -96,40 +97,40 @@ class EmployeeLeaveBalanceService
                     $balance = EmployeeLeaveBalance::findOrFail($balanceId);
                     $balance->update($data);
                     $message = 'Leave balance updated successfully.';
-                    $status  = 'success';
+                    $status = 'success';
                 } else {
                     $balance = EmployeeLeaveBalance::create($data);
                     $message = 'Leave balance created successfully.';
-                    $status  = 'success';
+                    $status = 'success';
                 }
 
                 return [
-                    'status'  => $status,
+                    'status' => $status,
                     'message' => $message,
-                    'data'    => $balance->fresh()->load(['employee', 'leaveType', 'fiscalYear']),
+                    'data' => $balance->fresh()->load(['employee', 'leaveType', 'fiscalYear']),
                 ];
             });
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             $errorMsg = $e->getMessage();
 
             if (str_contains($errorMsg, 'uk_leave_balance') || str_contains($errorMsg, 'Duplicate entry')) {
                 return [
-                    'status'  => 'error',
+                    'status' => 'error',
                     'message' => 'A leave balance record already exists for this employee, leave type, and fiscal year combination.',
-                    'data'    => null,
+                    'data' => null,
                 ];
             }
 
             return [
-                'status'  => 'error',
-                'message' => 'Error saving leave balance: ' . $e->getMessage(),
-                'data'    => null,
+                'status' => 'error',
+                'message' => 'Error saving leave balance: '.$e->getMessage(),
+                'data' => null,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error saving leave balance: ' . $e->getMessage(),
-                'data'    => null,
+                'status' => 'error',
+                'message' => 'Error saving leave balance: '.$e->getMessage(),
+                'data' => null,
             ];
         }
     }
@@ -142,13 +143,13 @@ class EmployeeLeaveBalanceService
 
             return [
                 'status' => 'success',
-                'data'   => $balance,
+                'data' => $balance,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Leave balance record not found.',
-                'data'    => null,
+                'data' => null,
             ];
         }
     }
@@ -160,14 +161,14 @@ class EmployeeLeaveBalanceService
                 EmployeeLeaveBalance::findOrFail($id)->delete();
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Leave balance record deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting leave balance: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting leave balance: '.$e->getMessage(),
             ];
         }
     }

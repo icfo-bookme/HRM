@@ -10,11 +10,9 @@ use Modules\Attendance\Models\Attendance;
 use Modules\Department\Models\Department;
 use Modules\Designation\Models\Designation;
 use Modules\Employee\Models\Employee;
-use Modules\Employee\Models\EmployeePersonalInfo;
 use Modules\Kpi\Models\KpiMonthlyScore;
 use Modules\Loan\Models\Loan;
 use Modules\Salary\Models\EmployeeSalaryStructure;
-use Modules\Salary\Models\SalaryComponent;
 
 class EmployeeReportService
 {
@@ -37,10 +35,10 @@ class EmployeeReportService
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
                 $q->where('employee_code', 'like', "%{$keyword}%")
-                  ->orWhereHas('personalInfo', function ($pq) use ($keyword) {
-                      $pq->where('first_name', 'like', "%{$keyword}%")
-                         ->orWhere('last_name', 'like', "%{$keyword}%");
-                  });
+                    ->orWhereHas('personalInfo', function ($pq) use ($keyword) {
+                        $pq->where('first_name', 'like', "%{$keyword}%")
+                            ->orWhere('last_name', 'like', "%{$keyword}%");
+                    });
             });
         }
 
@@ -54,7 +52,7 @@ class EmployeeReportService
 
         $employees = $query->limit(50)->get();
 
-            $results = $employees->map(function ($employee) {
+        $results = $employees->map(function ($employee) {
             $personalInfo = $employee->personalInfo;
             $banking = $employee->banking->first();
 
@@ -68,7 +66,8 @@ class EmployeeReportService
                         ->whereIn('payroll_runs.status', ['Approved', 'Disbursed', 'Locked'])
                         ->sum('payroll_run_details.net');
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
 
             return [
                 'id' => $employee->id,
@@ -101,7 +100,7 @@ class EmployeeReportService
         $year = (int) $request->input('year', Carbon::now()->year);
         $month = (int) $request->input('month', Carbon::now()->month);
 
-        if (!$employeeId) {
+        if (! $employeeId) {
             return ['status' => false, 'message' => 'Employee ID required.'];
         }
 
@@ -139,12 +138,12 @@ class EmployeeReportService
                 if ($attStatus === 'Present' && $isLate) {
                     $status = 'LP';
                     $bgColor = '#ea580c';
-                    $tooltip = 'Late Present - ' . ($record->late_minutes ?? 0) . ' min';
+                    $tooltip = 'Late Present - '.($record->late_minutes ?? 0).' min';
                     $lateCount++;
                 } elseif ($attStatus === 'Present' && $isEarlyOut) {
                     $status = 'EL';
                     $bgColor = '#ca8a04';
-                    $tooltip = 'Early Leave - ' . ($record->early_out_minutes ?? 0) . ' min';
+                    $tooltip = 'Early Leave - '.($record->early_out_minutes ?? 0).' min';
                     $earlyOutCount++;
                 } elseif ($attStatus === 'Present') {
                     $status = 'P';
@@ -215,7 +214,7 @@ class EmployeeReportService
         $year = (int) $request->input('year', Carbon::now()->year);
         $month = (int) $request->input('month', Carbon::now()->month);
 
-        if (!$employeeId) {
+        if (! $employeeId) {
             return ['status' => false, 'message' => 'Employee ID required.'];
         }
 
@@ -265,7 +264,7 @@ class EmployeeReportService
         $employeeId = $request->input('employee_id');
         $year = (int) $request->input('year', Carbon::now()->year);
 
-        if (!$employeeId) {
+        if (! $employeeId) {
             return ['status' => false, 'message' => 'Employee ID required.'];
         }
 
@@ -345,7 +344,7 @@ class EmployeeReportService
         $year = (int) $request->input('year', Carbon::now()->year);
         $month = (int) $request->input('month', Carbon::now()->month);
 
-        if (!$employeeId) {
+        if (! $employeeId) {
             return ['status' => false, 'message' => 'Employee ID required.'];
         }
 
@@ -376,7 +375,8 @@ class EmployeeReportService
                     ];
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         $record = null;
 
@@ -398,7 +398,8 @@ class EmployeeReportService
                         'payroll_run_details.net',
                     ]);
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         if ($record) {
             return [
@@ -430,7 +431,7 @@ class EmployeeReportService
     {
         $employeeId = $request->input('employee_id');
 
-        if (!$employeeId) {
+        if (! $employeeId) {
             return ['status' => false, 'message' => 'Employee ID required.'];
         }
 
@@ -454,7 +455,7 @@ class EmployeeReportService
                 'loan_number' => $loan->loan_number,
                 'loan_type' => $loan->loan_type,
                 'loan_amount' => number_format($total, 2),
-                'interest_rate' => $loan->interest_rate . '%',
+                'interest_rate' => $loan->interest_rate.'%',
                 'total_payable' => number_format((float) $loan->total_payable, 2),
                 'installment_amount' => number_format((float) $loan->installment_amount, 2),
                 'total_installments' => $loan->total_installments,
@@ -481,7 +482,7 @@ class EmployeeReportService
         $employeeId = $request->input('employee_id');
         $year = (int) $request->input('year', Carbon::now()->year);
 
-        if (!$employeeId) {
+        if (! $employeeId) {
             return ['status' => false, 'message' => 'Employee ID required.'];
         }
 
@@ -522,7 +523,7 @@ class EmployeeReportService
     {
         $employeeId = $request->input('employee_id');
 
-        if (!$employeeId) {
+        if (! $employeeId) {
             return ['status' => false, 'message' => 'Employee ID required.'];
         }
 
@@ -563,6 +564,7 @@ class EmployeeReportService
         if ($h > 0) {
             return "{$h}h {$m}m";
         }
+
         return "{$m}m";
     }
 }

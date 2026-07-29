@@ -3,6 +3,7 @@
 namespace Modules\Kpi\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Kpi\Models\KpiCategory;
 
 class KpiCategorySeeder extends Seeder
 {
@@ -57,7 +58,7 @@ class KpiCategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            \Modules\Kpi\Models\KpiCategory::updateOrCreate(
+            KpiCategory::updateOrCreate(
                 ['name' => $category['name']],
                 $category
             );

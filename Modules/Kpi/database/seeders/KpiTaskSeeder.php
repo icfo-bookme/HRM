@@ -2,7 +2,6 @@
 
 namespace Modules\Kpi\Database\Seeders;
 
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Employee\Models\Employee;
@@ -15,6 +14,7 @@ class KpiTaskSeeder extends Seeder
 
         if ($employees->isEmpty()) {
             $this->command->warn('No active employees found. Skipping KPI task seeder.');
+
             return;
         }
 

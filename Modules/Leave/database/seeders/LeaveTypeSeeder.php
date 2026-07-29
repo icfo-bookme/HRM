@@ -172,6 +172,6 @@ class LeaveTypeSeeder extends Seeder
             );
         }
 
-        $this->command->info('Leave types seeded successfully: ' . count($leaveTypes) . ' types created.');
+        $this->command->info('Leave types seeded successfully: '.count($leaveTypes).' types created.');
     }
 }

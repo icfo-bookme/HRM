@@ -42,6 +42,7 @@ class ShiftController extends Controller
     public function store(StoreShiftRequest $request)
     {
         $result = $this->shiftService->saveShift($request->validated());
+
         return response()->json($result);
     }
 
@@ -51,6 +52,7 @@ class ShiftController extends Controller
     public function show($id)
     {
         $result = $this->shiftService->getShiftById($id);
+
         return response()->json($result);
     }
 
@@ -63,6 +65,7 @@ class ShiftController extends Controller
         $data['shift_id'] = $id;
 
         $result = $this->shiftService->saveShift($data);
+
         return response()->json($result);
     }
 
@@ -72,6 +75,7 @@ class ShiftController extends Controller
     public function destroy($id)
     {
         $result = $this->shiftService->deleteShift($id);
+
         return response()->json($result);
     }
 }

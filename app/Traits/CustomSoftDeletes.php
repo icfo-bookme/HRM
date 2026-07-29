@@ -13,7 +13,7 @@ trait CustomSoftDeletes
     {
 
         static::addGlobalScope('exclude_trashed', function (Builder $builder) {
-            $builder->whereNull($builder->getModel()->getTable() . '.deleted_at');
+            $builder->whereNull($builder->getModel()->getTable().'.deleted_at');
         });
     }
 

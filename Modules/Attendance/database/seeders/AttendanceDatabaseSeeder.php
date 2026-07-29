@@ -15,6 +15,7 @@ class AttendanceDatabaseSeeder extends Seeder
 
         if ($employees->isEmpty()) {
             $this->command->warn('No active employees found. Skipping attendance seeder.');
+
             return;
         }
 
@@ -49,6 +50,7 @@ class AttendanceDatabaseSeeder extends Seeder
                         'created_at' => $date,
                         'updated_at' => $date,
                     ];
+
                     continue;
                 }
 
@@ -113,6 +115,6 @@ class AttendanceDatabaseSeeder extends Seeder
             DB::table('attendance')->insert($chunk);
         }
 
-        $this->command->info('✓ Attendance seeded for ' . count($employees) . ' employees (30 days)');
+        $this->command->info('✓ Attendance seeded for '.count($employees).' employees (30 days)');
     }
 }

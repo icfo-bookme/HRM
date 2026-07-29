@@ -17,6 +17,7 @@ class AttendanceReportController extends Controller
     public function index()
     {
         $employees = Employee::with('personalInfo')->active()->get();
+
         return view('attendance::report', compact('employees'));
     }
 
@@ -28,6 +29,7 @@ class AttendanceReportController extends Controller
     public function overtimeIndex()
     {
         $employees = Employee::with('personalInfo')->active()->get();
+
         return view('attendance::overtime-report', compact('employees'));
     }
 

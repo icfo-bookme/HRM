@@ -2,8 +2,9 @@
 
 namespace Modules\Company\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Modules\Branch\Models\Branch;
 
 class Company extends Model
 {
@@ -43,12 +44,12 @@ class Company extends Model
      * Cast fields
      */
     protected $casts = [
-        'founded_year'       => 'integer',
-        'is_active'          => 'boolean',
-        'settings'           => 'array',
-        'fiscal_year_start'  => 'date',
-        'created_at'         => 'datetime',
-        'updated_at'         => 'datetime',
+        'founded_year' => 'integer',
+        'is_active' => 'boolean',
+        'settings' => 'array',
+        'fiscal_year_start' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
@@ -90,6 +91,6 @@ class Company extends Model
     // Example: Company has many branches
     public function branches()
     {
-        return $this->hasMany(\Modules\Branch\Models\Branch::class);
+        return $this->hasMany(Branch::class);
     }
 }

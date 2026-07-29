@@ -1,10 +1,4 @@
-@props([
-    'id',
-    'label',
-    'options' => [],
-    'placeholder' => 'All',
-    'tableId' => null,
-])
+@props(['id', 'label', 'options' => [], 'placeholder' => 'All', 'tableId' => null])
 
 <div class="flex items-center gap-2">
     <label for="{{ $id }}"

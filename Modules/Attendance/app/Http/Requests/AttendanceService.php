@@ -2,9 +2,9 @@
 
 namespace Modules\Attendance\Services;
 
+use Carbon\Carbon;
 use Modules\Attendance\Models\Attendance;
 use Yajra\DataTables\Facades\DataTables;
-use Carbon\Carbon;
 
 class AttendanceService
 {
@@ -31,22 +31,23 @@ class AttendanceService
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('employee', fn($row) => $row->employee?->full_name ?? 'N/A')
-            ->editColumn('attendance_date', fn($row) => Carbon::parse($row->attendance_date)->format('d M, Y'))
-            ->editColumn('check_in_at', fn($row) => $row->check_in_at ? Carbon::parse($row->check_in_at)->format('h:i A') : '--:--')
-            ->editColumn('check_out_at', fn($row) => $row->check_out_at ? Carbon::parse($row->check_out_at)->format('h:i A') : '--:--')
-            ->addColumn('attendance_status', function($row) {
+            ->addColumn('employee', fn ($row) => $row->employee?->full_name ?? 'N/A')
+            ->editColumn('attendance_date', fn ($row) => Carbon::parse($row->attendance_date)->format('d M, Y'))
+            ->editColumn('check_in_at', fn ($row) => $row->check_in_at ? Carbon::parse($row->check_in_at)->format('h:i A') : '--:--')
+            ->editColumn('check_out_at', fn ($row) => $row->check_out_at ? Carbon::parse($row->check_out_at)->format('h:i A') : '--:--')
+            ->addColumn('attendance_status', function ($row) {
                 $colors = [
                     'Present' => 'bg-green-100 text-green-700',
                     'Absent' => 'bg-red-100 text-red-700',
                     'Half Day' => 'bg-yellow-100 text-yellow-700',
                 ];
                 $class = $colors[$row->status] ?? 'bg-gray-100 text-gray-700';
+
                 return '<span class="px-2 py-1 rounded text-xs font-medium '.$class.'">'.$row->status.'</span>';
             })
-            ->addColumn('approval_status', fn($row) => '<span class="text-xs text-gray-500 italic">Auto Approved</span>')
-            ->addColumn('source', fn($row) => '<span class="text-xs text-gray-400">Manual</span>')
-            ->addColumn('action', function($row) {
+            ->addColumn('approval_status', fn ($row) => '<span class="text-xs text-gray-500 italic">Auto Approved</span>')
+            ->addColumn('source', fn ($row) => '<span class="text-xs text-gray-400">Manual</span>')
+            ->addColumn('action', function ($row) {
                 return '
                     <div class="flex gap-2">
                         <button onclick="attendanceEdit('.$row->id.')" class="text-blue-600 hover:text-blue-800"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -74,6 +75,7 @@ class AttendanceService
         if ($attendance) {
             return $attendance->delete();
         }
+
         return false;
     }
 

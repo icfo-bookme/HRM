@@ -2,10 +2,11 @@
 
 namespace Modules\Setting\Services;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Setting\Models\FiscalYear;
 use Modules\Company\Models\Company;
+use Modules\Setting\Models\FiscalYear;
 use Yajra\DataTables\DataTables;
 
 class FiscalYearService
@@ -54,8 +55,8 @@ class FiscalYearService
             })
             ->addColumn('action', function ($fy) {
                 return view('components.action-buttons', [
-                    'id'     => $fy->id,
-                    'edit'   => 'fiscalYearEdit',
+                    'id' => $fy->id,
+                    'edit' => 'fiscalYearEdit',
                     'delete' => 'fiscalYearDelete',
                 ])->render();
             })
@@ -70,7 +71,7 @@ class FiscalYearService
                 $fyId = $data['fy_id'] ?? null;
 
                 // If setting as current, unset other current records for same company
-                if (!empty($data['is_current'])) {
+                if (! empty($data['is_current'])) {
                     FiscalYear::where('company_id', $data['company_id'])
                         ->where('is_current', true)
                         ->update(['is_current' => false]);
@@ -86,30 +87,31 @@ class FiscalYearService
                 }
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => $message,
-                    'data'    => $fy->fresh()->load('company'),
+                    'data' => $fy->fresh()->load('company'),
                 ];
             });
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             $errorMsg = $e->getMessage();
             if (str_contains($errorMsg, 'uk_fy_company_label') || str_contains($errorMsg, 'Duplicate entry')) {
                 return [
-                    'status'  => 'error',
+                    'status' => 'error',
                     'message' => 'A fiscal year with this label already exists for this company.',
-                    'data'    => null,
+                    'data' => null,
                 ];
             }
+
             return [
-                'status'  => 'error',
-                'message' => 'Error saving fiscal year: ' . $e->getMessage(),
-                'data'    => null,
+                'status' => 'error',
+                'message' => 'Error saving fiscal year: '.$e->getMessage(),
+                'data' => null,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error saving fiscal year: ' . $e->getMessage(),
-                'data'    => null,
+                'status' => 'error',
+                'message' => 'Error saving fiscal year: '.$e->getMessage(),
+                'data' => null,
             ];
         }
     }
@@ -118,15 +120,16 @@ class FiscalYearService
     {
         try {
             $fy = FiscalYear::with('company')->findOrFail($id);
+
             return [
                 'status' => 'success',
-                'data'   => $fy,
+                'data' => $fy,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Fiscal year not found.',
-                'data'    => null,
+                'data' => null,
             ];
         }
     }
@@ -136,15 +139,16 @@ class FiscalYearService
         try {
             return DB::transaction(function () use ($id) {
                 FiscalYear::findOrFail($id)->delete();
+
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Fiscal year deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting fiscal year: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting fiscal year: '.$e->getMessage(),
             ];
         }
     }

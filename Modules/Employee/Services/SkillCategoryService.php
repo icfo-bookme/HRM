@@ -4,6 +4,7 @@ namespace Modules\Employee\Services;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Employee\Models\EmployeeSkill;
 use Modules\Employee\Models\SkillCategory;
 use Yajra\DataTables\DataTables;
 
@@ -29,8 +30,8 @@ class SkillCategoryService
             })
             ->addColumn('action', function ($category) {
                 return view('components.action-buttons', [
-                    'id'     => $category->id,
-                    'edit'   => 'skillCategoryEdit',
+                    'id' => $category->id,
+                    'edit' => 'skillCategoryEdit',
                     'delete' => 'skillCategoryDelete',
                 ])->render();
             })
@@ -48,23 +49,23 @@ class SkillCategoryService
                     $category = SkillCategory::findOrFail($categoryId);
                     $category->update($data);
                     $message = 'Skill category updated successfully.';
-                    $status  = 'success';
+                    $status = 'success';
                 } else {
                     $category = SkillCategory::create($data);
                     $message = 'Skill category created successfully.';
-                    $status  = 'success';
+                    $status = 'success';
                 }
 
                 return [
-                    'status'     => $status,
-                    'message'    => $message,
-                    'category'   => $category->fresh(),
+                    'status' => $status,
+                    'message' => $message,
+                    'category' => $category->fresh(),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'   => 'error',
-                'message'  => 'Error saving skill category: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error saving skill category: '.$e->getMessage(),
                 'category' => null,
             ];
         }
@@ -74,14 +75,15 @@ class SkillCategoryService
     {
         try {
             $category = SkillCategory::findOrFail($id);
+
             return [
-                'status'   => 'success',
+                'status' => 'success',
                 'category' => $category,
             ];
         } catch (\Exception $e) {
             return [
-                'status'   => 'error',
-                'message'  => 'Skill category not found.',
+                'status' => 'error',
+                'message' => 'Skill category not found.',
                 'category' => null,
             ];
         }
@@ -92,25 +94,25 @@ class SkillCategoryService
         try {
             return DB::transaction(function () use ($id) {
                 // Check if any skills reference this category
-                $skillsCount = \Modules\Employee\Models\EmployeeSkill::where('category_id', $id)->count();
+                $skillsCount = EmployeeSkill::where('category_id', $id)->count();
                 if ($skillsCount > 0) {
                     return [
-                        'status'  => 'error',
-                        'message' => 'Cannot delete: ' . $skillsCount . ' skill(s) are using this category.',
+                        'status' => 'error',
+                        'message' => 'Cannot delete: '.$skillsCount.' skill(s) are using this category.',
                     ];
                 }
 
                 SkillCategory::findOrFail($id)->delete();
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Skill category deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting skill category: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting skill category: '.$e->getMessage(),
             ];
         }
     }

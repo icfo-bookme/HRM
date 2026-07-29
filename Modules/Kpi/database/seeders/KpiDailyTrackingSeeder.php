@@ -15,6 +15,7 @@ class KpiDailyTrackingSeeder extends Seeder
 
         if ($employees->isEmpty()) {
             $this->command->warn('No active employees found. Skipping KPI daily tracking seeder.');
+
             return;
         }
 
@@ -34,7 +35,7 @@ class KpiDailyTrackingSeeder extends Seeder
                 $isLate = $isPresent ? (rand(0, 10) > 7) : false;
 
                 $presentTarget = $isWorkingDay ? 1 : 0;
-                $presentObtained = ($isPresent && !$isLate) ? 1 : 0;
+                $presentObtained = ($isPresent && ! $isLate) ? 1 : 0;
                 $lateTarget = $isWorkingDay ? 1 : 0;
                 $lateObtained = $isLate ? -2 : 0;
 
@@ -68,6 +69,6 @@ class KpiDailyTrackingSeeder extends Seeder
             );
         }
 
-        $this->command->info('✓ KPI daily tracking seeded for ' . count($employees) . ' employees (30 days)');
+        $this->command->info('✓ KPI daily tracking seeded for '.count($employees).' employees (30 days)');
     }
 }

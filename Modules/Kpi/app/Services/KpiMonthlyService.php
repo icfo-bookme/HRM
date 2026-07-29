@@ -3,11 +3,10 @@
 namespace Modules\Kpi\Services;
 
 use Illuminate\Support\Facades\DB;
-use Modules\Kpi\Models\KpiMonthlyScore;
-use Modules\Kpi\Models\KpiMonthlyReview;
-use Modules\Kpi\Models\KpiTask;
-use Modules\Kpi\Models\KpiDailyTracking;
 use Modules\Employee\Models\Employee;
+use Modules\Kpi\Models\KpiMonthlyReview;
+use Modules\Kpi\Models\KpiMonthlyScore;
+use Modules\Kpi\Models\KpiTask;
 
 class KpiMonthlyService
 {
@@ -109,7 +108,7 @@ class KpiMonthlyService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Failed to calculate monthly score: ' . $e->getMessage(),
+                'message' => 'Failed to calculate monthly score: '.$e->getMessage(),
             ];
         }
     }
@@ -145,7 +144,7 @@ class KpiMonthlyService
      */
     private function getOptionalScoreData(?KpiMonthlyReview $review, string $type): array
     {
-        if (!$review) {
+        if (! $review) {
             return [
                 'given' => false,
                 'target' => 0,
@@ -157,7 +156,7 @@ class KpiMonthlyService
         $givenField = "give_{$type}";
         $scoreField = "{$type}_score";
 
-        if (!$review->$givenField || $review->$scoreField === null) {
+        if (! $review->$givenField || $review->$scoreField === null) {
             return [
                 'given' => false,
                 'target' => 0,
@@ -188,8 +187,8 @@ class KpiMonthlyService
             $percentage >= 70 => 'B+',
             $percentage >= 60 => 'B',
             $percentage >= 50 => 'C',
-            $percentage >= 0  => 'D',
-            default           => null,
+            $percentage >= 0 => 'D',
+            default => null,
         };
     }
 
@@ -203,7 +202,7 @@ class KpiMonthlyService
             ->where('month', $month)
             ->first();
 
-        if (!$score) {
+        if (! $score) {
             return [
                 'status' => 'success',
                 'data' => null,

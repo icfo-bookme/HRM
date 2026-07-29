@@ -27,15 +27,15 @@ class PayrollRunDetail extends Model
     ];
 
     protected $casts = [
-        'basic_salary'       => 'decimal:4',
-        'gross'              => 'decimal:4',
-        'deductions'         => 'decimal:4',
-        'net'                => 'decimal:4',
-        'component_details'  => 'json',
+        'basic_salary' => 'decimal:4',
+        'gross' => 'decimal:4',
+        'deductions' => 'decimal:4',
+        'net' => 'decimal:4',
+        'component_details' => 'json',
         'attendance_summary' => 'json',
-        'payment_status'     => 'integer',
-        'created_at'         => 'datetime',
-        'updated_at'         => 'datetime',
+        'payment_status' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

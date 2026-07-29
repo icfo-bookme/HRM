@@ -2,15 +2,13 @@
 
 namespace Modules\Setting\Models;
 
-use App\Traits\CustomSoftDeletes;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Company\Models\Company;
 
 class FiscalYear extends Model
 {
     use HasFactory;
-    
 
     protected $table = 'fiscal_years';
 
@@ -25,9 +23,9 @@ class FiscalYear extends Model
 
     protected $casts = [
         'start_date' => 'date:Y-m-d',
-        'end_date'   => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
         'is_current' => 'boolean',
-        'locked'     => 'boolean',
+        'locked' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

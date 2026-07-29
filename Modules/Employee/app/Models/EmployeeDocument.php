@@ -2,8 +2,8 @@
 
 namespace Modules\Employee\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeeDocument extends Model
 {
@@ -65,7 +65,8 @@ class EmployeeDocument extends Model
     public function scopeExpiringSoon($query, $days = 30)
     {
         $expiryDate = now()->addDays($days)->toDateString();
+
         return $query->whereDate('expiry_date', '<=', $expiryDate)
-                    ->whereDate('expiry_date', '>', now());
+            ->whereDate('expiry_date', '>', now());
     }
 }

@@ -4,8 +4,8 @@ namespace Modules\Company\Services;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\DataTables;
 use Modules\Company\Models\Company;
+use Yajra\DataTables\DataTables;
 
 class CompanyService
 {
@@ -67,7 +67,7 @@ class CompanyService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Error saving company: ' . $e->getMessage(),
+                'message' => 'Error saving company: '.$e->getMessage(),
             ];
         }
     }
@@ -76,6 +76,7 @@ class CompanyService
     {
         try {
             $company = Company::findOrFail($id);
+
             return [
                 'status' => 'success',
                 'company' => $company,
@@ -94,6 +95,7 @@ class CompanyService
             return DB::transaction(function () use ($id) {
                 $company = Company::findOrFail($id);
                 $company->delete();
+
                 return [
                     'status' => 'success',
                     'message' => 'Company deleted successfully.',
@@ -102,7 +104,7 @@ class CompanyService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Error deleting company: ' . $e->getMessage(),
+                'message' => 'Error deleting company: '.$e->getMessage(),
             ];
         }
     }

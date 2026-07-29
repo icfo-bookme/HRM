@@ -1,21 +1,17 @@
-@props([
-    'label',
-    'name',
-    'placeholder' => 'Type and press Enter...',
-    'value' => '[]'
-])
+@props(['label', 'name', 'placeholder' => 'Type and press Enter...', 'value' => '[]'])
 
 <div class="mb-4 tag-input-wrapper" data-field-name="{{ $name }}">
-    @if(isset($label))
+    @if (isset($label))
         <label class="block text-sm font-semibold text-slate-700 mb-1">{{ $label }}</label>
     @endif
-    
-    <div class="tag-container flex flex-wrap gap-2 p-2 border border-slate-300 rounded-md bg-white focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 min-h-[42px] cursor-text">
-        <input type="text" 
-               class="tag-field-input flex-1 min-w-[150px] outline-none border-none p-0 text-sm focus:ring-0" 
-               placeholder="{{ $placeholder }}">
+
+    <div
+        class="tag-container flex flex-wrap gap-2 p-2 border border-slate-300 rounded-md bg-white focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 min-h-[42px] cursor-text">
+        <input type="text"
+            class="tag-field-input flex-1 min-w-[150px] outline-none border-none p-0 text-sm focus:ring-0"
+            placeholder="{{ $placeholder }}">
     </div>
-    
+
     <input type="hidden" id="{{ $name }}" name="{{ $name }}" value="{{ old($name, $value ?? '[]') }}">
 </div>
 
@@ -29,9 +25,9 @@
                 let wrapper = hiddenInput.closest('.tag-input-wrapper');
                 let container = wrapper.find('.tag-container');
                 let textInput = wrapper.find('.tag-field-input');
-                
+
                 container.find('.tag-badge').remove();
-                
+
                 let tags = [];
                 try {
                     let rawVal = hiddenInput.val();
@@ -62,7 +58,7 @@
                 $(document).on('keydown', '.tag-field-input', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        
+
                         let input = $(this);
                         let val = input.val().trim();
                         let wrapper = input.closest('.tag-input-wrapper');
@@ -71,8 +67,12 @@
 
                         if (val !== '') {
                             let tags = [];
-                            try { tags = JSON.parse(hiddenInput.val() || '[]'); } catch(e) { tags = []; }
-                            
+                            try {
+                                tags = JSON.parse(hiddenInput.val() || '[]');
+                            } catch (e) {
+                                tags = [];
+                            }
+
                             if (!tags.includes(val)) {
                                 tags.push(val);
                                 hiddenInput.val(JSON.stringify(tags));
@@ -89,10 +89,14 @@
                     let fieldName = $(this).data('field');
                     let index = $(this).data('index');
                     let hiddenInput = $('#' + fieldName);
-                    
+
                     let tags = [];
-                    try { tags = JSON.parse(hiddenInput.val() || '[]'); } catch(e) { tags = []; }
-                    
+                    try {
+                        tags = JSON.parse(hiddenInput.val() || '[]');
+                    } catch (e) {
+                        tags = [];
+                    }
+
                     tags.splice(index, 1);
                     hiddenInput.val(JSON.stringify(tags));
                     renderTagComponent(fieldName);

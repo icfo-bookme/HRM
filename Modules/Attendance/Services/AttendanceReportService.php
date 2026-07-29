@@ -46,11 +46,11 @@ class AttendanceReportService
                 return '
                     <div class="flex items-center gap-3 min-w-[180px]">
                         <div class="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold">
-                            ' . $initial . '
+                            '.$initial.'
                         </div>
                         <div>
-                            <div class="font-medium">' . e($name) . '</div>
-                            <div class="text-xs text-gray-500">' . e($code) . '</div>
+                            <div class="font-medium">'.e($name).'</div>
+                            <div class="text-xs text-gray-500">'.e($code).'</div>
                         </div>
                     </div>
                 ';
@@ -59,7 +59,7 @@ class AttendanceReportService
         for ($day = 1; $day <= 31; $day++) {
             $dayNum = $day;
 
-            $dataTable->addColumn('day_' . $dayNum, function ($employee) use (
+            $dataTable->addColumn('day_'.$dayNum, function ($employee) use (
                 $year,
                 $month,
                 $dayNum,
@@ -84,25 +84,26 @@ class AttendanceReportService
                     $isEarlyOut = $employeeAttendance->is_early_out ?? false;
 
                     if ($status === 'Present' && $isLate) {
-                        return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border bg-orange-100 text-orange-700 border-orange-300" title="Late Present - ' . $employeeAttendance->late_minutes . ' min">LP</span>';
+                        return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border bg-orange-100 text-orange-700 border-orange-300" title="Late Present - '.$employeeAttendance->late_minutes.' min">LP</span>';
                     }
 
                     if ($status === 'Present') {
                         $title = 'Present';
                         if ($isEarlyOut) {
-                            $title .= ' - Early Leave (' . $employeeAttendance->early_out_minutes . ' min)';
+                            $title .= ' - Early Leave ('.$employeeAttendance->early_out_minutes.' min)';
                         }
                         $colorClass = $isEarlyOut
                             ? 'bg-yellow-100 text-yellow-700 border-yellow-300'
                             : 'bg-green-100 text-green-700 border-green-300';
                         $letter = $isEarlyOut ? 'EL' : 'P';
-                        return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border ' . $colorClass . '" title="' . $title . '">' . $letter . '</span>';
+
+                        return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border '.$colorClass.'" title="'.$title.'">'.$letter.'</span>';
                     }
 
                     return sprintf(
                         '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border %s" title="%s">%s</span>',
                         $this->getStatusColorClass($status),
-                        $status . ' - ' . $dateStr,
+                        $status.' - '.$dateStr,
                         $this->getStatusLetter($status)
                     );
                 }
@@ -112,14 +113,14 @@ class AttendanceReportService
                     return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border bg-purple-100 text-purple-700 border-purple-300" title="Weekend">W</span>';
                 }
 
-                return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border bg-red-100 text-red-700 border-red-300" title="Absent - ' . $dateStr . '">A</span>';
+                return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border bg-red-100 text-red-700 border-red-300" title="Absent - '.$dateStr.'">A</span>';
             });
         }
 
         $rawColumns = ['employee_name'];
 
         for ($day = 1; $day <= 31; $day++) {
-            $rawColumns[] = 'day_' . $day;
+            $rawColumns[] = 'day_'.$day;
         }
 
         $rawColumns[] = 'summary';
@@ -183,7 +184,7 @@ class AttendanceReportService
                                 break;
                         }
                     } else {
-                        if (!in_array($dayOfWeek, $weekendDays)) {
+                        if (! in_array($dayOfWeek, $weekendDays)) {
                             $absent++;
                         }
                     }
@@ -191,13 +192,13 @@ class AttendanceReportService
 
                 return '
                     <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                        <span class="text-green-600 font-semibold" title="Present">P: ' . $present . '</span>
-                        <span class="text-orange-600 font-semibold" title="Late Present">LP: ' . $latePresent . '</span>
-                        <span class="text-yellow-600 font-semibold" title="Early Leave">EL: ' . $earlyLeave . '</span>
-                        <span class="text-red-600 font-semibold" title="Absent">A: ' . $absent . '</span>
-                        <span class="text-blue-600 font-semibold" title="Holiday">H: ' . $holiday . '</span>
-                        <span class="text-yellow-700 font-semibold" title="On Leave">L: ' . $leave . '</span>
-                        <span class="text-orange-700 font-semibold" title="Half Day">HD: ' . $halfDay . '</span>
+                        <span class="text-green-600 font-semibold" title="Present">P: '.$present.'</span>
+                        <span class="text-orange-600 font-semibold" title="Late Present">LP: '.$latePresent.'</span>
+                        <span class="text-yellow-600 font-semibold" title="Early Leave">EL: '.$earlyLeave.'</span>
+                        <span class="text-red-600 font-semibold" title="Absent">A: '.$absent.'</span>
+                        <span class="text-blue-600 font-semibold" title="Holiday">H: '.$holiday.'</span>
+                        <span class="text-yellow-700 font-semibold" title="On Leave">L: '.$leave.'</span>
+                        <span class="text-orange-700 font-semibold" title="Half Day">HD: '.$halfDay.'</span>
                     </div>
                 ';
             })
@@ -260,11 +261,11 @@ class AttendanceReportService
                 return '
                     <div class="flex items-center gap-3 min-w-[180px]">
                         <div class="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold">
-                            ' . $initial . '
+                            '.$initial.'
                         </div>
                         <div>
-                            <div class="font-medium">' . e($name) . '</div>
-                            <div class="text-xs text-gray-500">' . e($code) . '</div>
+                            <div class="font-medium">'.e($name).'</div>
+                            <div class="text-xs text-gray-500">'.e($code).'</div>
                         </div>
                     </div>
                 ';
@@ -274,7 +275,7 @@ class AttendanceReportService
         for ($day = 1; $day <= 31; $day++) {
             $dayNum = $day;
 
-            $dataTable->addColumn('day_' . $dayNum, function ($employee) use (
+            $dataTable->addColumn('day_'.$dayNum, function ($employee) use (
                 $year,
                 $month,
                 $dayNum,
@@ -300,7 +301,8 @@ class AttendanceReportService
                         $hours = intdiv($otMinutes, 60);
                         $mins = $otMinutes % 60;
                         $display = $hours > 0 ? "{$hours}h {$mins}m" : "{$mins}m";
-                        return '<span class="inline-flex items-center justify-center w-14 h-7 rounded text-xs font-semibold border bg-purple-100 text-purple-700 border-purple-300" title="Overtime: ' . $otMinutes . ' min">' . $display . '</span>';
+
+                        return '<span class="inline-flex items-center justify-center w-14 h-7 rounded text-xs font-semibold border bg-purple-100 text-purple-700 border-purple-300" title="Overtime: '.$otMinutes.' min">'.$display.'</span>';
                     }
 
                     // Other statuses
@@ -316,7 +318,7 @@ class AttendanceReportService
                     $default = ['?', 'bg-gray-100 text-gray-700 border-gray-300'];
                     [$letter, $color] = $statusMap[$status] ?? $default;
 
-                    return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border ' . $color . '" title="' . $status . '">' . $letter . '</span>';
+                    return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border '.$color.'" title="'.$status.'">'.$letter.'</span>';
                 }
 
                 $weekendDays = $employee->weekend?->weekend_days ?? [];
@@ -324,14 +326,14 @@ class AttendanceReportService
                     return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border bg-purple-100 text-purple-700 border-purple-300" title="Weekend">W</span>';
                 }
 
-                return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border bg-red-100 text-red-700 border-red-300" title="Absent - ' . $dateStr . '">A</span>';
+                return '<span class="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold border bg-red-100 text-red-700 border-red-300" title="Absent - '.$dateStr.'">A</span>';
             });
         }
 
         $rawColumns = ['employee_name'];
 
         for ($day = 1; $day <= 31; $day++) {
-            $rawColumns[] = 'day_' . $day;
+            $rawColumns[] = 'day_'.$day;
         }
 
         $rawColumns[] = 'total_overtime';
@@ -351,7 +353,7 @@ class AttendanceReportService
                 $mins = $totalMinutes % 60;
 
                 if ($totalMinutes > 0) {
-                    return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-purple-600 text-white">' . $hours . 'h ' . $mins . 'm</span>';
+                    return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-purple-600 text-white">'.$hours.'h '.$mins.'m</span>';
                 }
 
                 return '<span class="text-gray-400">—</span>';
@@ -413,7 +415,7 @@ class AttendanceReportService
             $weekendDays = $employee->weekend?->weekend_days ?? [];
             $name = $employee->full_name ?? 'Unknown';
             $code = $employee->employee_code ?? '-';
-            $shortName = strlen($name) > 12 ? substr($name, 0, 12) . '...' : $name;
+            $shortName = strlen($name) > 12 ? substr($name, 0, 12).'...' : $name;
 
             $colorMap = [
                 'Present' => '#16a34a',
@@ -484,8 +486,8 @@ class AttendanceReportService
                 $tooltip = "{$name} - {$displayStatus}";
 
                 $events[] = [
-                    'id' => 'att-' . $employee->id . '-' . $dateStr,
-                    'title' => $shortName . ': ' . ($this->getStatusLetter($status) ?? '?'),
+                    'id' => 'att-'.$employee->id.'-'.$dateStr,
+                    'title' => $shortName.': '.($this->getStatusLetter($status) ?? '?'),
                     'start' => $dateStr,
                     'backgroundColor' => $bgColor,
                     'borderColor' => $bgColor,

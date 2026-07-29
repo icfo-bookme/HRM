@@ -3,26 +3,27 @@
 namespace Modules\Holidays\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Modules\Holidays\Services\HolidayService;
-use Modules\Holidays\Services\HolidayAssignmentService;
-use Modules\Holidays\Http\Requests\StoreHolidayRequest;
-use Modules\Holidays\Http\Requests\UpdateHolidayRequest;
-use Modules\Holidays\Http\Requests\StoreHolidayAssignmentRequest;
-use Modules\Holidays\Http\Requests\UpdateHolidayAssignmentRequest;
+use App\Http\Requests\Holidays\StoreCalendarHolidayRequest;
 use Illuminate\Http\Request;
+use Modules\Holidays\Http\Requests\StoreHolidayAssignmentRequest;
+use Modules\Holidays\Http\Requests\StoreHolidayRequest;
+use Modules\Holidays\Http\Requests\UpdateHolidayAssignmentRequest;
+use Modules\Holidays\Http\Requests\UpdateHolidayRequest;
+use Modules\Holidays\Models\Holiday;
+use Modules\Holidays\Services\HolidayAssignmentService;
+use Modules\Holidays\Services\HolidayService;
 
 class HolidaysController extends Controller
 {
-    protected $holidayService;
-    protected $assignmentService;
+    protected HolidayService $holidayService;
+
+    protected HolidayAssignmentService $assignmentService;
 
     public function __construct(HolidayService $holidayService, HolidayAssignmentService $assignmentService)
     {
         $this->holidayService = $holidayService;
         $this->assignmentService = $assignmentService;
     }
-
-    // ---- Holidays CRUD ----
 
     public function index(Request $request)
     {
@@ -37,12 +38,14 @@ class HolidaysController extends Controller
     public function store(StoreHolidayRequest $request)
     {
         $result = $this->holidayService->saveHoliday($request->validated());
+
         return response()->json($result);
     }
 
     public function show($id)
     {
         $result = $this->holidayService->getHolidayById($id);
+
         return response()->json($result);
     }
 
@@ -52,16 +55,16 @@ class HolidaysController extends Controller
         $data['id'] = $id;
 
         $result = $this->holidayService->saveHoliday($data);
+
         return response()->json($result);
     }
 
     public function destroy($id)
     {
         $result = $this->holidayService->deleteHoliday($id);
+
         return response()->json($result);
     }
-
-    // ---- Holiday Calendar ----
 
     public function calendar(Request $request)
     {
@@ -70,7 +73,7 @@ class HolidaysController extends Controller
 
     public function calendarData(Request $request)
     {
-        $holidays = \Modules\Holidays\Models\Holiday::whereNull('deleted_at')->get();
+        $holidays = Holiday::whereNull('deleted_at')->get();
 
         $events = [];
         foreach ($holidays as $h) {
@@ -85,7 +88,7 @@ class HolidaysController extends Controller
             $color = $colorMap[$h->holiday_type] ?? '#6b7280';
 
             $events[] = [
-                'id' => 'holiday-' . $h->id,
+                'id' => 'holiday-'.$h->id,
                 'title' => $h->name,
                 'start' => $h->holiday_date->format('Y-m-d'),
                 'end' => $h->end_date ? $h->end_date->copy()->addDay()->format('Y-m-d') : null,
@@ -99,29 +102,21 @@ class HolidaysController extends Controller
                     'description' => $h->description,
                     'is_recurring' => $h->is_recurring,
                     'yearly_recurring' => $h->yearly_recurring,
-                ]
+                ],
             ];
         }
 
         return response()->json($events);
     }
 
-    public function calendarStore(Request $request)
+    public function calendarStore(StoreCalendarHolidayRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:300',
-            'holiday_type' => 'required|string',
-            'applicable_to' => 'required|string',
-            'selected_dates' => 'required|string',
-            'description' => 'nullable|string',
-        ]);
-
         $selectedDates = json_decode($request->selected_dates, true);
 
-        if (!$selectedDates || !is_array($selectedDates) || count($selectedDates) === 0) {
+        if (! $selectedDates || ! is_array($selectedDates) || count($selectedDates) === 0) {
             return response()->json([
                 'status' => false,
-                'message' => 'No dates selected.'
+                'message' => 'No dates selected.',
             ]);
         }
 
@@ -134,11 +129,10 @@ class HolidaysController extends Controller
             'holiday_type' => $request->holiday_type,
             'applicable_to' => $request->applicable_to,
             'description' => $request->description,
-            'is_recurring' => $request->has('is_recurring') ? (bool)$request->is_recurring : false,
-            'yearly_recurring' => $request->has('yearly_recurring') ? (bool)$request->yearly_recurring : false,
+            'is_recurring' => $request->has('is_recurring') ? (bool) $request->is_recurring : false,
+            'yearly_recurring' => $request->has('yearly_recurring') ? (bool) $request->yearly_recurring : false,
         ];
 
-        // Always save as a single range from first selected date to last selected date
         if (count($selectedDates) > 1) {
             $data['holiday_date'] = $firstDate;
             $data['end_date'] = $lastDate;
@@ -151,8 +145,6 @@ class HolidaysController extends Controller
 
         return response()->json($result);
     }
-
-    // ---- Holiday Assignments ----
 
     public function assignIndex(Request $request)
     {
@@ -167,12 +159,14 @@ class HolidaysController extends Controller
     public function assignStore(StoreHolidayAssignmentRequest $request)
     {
         $result = $this->assignmentService->saveAssignment($request->validated());
+
         return response()->json($result);
     }
 
     public function assignShow($id)
     {
         $result = $this->assignmentService->getAssignmentById($id);
+
         return response()->json($result);
     }
 
@@ -182,12 +176,14 @@ class HolidaysController extends Controller
         $data['id'] = $id;
 
         $result = $this->assignmentService->saveAssignment($data);
+
         return response()->json($result);
     }
 
     public function assignDestroy($id)
     {
         $result = $this->assignmentService->deleteAssignment($id);
+
         return response()->json($result);
     }
 }

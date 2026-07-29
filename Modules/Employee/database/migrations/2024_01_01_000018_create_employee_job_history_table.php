@@ -15,7 +15,7 @@ return new class extends Migration
             $table->enum('change_type', [
                 'Joining', 'Promotion', 'Demotion', 'Transfer', 'Designation Change',
                 'Grade Change', 'Salary Revision', 'Confirmation', 'Termination',
-                'Resignation', 'Retirement', 'Rehired'
+                'Resignation', 'Retirement', 'Rehired',
             ]);
             $table->unsignedBigInteger('from_branch_id')->nullable();
             $table->unsignedBigInteger('to_branch_id')->nullable();

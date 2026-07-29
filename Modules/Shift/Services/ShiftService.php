@@ -30,7 +30,6 @@ class ShiftService
         )
             ->orderByDesc('shifts.id');
 
-
         if ($request->is_active !== null && $request->is_active !== '') {
             $query->where('shifts.is_active', $request->is_active);
         }
@@ -51,8 +50,8 @@ class ShiftService
             })
             ->addColumn('action', function (Shift $shift) {
                 return view('components.action-buttons', [
-                    'id'     => $shift->id,
-                    'edit'   => 'shiftEdit',
+                    'id' => $shift->id,
+                    'edit' => 'shiftEdit',
                     'delete' => 'shiftDelete',
                 ])->render();
             })
@@ -76,16 +75,16 @@ class ShiftService
                 }
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => $message,
-                    'shift'   => $shift->fresh(),
+                    'shift' => $shift->fresh(),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error saving shift: ' . $e->getMessage(),
-                'shift'   => null,
+                'status' => 'error',
+                'message' => 'Error saving shift: '.$e->getMessage(),
+                'shift' => null,
             ];
         }
     }
@@ -97,13 +96,13 @@ class ShiftService
 
             return [
                 'status' => 'success',
-                'shift'  => $shift,
+                'shift' => $shift,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Shift not found.',
-                'shift'   => null,
+                'shift' => null,
             ];
         }
     }
@@ -116,14 +115,14 @@ class ShiftService
                 $shift->update(['deleted_at' => now()]);
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Shift deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting shift: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting shift: '.$e->getMessage(),
             ];
         }
     }

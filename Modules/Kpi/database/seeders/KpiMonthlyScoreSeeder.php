@@ -14,6 +14,7 @@ class KpiMonthlyScoreSeeder extends Seeder
 
         if ($employees->isEmpty()) {
             $this->command->warn('No active employees found. Skipping KPI monthly score seeder.');
+
             return;
         }
 
@@ -118,11 +119,22 @@ class KpiMonthlyScoreSeeder extends Seeder
 
     private function getRating(float $percentage): string
     {
-        if ($percentage >= 90) return 'A+';
-        if ($percentage >= 80) return 'A';
-        if ($percentage >= 70) return 'B+';
-        if ($percentage >= 60) return 'B';
-        if ($percentage >= 50) return 'C';
+        if ($percentage >= 90) {
+            return 'A+';
+        }
+        if ($percentage >= 80) {
+            return 'A';
+        }
+        if ($percentage >= 70) {
+            return 'B+';
+        }
+        if ($percentage >= 60) {
+            return 'B';
+        }
+        if ($percentage >= 50) {
+            return 'C';
+        }
+
         return 'D';
     }
 }

@@ -6,11 +6,12 @@ use App\Traits\CustomSoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Modules\Branch\Models\Branch;
 
 class Notice extends Model
 {
-    use HasFactory;
     use CustomSoftDeletes;
+    use HasFactory;
 
     protected $table = 'notices';
 
@@ -36,12 +37,12 @@ class Notice extends Model
 
     protected $casts = [
         'publish_date' => 'datetime',
-        'expiry_date'  => 'datetime',
-        'is_popup'     => 'boolean',
-        'is_pinned'    => 'boolean',
-        'is_active'    => 'boolean',
-        'created_at'   => 'datetime',
-        'updated_at'   => 'datetime',
+        'expiry_date' => 'datetime',
+        'is_popup' => 'boolean',
+        'is_pinned' => 'boolean',
+        'is_active' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     protected static function boot()
@@ -50,17 +51,17 @@ class Notice extends Model
 
         static::creating(function ($notice) {
             if (empty($notice->notice_no)) {
-                $notice->notice_no = 'NTC-' . strtoupper(Str::random(8));
+                $notice->notice_no = 'NTC-'.strtoupper(Str::random(8));
             }
             if (empty($notice->slug)) {
-                $notice->slug = Str::slug($notice->title) . '-' . Str::random(6);
+                $notice->slug = Str::slug($notice->title).'-'.Str::random(6);
             }
         });
     }
 
     public function branch()
     {
-        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+        return $this->belongsTo(Branch::class);
     }
 
     public function acknowledgements()

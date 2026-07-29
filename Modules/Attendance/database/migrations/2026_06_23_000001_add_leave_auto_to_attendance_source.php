@@ -16,7 +16,7 @@ return new class extends Migration
                 'API',
                 'Mobile App',
                 'Web',
-                'Leave Auto'
+                'Leave Auto',
             ])->default('Device')->change();
         });
     }
@@ -30,7 +30,7 @@ return new class extends Migration
                 'CSV',
                 'API',
                 'Mobile App',
-                'Web'
+                'Web',
             ])->default('Device')->change();
         });
     }

@@ -3,10 +3,10 @@
 namespace Modules\Employee\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Modules\Employee\Services\SkillCategoryService;
+use Illuminate\Http\Request;
 use Modules\Employee\Http\Requests\StoreSkillCategoryRequest;
 use Modules\Employee\Http\Requests\UpdateSkillCategoryRequest;
-use Illuminate\Http\Request;
+use Modules\Employee\Services\SkillCategoryService;
 
 class SkillCategoryController extends Controller
 {
@@ -30,12 +30,14 @@ class SkillCategoryController extends Controller
     public function store(StoreSkillCategoryRequest $request)
     {
         $result = $this->skillCategoryService->saveSkillCategory($request->validated());
+
         return response()->json($result);
     }
 
     public function show($id)
     {
         $result = $this->skillCategoryService->getSkillCategoryById($id);
+
         return response()->json($result);
     }
 
@@ -45,12 +47,14 @@ class SkillCategoryController extends Controller
         $data['category_id'] = $id;
 
         $result = $this->skillCategoryService->saveSkillCategory($data);
+
         return response()->json($result);
     }
 
     public function destroy($id)
     {
         $result = $this->skillCategoryService->deleteSkillCategory($id);
+
         return response()->json($result);
     }
 }

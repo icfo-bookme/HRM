@@ -1,5 +1,6 @@
 <div id="tab-personal" class="{{ $activeTab === 'personal' ? '' : 'hidden' }}">
-    <form class="section-save-form" action="{{ route('employee.edit.personal', $employee->id) }}" enctype="multipart/form-data">
+    <form class="section-save-form" action="{{ route('employee.edit.personal', $employee->id) }}"
+        enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
@@ -32,7 +33,9 @@
             <div class="grid gap-6 sm:grid-cols-2 mt-6">
                 <x-form-select label="Gender" name="gender" placeholder="-- Select --">
                     @foreach (['Male', 'Female', 'Other', 'Prefer not to say'] as $g)
-                        <option value="{{ $g }}" {{ old('gender', $employee->personalInfo->gender ?? '') === $g ? 'selected' : '' }}>{{ $g }}</option>
+                        <option value="{{ $g }}"
+                            {{ old('gender', $employee->personalInfo->gender ?? '') === $g ? 'selected' : '' }}>
+                            {{ $g }}</option>
                     @endforeach
                 </x-form-select>
                 <x-form-input label="Nationality" name="nationality" :value="old('nationality', $employee->personalInfo->nationality ?? 'Bangladeshi')" />
@@ -41,12 +44,16 @@
             <div class="grid gap-6 sm:grid-cols-2 mt-6">
                 <x-form-select label="Marital Status" name="marital_status" placeholder="-- Select --">
                     @foreach (['Single', 'Married', 'Divorced', 'Widowed', 'Separated'] as $s)
-                        <option value="{{ $s }}" {{ old('marital_status', $employee->personalInfo->marital_status ?? '') === $s ? 'selected' : '' }}>{{ $s }}</option>
+                        <option value="{{ $s }}"
+                            {{ old('marital_status', $employee->personalInfo->marital_status ?? '') === $s ? 'selected' : '' }}>
+                            {{ $s }}</option>
                     @endforeach
                 </x-form-select>
                 <x-form-select label="Blood Group" name="blood_group" placeholder="-- Select --">
                     @foreach (['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $b)
-                        <option value="{{ $b }}" {{ old('blood_group', $employee->personalInfo->blood_group ?? '') === $b ? 'selected' : '' }}>{{ $b }}</option>
+                        <option value="{{ $b }}"
+                            {{ old('blood_group', $employee->personalInfo->blood_group ?? '') === $b ? 'selected' : '' }}>
+                            {{ $b }}</option>
                     @endforeach
                 </x-form-select>
             </div>

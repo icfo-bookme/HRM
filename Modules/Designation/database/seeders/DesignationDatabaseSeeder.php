@@ -43,6 +43,6 @@ class DesignationDatabaseSeeder extends Seeder
             );
         }
 
-        $this->command->info('✓ Designations seeded: ' . count($designations) . ' records');
+        $this->command->info('✓ Designations seeded: '.count($designations).' records');
     }
 }

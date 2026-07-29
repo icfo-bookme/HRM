@@ -39,7 +39,7 @@ class SalaryComponentService
         }
 
         return DataTables::of($query)
-            
+
             ->editColumn('default_value', function ($component) {
                 return number_format($component->default_value, 2);
             })
@@ -68,8 +68,8 @@ class SalaryComponentService
             })
             ->addColumn('action', function (SalaryComponent $component) {
                 return view('components.action-buttons', [
-                    'id'     => $component->id,
-                    'edit'   => 'salaryComponentEdit',
+                    'id' => $component->id,
+                    'edit' => 'salaryComponentEdit',
                     'delete' => 'salaryComponentDelete',
                 ])->render();
             })
@@ -90,23 +90,23 @@ class SalaryComponentService
                     $component = SalaryComponent::findOrFail($componentId);
                     $component->update($data);
                     $message = 'Salary component updated successfully.';
-                    $status  = 'success';
+                    $status = 'success';
                 } else {
                     $component = SalaryComponent::create($data);
-                    $message  = 'Salary component created successfully.';
-                    $status   = 'success';
+                    $message = 'Salary component created successfully.';
+                    $status = 'success';
                 }
 
                 return [
-                    'status'           => $status,
-                    'message'          => $message,
+                    'status' => $status,
+                    'message' => $message,
                     'salary_component' => $component->fresh(),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'           => 'error',
-                'message'          => 'Error saving salary component: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error saving salary component: '.$e->getMessage(),
                 'salary_component' => null,
             ];
         }
@@ -119,14 +119,15 @@ class SalaryComponentService
     {
         try {
             $component = SalaryComponent::findOrFail($id);
+
             return [
-                'status'           => 'success',
+                'status' => 'success',
                 'salary_component' => $component,
             ];
         } catch (\Exception $e) {
             return [
-                'status'           => 'error',
-                'message'          => 'Salary component not found.',
+                'status' => 'error',
+                'message' => 'Salary component not found.',
                 'salary_component' => null,
             ];
         }
@@ -143,14 +144,14 @@ class SalaryComponentService
                 $component->delete();
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Salary component deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting salary component: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting salary component: '.$e->getMessage(),
             ];
         }
     }

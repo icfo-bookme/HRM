@@ -11,6 +11,7 @@ class BirthdayNotification extends Notification
     use Queueable;
 
     public Employee $employee;
+
     public int $daysUntil;
 
     /**
@@ -39,13 +40,13 @@ class BirthdayNotification extends Notification
         $dob = $this->employee->personalInfo?->date_of_birth;
 
         return [
-            'type'       => 'birthday',
+            'type' => 'birthday',
             'employee_id' => $this->employee->id,
             'employee_name' => $name,
             'date_of_birth' => $dob?->format('Y-m-d'),
-            'days_until'    => $this->daysUntil,
-            'message'       => "{$name}'s birthday is in {$this->daysUntil} day(s).",
-            'title'         => 'Upcoming Birthday 🎂',
+            'days_until' => $this->daysUntil,
+            'message' => "{$name}'s birthday is in {$this->daysUntil} day(s).",
+            'title' => 'Upcoming Birthday 🎂',
         ];
     }
 }

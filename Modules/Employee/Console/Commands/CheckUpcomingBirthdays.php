@@ -40,13 +40,15 @@ class CheckUpcomingBirthdays extends Command
 
         foreach ($employees as $employee) {
 
-            if (!$employee->personalInfo) {
+            if (! $employee->personalInfo) {
                 $this->warn("Employee {$employee->id} has no personal info.");
+
                 continue;
             }
 
-            if (!$employee->user) {
+            if (! $employee->user) {
                 $this->warn("Employee {$employee->id} has no user account.");
+
                 continue;
             }
 

@@ -7,6 +7,16 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Modules\Branch\Database\Seeders\BranchDatabaseSeeder;
+use Modules\Company\Database\Seeders\CompanyDatabaseSeeder;
+use Modules\Department\Database\Seeders\DepartmentDatabaseSeeder;
+use Modules\Designation\Database\Seeders\DesignationDatabaseSeeder;
+use Modules\Employee\Database\Seeders\EmployeeDatabaseSeeder;
+use Modules\Kpi\Database\Seeders\KpiDatabaseSeeder;
+use Modules\Leave\Database\Seeders\LeaveDatabaseSeeder;
+use Modules\Notice\Database\Seeders\NoticeDatabaseSeeder;
+use Modules\SalaryGrade\Database\Seeders\SalaryGradeDatabaseSeeder;
+use Modules\Shift\Database\Seeders\ShiftDatabaseSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,7 +29,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        if (!User::where('email', 'test@example.com')->exists()) {
+        if (! User::where('email', 'test@example.com')->exists()) {
             User::factory()->create([
                 'name' => 'Test User',
                 'email' => 'test@example.com',
@@ -30,22 +40,22 @@ class DatabaseSeeder extends Seeder
 
         // Dependency order: Company -> Branch -> Department -> SalaryGrade -> Shift -> Designation
         $this->call([
-            \Modules\Company\Database\Seeders\CompanyDatabaseSeeder::class,
-            \Modules\Branch\Database\Seeders\BranchDatabaseSeeder::class,
-            \Modules\Department\Database\Seeders\DepartmentDatabaseSeeder::class,
-            \Modules\SalaryGrade\Database\Seeders\SalaryGradeDatabaseSeeder::class,
-            \Modules\Shift\Database\Seeders\ShiftDatabaseSeeder::class,
-            \Modules\Designation\Database\Seeders\DesignationDatabaseSeeder::class,
+            CompanyDatabaseSeeder::class,
+            BranchDatabaseSeeder::class,
+            DepartmentDatabaseSeeder::class,
+            SalaryGradeDatabaseSeeder::class,
+            ShiftDatabaseSeeder::class,
+            DesignationDatabaseSeeder::class,
         ]);
 
         $this->command->info('--- Seeding Employee Data ---');
         $this->call([
-            \Modules\Employee\Database\Seeders\EmployeeDatabaseSeeder::class,
+            EmployeeDatabaseSeeder::class,
         ]);
 
         $this->command->info('--- Seeding Notice Data ---');
         $this->call([
-            \Modules\Notice\Database\Seeders\NoticeDatabaseSeeder::class,
+            NoticeDatabaseSeeder::class,
         ]);
 
         $this->command->info('--- Seeding Roles & Permissions ---');
@@ -55,12 +65,12 @@ class DatabaseSeeder extends Seeder
 
         $this->command->info('--- Seeding Leave Data ---');
         $this->call([
-            \Modules\Leave\Database\Seeders\LeaveDatabaseSeeder::class,
+            LeaveDatabaseSeeder::class,
         ]);
 
         $this->command->info('--- Seeding KPI Data ---');
         $this->call([
-            \Modules\Kpi\Database\Seeders\KpiDatabaseSeeder::class,
+            KpiDatabaseSeeder::class,
         ]);
 
         $this->command->info('--- Seeding Users ---');
@@ -75,25 +85,25 @@ class DatabaseSeeder extends Seeder
 
         $users = [
             [
-                'name'       => 'Admin User',
-                'email'      => 'admin@company.com',
-                'password'   => Hash::make('password'),
-                'employee_id'=> 1,
-                'role_id'    => $adminRole?->id,
+                'name' => 'Admin User',
+                'email' => 'admin@company.com',
+                'password' => Hash::make('password'),
+                'employee_id' => 1,
+                'role_id' => $adminRole?->id,
             ],
             [
-                'name'       => 'Manager User',
-                'email'      => 'manager@company.com',
-                'password'   => Hash::make('password'),
-                'employee_id'=> 2,
-                'role_id'    => $managerRole?->id,
+                'name' => 'Manager User',
+                'email' => 'manager@company.com',
+                'password' => Hash::make('password'),
+                'employee_id' => 2,
+                'role_id' => $managerRole?->id,
             ],
             [
-                'name'       => 'Employee User',
-                'email'      => 'employee@company.com',
-                'password'   => Hash::make('password'),
-                'employee_id'=> 3,
-                'role_id'    => $employeeRole?->id,
+                'name' => 'Employee User',
+                'email' => 'employee@company.com',
+                'password' => Hash::make('password'),
+                'employee_id' => 3,
+                'role_id' => $employeeRole?->id,
             ],
         ];
 
@@ -142,6 +152,6 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $this->command->info('✓ Users seeded: ' . count($users) . ' records (password: password)');
+        $this->command->info('✓ Users seeded: '.count($users).' records (password: password)');
     }
 }

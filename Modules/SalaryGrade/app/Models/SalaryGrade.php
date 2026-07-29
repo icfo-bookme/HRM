@@ -2,8 +2,8 @@
 
 namespace Modules\SalaryGrade\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class SalaryGrade extends Model
 {
@@ -28,8 +28,8 @@ class SalaryGrade extends Model
     protected $casts = [
         'min_salary' => 'decimal:2',
         'max_salary' => 'decimal:2',
-        'is_active'  => 'boolean',
-        'metadata'   => 'array', 
+        'is_active' => 'boolean',
+        'metadata' => 'array',
         'deduct_late_for_payroll' => 'boolean',
         'pay_overtime_for_payroll' => 'boolean',
         'late_deduction_per_minute' => 'decimal:4',

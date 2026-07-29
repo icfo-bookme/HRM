@@ -291,7 +291,7 @@ class LeaveTypeFactory extends Factory
             ],
         ];
 
-        if (!isset($leaveTypes[$name])) {
+        if (! isset($leaveTypes[$name])) {
             throw new \InvalidArgumentException("Unknown leave type: {$name}");
         }
 

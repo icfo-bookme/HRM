@@ -23,7 +23,7 @@ class StoreEmployeeStepSixRequest extends FormRequest
             'educations.*.major_subject' => 'nullable|string|max:200',
             'educations.*.institution' => 'nullable|string|max:300',
             'educations.*.board_university' => 'nullable|string|max:300',
-            'educations.*.passing_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'educations.*.passing_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 1),
             'educations.*.result_type' => 'nullable|in:CGPA,Percentage,Grade,Division',
             'educations.*.result_value' => 'nullable|string|max:50',
             'educations.*.duration_from' => 'nullable|date',

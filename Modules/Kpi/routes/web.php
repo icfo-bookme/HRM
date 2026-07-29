@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Kpi\Http\Controllers\KpiController;
-use Modules\Kpi\Http\Controllers\KpiTaskController;
 use Modules\Kpi\Http\Controllers\KpiReviewController;
+use Modules\Kpi\Http\Controllers\KpiTaskController;
 
 /*
 |--------------------------------------------------------------------------

@@ -4,8 +4,8 @@ namespace Modules\Leave\Services;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\Leave\Models\LeaveEncashment;
 use Modules\Employee\Models\EmployeeLeaveBalance;
+use Modules\Leave\Models\LeaveEncashment;
 use Yajra\DataTables\DataTables;
 
 class LeaveEncashmentService
@@ -49,10 +49,13 @@ class LeaveEncashmentService
             ->addIndexColumn()
             ->editColumn('employee', function ($enc) {
                 $emp = $enc->employee;
-                if (!$emp) return 'N/A';
+                if (! $emp) {
+                    return 'N/A';
+                }
                 $name = $emp->full_name ?: $emp->employee_code;
-                return '<div class="text-sm font-medium text-slate-800">' . e($name) . '</div>' .
-                       '<div class="text-xs text-slate-400">' . e($emp->employee_code) . '</div>';
+
+                return '<div class="text-sm font-medium text-slate-800">'.e($name).'</div>'.
+                       '<div class="text-xs text-slate-400">'.e($emp->employee_code).'</div>';
             })
             ->editColumn('leave_type', function ($enc) {
                 return $enc->leaveType?->name ?? 'N/A';
@@ -64,15 +67,16 @@ class LeaveEncashmentService
                 return number_format($enc->days_encashed, 1);
             })
             ->editColumn('amount_per_day', function ($enc) {
-                return $enc->amount_per_day ? number_format($enc->amount_per_day, 2) . ' BDT' : '—';
+                return $enc->amount_per_day ? number_format($enc->amount_per_day, 2).' BDT' : '—';
             })
             ->editColumn('total_amount', function ($enc) {
                 $total = $enc->total_amount;
-                if (!$total && $enc->amount_per_day && $enc->days_encashed) {
+                if (! $total && $enc->amount_per_day && $enc->days_encashed) {
                     $total = $enc->amount_per_day * $enc->days_encashed;
                 }
+
                 return $total
-                    ? '<span class="font-semibold text-slate-800">' . number_format($total, 2) . ' BDT</span>'
+                    ? '<span class="font-semibold text-slate-800">'.number_format($total, 2).' BDT</span>'
                     : '—';
             })
             ->editColumn('status', function ($enc) {
@@ -82,25 +86,25 @@ class LeaveEncashmentService
                 return $enc->created_at?->format('d M Y H:i') ?? '—';
             })
             ->addColumn('action', function ($enc) {
-                $editBtn = '<button onclick="leaveEncashmentEdit(' . $enc->id . ')"
+                $editBtn = '<button onclick="leaveEncashmentEdit('.$enc->id.')"
                     class="p-1.5 text-slate-400 hover:text-indigo-600 transition" title="Edit">
                     <i class="fas fa-edit text-sm"></i>
                 </button>';
 
-                $deleteBtn = '<button onclick="leaveEncashmentDelete(' . $enc->id . ')"
+                $deleteBtn = '<button onclick="leaveEncashmentDelete('.$enc->id.')"
                     class="p-1.5 text-slate-400 hover:text-red-600 transition" title="Delete">
                     <i class="fas fa-trash text-sm"></i>
                 </button>';
 
                 $approveBtn = '';
                 if ($enc->isPending()) {
-                    $approveBtn = '<button onclick="leaveEncashmentApprove(' . $enc->id . ')"
+                    $approveBtn = '<button onclick="leaveEncashmentApprove('.$enc->id.')"
                         class="p-1.5 text-green-500 hover:text-green-700 transition" title="Approve">
                         <i class="fas fa-check-circle text-sm"></i>
                     </button>';
                 }
 
-                return '<div class="flex justify-end gap-1">' . $approveBtn . $editBtn . $deleteBtn . '</div>';
+                return '<div class="flex justify-end gap-1">'.$approveBtn.$editBtn.$deleteBtn.'</div>';
             })
             ->rawColumns(['employee', 'total_amount', 'status', 'action'])
             ->make(true);
@@ -116,7 +120,7 @@ class LeaveEncashmentService
                 $encashmentId = $data['encashment_id'] ?? null;
 
                 // Auto-calculate total_amount if not provided
-                if (empty($data['total_amount']) && !empty($data['amount_per_day']) && !empty($data['days_encashed'])) {
+                if (empty($data['total_amount']) && ! empty($data['amount_per_day']) && ! empty($data['days_encashed'])) {
                     $data['total_amount'] = round($data['amount_per_day'] * $data['days_encashed'], 2);
                 }
 
@@ -164,16 +168,16 @@ class LeaveEncashmentService
                 }
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => $message,
-                    'data'    => $encashment->fresh()->load(['employee.personalInfo', 'leaveType', 'approvedBy']),
+                    'data' => $encashment->fresh()->load(['employee.personalInfo', 'leaveType', 'approvedBy']),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error saving leave encashment: ' . $e->getMessage(),
-                'data'    => null,
+                'status' => 'error',
+                'message' => 'Error saving leave encashment: '.$e->getMessage(),
+                'data' => null,
             ];
         }
     }
@@ -197,7 +201,7 @@ class LeaveEncashmentService
             $newEncashed = max(0, $currentEncashed + $daysToAdd);
             $balance->update([
                 'encashed_days' => $newEncashed,
-                'updated_at'    => now(),
+                'updated_at' => now(),
             ]);
         }
     }
@@ -213,13 +217,13 @@ class LeaveEncashmentService
 
             return [
                 'status' => 'success',
-                'data'   => $encashment,
+                'data' => $encashment,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Leave encashment record not found.',
-                'data'    => null,
+                'data' => null,
             ];
         }
     }
@@ -245,14 +249,14 @@ class LeaveEncashmentService
                 $encashment->delete();
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Leave encashment deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting leave encashment: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting leave encashment: '.$e->getMessage(),
             ];
         }
     }
@@ -266,15 +270,15 @@ class LeaveEncashmentService
             return DB::transaction(function () use ($id, $approvedBy) {
                 $encashment = LeaveEncashment::findOrFail($id);
 
-                if (!$encashment->isPending()) {
+                if (! $encashment->isPending()) {
                     return [
-                        'status'  => 'error',
+                        'status' => 'error',
                         'message' => 'Only pending encashment requests can be approved.',
                     ];
                 }
 
                 $encashment->update([
-                    'status'      => LeaveEncashment::STATUS_APPROVED,
+                    'status' => LeaveEncashment::STATUS_APPROVED,
                     'approved_by' => $approvedBy,
                     'approved_at' => now(),
                 ]);
@@ -287,15 +291,15 @@ class LeaveEncashmentService
                 );
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Leave encashment approved successfully. Balance updated.',
-                    'data'    => $encashment->fresh()->load(['employee.personalInfo', 'leaveType']),
+                    'data' => $encashment->fresh()->load(['employee.personalInfo', 'leaveType']),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error approving encashment: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error approving encashment: '.$e->getMessage(),
             ];
         }
     }

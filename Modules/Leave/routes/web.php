@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Leave\Http\Controllers\LeaveApplicationController;
 use Modules\Leave\Http\Controllers\LeaveEncashmentController;
 use Modules\Leave\Http\Controllers\LeaveTypeController;
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Leave Types

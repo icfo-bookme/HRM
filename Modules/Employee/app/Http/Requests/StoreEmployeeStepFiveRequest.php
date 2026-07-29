@@ -78,17 +78,13 @@ class StoreEmployeeStepFiveRequest extends FormRequest
         return [
             'documents.required' => 'Please add at least one document.',
 
-            'documents.*.category.required' =>
-                'Document category is required.',
+            'documents.*.category.required' => 'Document category is required.',
 
-            'documents.*.document_file.required' =>
-                'Please upload a document file.',
+            'documents.*.document_file.required' => 'Please upload a document file.',
 
-            'documents.*.document_file.mimes' =>
-                'Allowed file types: PDF, JPG, JPEG, PNG, WEBP.',
+            'documents.*.document_file.mimes' => 'Allowed file types: PDF, JPG, JPEG, PNG, WEBP.',
 
-            'documents.*.document_file.max' =>
-                'Document size cannot exceed 5 MB.',
+            'documents.*.document_file.max' => 'Document size cannot exceed 5 MB.',
         ];
     }
 }

@@ -55,7 +55,8 @@ class AttendanceDeviceService
                     'Error' => 'danger',
                 ];
                 $color = $colors[$device->sync_status] ?? 'secondary';
-                return '<span class="badge badge-' . $color . '">' . $device->sync_status . '</span>';
+
+                return '<span class="badge badge-'.$color.'">'.$device->sync_status.'</span>';
             })
             ->editColumn('created_at', function (AttendanceDevice $device) {
                 return $device->created_at->format('d M Y H:i');
@@ -65,8 +66,8 @@ class AttendanceDeviceService
             })
             ->addColumn('action', function (AttendanceDevice $device) {
                 return view('components.action-buttons', [
-                    'id'     => $device->id,
-                    'edit'   => 'attendanceDeviceEdit',
+                    'id' => $device->id,
+                    'edit' => 'attendanceDeviceEdit',
                     'delete' => 'attendanceDeviceDelete',
                 ])->render();
             })
@@ -81,28 +82,26 @@ class AttendanceDeviceService
                 $deviceId = $data['attendance_device_id'] ?? null;
 
                 if ($deviceId) {
-                    // Update existing device
                     $device = AttendanceDevice::findOrFail($deviceId);
                     $device->update($data);
                     $message = 'Attendance device updated successfully.';
-                    $status  = 'success';
+                    $status = 'success';
                 } else {
-                    // Create new device
                     $device = AttendanceDevice::create($data);
-                    $message    = 'Attendance device created successfully.';
-                    $status     = 'success';
+                    $message = 'Attendance device created successfully.';
+                    $status = 'success';
                 }
 
                 return [
-                    'status'     => $status,
-                    'message'    => $message,
+                    'status' => $status,
+                    'message' => $message,
                     'device' => $device->fresh(),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'     => 'error',
-                'message'    => 'Error saving attendance device: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error saving attendance device: '.$e->getMessage(),
                 'device' => null,
             ];
         }
@@ -112,14 +111,15 @@ class AttendanceDeviceService
     {
         try {
             $device = AttendanceDevice::findOrFail($id);
+
             return [
-                'status'     => 'success',
+                'status' => 'success',
                 'device' => $device,
             ];
         } catch (\Exception $e) {
             return [
-                'status'     => 'error',
-                'message'    => 'Attendance device not found.',
+                'status' => 'error',
+                'message' => 'Attendance device not found.',
                 'device' => null,
             ];
         }
@@ -133,14 +133,14 @@ class AttendanceDeviceService
                 $device->update(['deleted_at' => now()]);
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Attendance device deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting attendance device: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting attendance device: '.$e->getMessage(),
             ];
         }
     }

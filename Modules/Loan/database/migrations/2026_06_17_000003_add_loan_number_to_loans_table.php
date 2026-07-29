@@ -10,7 +10,7 @@ return new class extends Migration
     {
         // Add missing loan_number column
         Schema::table('loans', function (Blueprint $table) {
-            if (!Schema::hasColumn('loans', 'loan_number')) {
+            if (! Schema::hasColumn('loans', 'loan_number')) {
                 $table->string('loan_number', 20)->after('id')->comment('Professional tracking ID: LN-YYYY-XXXX');
             }
         });
@@ -21,7 +21,7 @@ return new class extends Migration
                 Schema::table('loans', function (Blueprint $table) {
                     $table->unique('loan_number', 'loans_loan_number_unique');
                 });
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Index may already exist, ignore
             }
         }
@@ -31,7 +31,7 @@ return new class extends Migration
             Schema::table('loans', function (Blueprint $table) {
                 $table->index('loan_type', 'idx_loans_type');
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Index may already exist
         }
 
@@ -39,13 +39,13 @@ return new class extends Migration
             Schema::table('loans', function (Blueprint $table) {
                 $table->index('application_date', 'idx_loans_application_date');
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Index may already exist
         }
 
         // Add missing columns to loan_installments (notes field)
         Schema::table('loan_installments', function (Blueprint $table) {
-            if (!Schema::hasColumn('loan_installments', 'notes')) {
+            if (! Schema::hasColumn('loan_installments', 'notes')) {
                 $table->text('notes')->nullable()->after('paid_at');
             }
         });
@@ -55,7 +55,7 @@ return new class extends Migration
             Schema::table('loan_installments', function (Blueprint $table) {
                 $table->unique(['loan_id', 'installment_no'], 'uq_installment_no');
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // May already exist
         }
     }

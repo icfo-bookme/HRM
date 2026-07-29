@@ -21,12 +21,12 @@ class EmployeeSalaryStructure extends Model
     ];
 
     protected $casts = [
-        'amount'         => 'decimal:4',
+        'amount' => 'decimal:4',
         'effective_from' => 'date',
-        'effective_to'   => 'date',
-        'is_percentage'  => 'boolean',
-        'created_at'     => 'datetime',
-        'updated_at'     => 'datetime',
+        'effective_to' => 'date',
+        'is_percentage' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

@@ -2,9 +2,7 @@
 
 namespace Modules\Kpi\Services;
 
-use Illuminate\Support\Facades\DB;
 use Modules\Kpi\Models\KpiTask;
-use Modules\Employee\Models\Employee;
 use Yajra\DataTables\DataTables;
 
 class KpiTaskService
@@ -14,7 +12,7 @@ class KpiTaskService
      */
     public function getTaskDataTable($request, ?int $employeeId = null)
     {
-        $query = KpiTask::with(['employee.personalInfo', 'assignedBy.personalInfo'])->orderBy('id','desc');
+        $query = KpiTask::with(['employee.personalInfo', 'assignedBy.personalInfo'])->orderBy('id', 'desc');
 
         if ($employeeId) {
             $query->where('employee_id', $employeeId);
@@ -36,15 +34,16 @@ class KpiTaskService
             ->addIndexColumn()
             ->editColumn('employee_id', function ($task) {
                 $emp = $task->employee;
-                return $emp ? ($emp->employee_code . ' - ' . ($emp->personalInfo?->full_name ?? 'N/A')) : 'N/A';
+
+                return $emp ? ($emp->employee_code.' - '.($emp->personalInfo?->full_name ?? 'N/A')) : 'N/A';
             })
             ->editColumn('assigned_by', function ($task) {
                 return $task->assignedBy?->personalInfo?->full_name ?? 'N/A';
             })
-            ->editColumn('target_score', fn($task) => number_format($task->target_score, 1))
-            ->editColumn('obtained_score', fn($task) => $task->obtained_score ? number_format($task->obtained_score, 1) : '-')
-            ->editColumn('assigned_date', fn($task) => $task->assigned_date->format('d M Y'))
-            ->editColumn('deadline', fn($task) => $task->deadline?->format('d M Y') ?? '-')
+            ->editColumn('target_score', fn ($task) => number_format($task->target_score, 1))
+            ->editColumn('obtained_score', fn ($task) => $task->obtained_score ? number_format($task->obtained_score, 1) : '-')
+            ->editColumn('assigned_date', fn ($task) => $task->assigned_date->format('d M Y'))
+            ->editColumn('deadline', fn ($task) => $task->deadline?->format('d M Y') ?? '-')
             ->editColumn('priority', function ($task) {
                 $colors = [
                     'Low' => 'bg-gray-100 text-gray-600',
@@ -53,7 +52,8 @@ class KpiTaskService
                     'Critical' => 'bg-red-100 text-red-700',
                 ];
                 $color = $colors[$task->priority] ?? 'bg-gray-100 text-gray-600';
-                return '<span class="px-2 py-1 text-xs font-medium rounded-full ' . $color . '">' . $task->priority . '</span>';
+
+                return '<span class="px-2 py-1 text-xs font-medium rounded-full '.$color.'">'.$task->priority.'</span>';
             })
             ->editColumn('status', function ($task) {
                 $colors = [
@@ -64,15 +64,16 @@ class KpiTaskService
                     'Overdue' => 'bg-red-100 text-red-700',
                 ];
                 $color = $colors[$task->status] ?? 'bg-gray-100 text-gray-600';
-                return '<span class="px-2 py-1 text-xs font-medium rounded-full ' . $color . '">' . $task->status . '</span>';
+
+                return '<span class="px-2 py-1 text-xs font-medium rounded-full '.$color.'">'.$task->status.'</span>';
             })
             ->addColumn('action', function ($task) {
-                $btn = '<a href="' . route('kpi.tasks.show', $task->id) . '" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 mr-1" title="View"><i class="fas fa-eye"></i></a>';
+                $btn = '<a href="'.route('kpi.tasks.show', $task->id).'" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 mr-1" title="View"><i class="fas fa-eye"></i></a>';
 
                 if (in_array($task->status, ['Pending', 'In Progress'])) {
-                    $btn .= '<a href="' . route('kpi.tasks.edit', $task->id) . '" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 mr-1" title="Edit"><i class="fas fa-edit"></i></a>';
-                    $btn .= '<button onclick="completeTask(' . $task->id . ')" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 mr-1" title="Complete"><i class="fas fa-check"></i></button>';
-                    $btn .= '<button onclick="deleteTask(' . $task->id . ')" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200" title="Delete"><i class="fas fa-trash"></i></button>';
+                    $btn .= '<a href="'.route('kpi.tasks.edit', $task->id).'" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 mr-1" title="Edit"><i class="fas fa-edit"></i></a>';
+                    $btn .= '<button onclick="completeTask('.$task->id.')" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 mr-1" title="Complete"><i class="fas fa-check"></i></button>';
+                    $btn .= '<button onclick="deleteTask('.$task->id.')" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200" title="Delete"><i class="fas fa-trash"></i></button>';
                 }
 
                 return $btn;
@@ -107,7 +108,7 @@ class KpiTaskService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Failed to create task: ' . $e->getMessage(),
+                'message' => 'Failed to create task: '.$e->getMessage(),
             ];
         }
     }
@@ -120,7 +121,7 @@ class KpiTaskService
         try {
             $task = KpiTask::findOrFail($id);
 
-            if (!in_array($task->status, ['Pending', 'In Progress'])) {
+            if (! in_array($task->status, ['Pending', 'In Progress'])) {
                 return ['status' => 'error', 'message' => 'Only pending or in-progress tasks can be edited.'];
             }
 
@@ -134,7 +135,7 @@ class KpiTaskService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Failed to update task: ' . $e->getMessage(),
+                'message' => 'Failed to update task: '.$e->getMessage(),
             ];
         }
     }
@@ -166,7 +167,7 @@ class KpiTaskService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Failed to complete task: ' . $e->getMessage(),
+                'message' => 'Failed to complete task: '.$e->getMessage(),
             ];
         }
     }
@@ -179,7 +180,7 @@ class KpiTaskService
         try {
             $task = KpiTask::findOrFail($id);
 
-            if (!in_array($task->status, ['Pending', 'In Progress'])) {
+            if (! in_array($task->status, ['Pending', 'In Progress'])) {
                 return ['status' => 'error', 'message' => 'Only pending or in-progress tasks can be deleted.'];
             }
 
@@ -187,7 +188,7 @@ class KpiTaskService
 
             return ['status' => 'success', 'message' => 'Task deleted successfully.'];
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Failed to delete task: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Failed to delete task: '.$e->getMessage()];
         }
     }
 

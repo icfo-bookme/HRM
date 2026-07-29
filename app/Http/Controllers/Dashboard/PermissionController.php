@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Dashboard\StorePermissionRequest;
 use App\Models\Permission;
 use App\Services\PermissionService;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ class PermissionController extends Controller
     public function index()
     {
         $groups = Permission::select('group')->distinct()->orderBy('group')->pluck('group');
+
         return view('dashboard.permissions.index', compact('groups'));
     }
 
@@ -36,15 +38,11 @@ class PermissionController extends Controller
     /**
      * Store new permission
      */
-    public function store(Request $request)
+    public function store(StorePermissionRequest $request)
     {
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'group'       => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-        ]);
-
+        $validated = $request->validated();
         $result = $this->permissionService->savePermission($validated);
+
         return response()->json($result);
     }
 
@@ -54,22 +52,19 @@ class PermissionController extends Controller
     public function show($id)
     {
         $result = $this->permissionService->getPermissionById($id);
+
         return response()->json($result);
     }
 
     /**
      * Update existing permission
      */
-    public function update(Request $request, $id)
+    public function update(StorePermissionRequest $request, $id)
     {
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'group'       => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-        ]);
-
+        $validated = $request->validated();
         $validated['permission_id'] = $id;
         $result = $this->permissionService->savePermission($validated);
+
         return response()->json($result);
     }
 
@@ -79,6 +74,7 @@ class PermissionController extends Controller
     public function destroy($id)
     {
         $result = $this->permissionService->deletePermission($id);
+
         return response()->json($result);
     }
 }

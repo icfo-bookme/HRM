@@ -3,9 +3,8 @@
 namespace Modules\Kpi\Services;
 
 use Illuminate\Support\Facades\DB;
-use Modules\Kpi\Models\KpiMonthlyReview;
-use Modules\Kpi\Models\KpiMonthlyScore;
 use Modules\Employee\Models\Employee;
+use Modules\Kpi\Models\KpiMonthlyReview;
 
 class KpiReviewService
 {
@@ -36,7 +35,7 @@ class KpiReviewService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Failed to save review: ' . $e->getMessage(),
+                'message' => 'Failed to save review: '.$e->getMessage(),
             ];
         }
     }
@@ -61,7 +60,7 @@ class KpiReviewService
                 'review' => $review->fresh(),
             ];
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Failed to submit review: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Failed to submit review: '.$e->getMessage()];
         }
     }
 
@@ -95,7 +94,7 @@ class KpiReviewService
                 ];
             });
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Failed to approve review: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Failed to approve review: '.$e->getMessage()];
         }
     }
 

@@ -15,21 +15,15 @@ class EmployeeWeekendService
     /**
      * Store or update employee weekend
      */
-    public function storeWeekend(Request $request): array
+    public function storeWeekend(array $data): array
     {
-        $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'weekend_days' => 'nullable|array',
-            'weekend_days.*' => 'integer|between:0,6',
-        ]);
-
         try {
-            return DB::transaction(function () use ($request) {
-                $weekendDays = $request->weekend_days ?? [];
+            return DB::transaction(function () use ($data) {
+                $weekendDays = $data['weekend_days'] ?? [];
                 $weekendDays = array_map('intval', $weekendDays);
 
                 EmployeeWeekend::updateOrCreate(
-                    ['employee_id' => $request->employee_id],
+                    ['employee_id' => $data['employee_id']],
                     ['weekend_days' => $weekendDays]
                 );
 
@@ -41,7 +35,7 @@ class EmployeeWeekendService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Error saving weekend: ' . $e->getMessage(),
+                'message' => 'Error saving weekend: '.$e->getMessage(),
             ];
         }
     }

@@ -2,10 +2,10 @@
 
 namespace Modules\Leave\Services;
 
-use Modules\Leave\Models\LeaveType;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Yajra\DataTables\DataTables;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Modules\Leave\Models\LeaveType;
+use Yajra\DataTables\DataTables;
 
 class LeaveTypeService
 {
@@ -65,16 +65,17 @@ class LeaveTypeService
                 $color = $type->color_code ?? '#CBD5E1';
                 $desc = e($type->description ?? '');
                 $name = e($type->name);
+
                 return '<div class="flex items-center gap-3">
-                            <span class="w-3 h-3 rounded-full" style="background-color: ' . $color . '"></span>
+                            <span class="w-3 h-3 rounded-full" style="background-color: '.$color.'"></span>
                             <div>
-                                <div class="text-sm font-medium text-slate-800">' . $name . '</div>
-                                <div class="text-xs text-slate-500 line-clamp-1">' . $desc . '</div>
+                                <div class="text-sm font-medium text-slate-800">'.$name.'</div>
+                                <div class="text-xs text-slate-500 line-clamp-1">'.$desc.'</div>
                             </div>
                         </div>';
             })
             ->editColumn('days_per_year', function ($type) {
-                return '<span class="text-sm text-slate-600">' . $type->days_per_year . '</span>';
+                return '<span class="text-sm text-slate-600">'.$type->days_per_year.'</span>';
             })
             ->editColumn('applicable_gender', function ($type) {
                 $gender = $type->applicable_gender;
@@ -84,7 +85,8 @@ class LeaveTypeService
                     'Female' => 'bg-pink-50 text-pink-600',
                 ];
                 $class = $colors[$gender] ?? 'bg-slate-50 text-slate-600';
-                return '<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded ' . $class . '">' . $gender . '</span>';
+
+                return '<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded '.$class.'">'.$gender.'</span>';
             })
             ->editColumn('is_paid', function ($type) {
                 $html = '';
@@ -97,9 +99,10 @@ class LeaveTypeService
                 if ($type->carry_forward) {
                     $html .= '<span class="px-2 py-0.5 bg-purple-50 text-purple-600 text-[10px] font-bold uppercase rounded">Carry</span> ';
                 }
-                if (!$type->is_active) {
+                if (! $type->is_active) {
                     $html .= '<span class="px-2 py-0.5 bg-red-50 text-red-600 text-[10px] font-bold uppercase rounded">Inactive</span>';
                 }
+
                 return $html ?: '<span class="text-xs text-slate-400">—</span>';
             })
             ->editColumn('is_active', function ($type) {
@@ -110,14 +113,14 @@ class LeaveTypeService
                 $deleteUrl = route('leave-types.destroy', $type->id);
 
                 return '<div class="flex justify-end gap-2">
-                    <a href="' . $editUrl . '" class="p-1.5 text-slate-400 hover:text-indigo-600 transition" title="Edit">
+                    <a href="'.$editUrl.'" class="p-1.5 text-slate-400 hover:text-indigo-600 transition" title="Edit">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </a>
-                    <form action="' . $deleteUrl . '" method="POST" onsubmit="return confirm(\'Are you sure?\');" class="inline">
-                        ' . csrf_field() . '
-                        ' . method_field('DELETE') . '
+                    <form action="'.$deleteUrl.'" method="POST" onsubmit="return confirm(\'Are you sure?\');" class="inline">
+                        '.csrf_field().'
+                        '.method_field('DELETE').'
                         <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 transition" title="Delete">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

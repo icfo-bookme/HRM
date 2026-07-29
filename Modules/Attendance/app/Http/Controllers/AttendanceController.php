@@ -3,13 +3,13 @@
 namespace Modules\Attendance\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Attendance\Http\Requests\StoreAttendanceRequest;
 use Modules\Attendance\Models\Attendance;
 use Modules\Attendance\Services\AttendanceService;
 use Modules\Employee\Models\Employee;
-use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
@@ -20,6 +20,7 @@ class AttendanceController extends Controller
     public function index()
     {
         $employees = Employee::with('personalInfo')->active()->get();
+
         return view('attendance::index', compact('employees'));
     }
 
@@ -32,7 +33,7 @@ class AttendanceController extends Controller
         return view('attendance::create', [
             'employee' => $attendance->employee,
             'today' => $today,
-            'defaultCheckIn' => $attendance->check_in_at ? \Carbon\Carbon::parse($attendance->check_in_at)->format('H:i') : now()->format('H:i'),
+            'defaultCheckIn' => $attendance->check_in_at ? Carbon::parse($attendance->check_in_at)->format('H:i') : now()->format('H:i'),
             'employees' => $employees,
             'todayAttendance' => $attendance,
         ]);

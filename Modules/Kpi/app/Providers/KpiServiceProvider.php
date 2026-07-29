@@ -3,16 +3,19 @@
 namespace Modules\Kpi\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Modules\Kpi\Console\Commands\CloseMonthlyKpi;
+use Modules\Kpi\Console\Commands\ProcessDailyKpi;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
 class KpiServiceProvider extends ModuleServiceProvider
 {
     protected string $name = 'KPI';
+
     protected string $nameLower = 'kpi';
 
     protected array $commands = [
-        \Modules\Kpi\Console\Commands\ProcessDailyKpi::class,
-        \Modules\Kpi\Console\Commands\CloseMonthlyKpi::class,
+        ProcessDailyKpi::class,
+        CloseMonthlyKpi::class,
     ];
 
     protected array $providers = [

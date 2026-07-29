@@ -4,8 +4,8 @@ namespace Modules\Kpi\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Modules\Kpi\Models\KpiDailyTracking;
 use Modules\Attendance\Models\Attendance;
+use Modules\Kpi\Models\KpiDailyTracking;
 
 class KpiDailyService
 {
@@ -29,7 +29,7 @@ class KpiDailyService
                     $processed++;
                 } catch (\Exception $e) {
                     $errors++;
-                    \Log::error("KPI Daily processing failed for employee {$attendance->employee_id}: " . $e->getMessage());
+                    \Log::error("KPI Daily processing failed for employee {$attendance->employee_id}: ".$e->getMessage());
                 }
             }
 
@@ -42,7 +42,7 @@ class KpiDailyService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Failed to process daily attendance: ' . $e->getMessage(),
+                'message' => 'Failed to process daily attendance: '.$e->getMessage(),
             ];
         }
     }
@@ -57,7 +57,7 @@ class KpiDailyService
         $isLate = $attendance && $attendance->is_late;
 
         $presentTarget = $isWorkingDay ? 1 : 0;
-        $presentObtained = ($isPresent && !$isLate) ? 1 : 0;
+        $presentObtained = ($isPresent && ! $isLate) ? 1 : 0;
         $lateTarget = $isWorkingDay ? 1 : 0;
         $lateObtained = $isLate ? -2 : 0;
 
@@ -96,7 +96,7 @@ class KpiDailyService
             ->where('tracking_date', $date)
             ->first();
 
-        if (!$tracking) {
+        if (! $tracking) {
             return [
                 'status' => 'success',
                 'data' => [

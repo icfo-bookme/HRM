@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('attendance_logs', function (Blueprint $table) {
@@ -21,7 +21,7 @@ return new class extends Migration {
                 'IN',
                 'OUT',
                 'BREAK_IN',
-                'BREAK_OUT'
+                'BREAK_OUT',
             ]);
 
             $table->enum('source', [
@@ -30,7 +30,7 @@ return new class extends Migration {
                 'Web',
                 'Manual',
                 'CSV',
-                'API'
+                'API',
             ])->default('Device');
 
             $table->decimal('latitude', 10, 8)->nullable();
@@ -44,7 +44,7 @@ return new class extends Migration {
                 'Card',
                 'PIN',
                 'GPS',
-                'Manual'
+                'Manual',
             ])->nullable();
 
             $table->string('raw_log_id')->nullable();

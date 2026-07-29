@@ -2,19 +2,23 @@
 
 namespace Modules\Kpi\Http\Controllers;
 
+use App\Http\Requests\Kpi\UpdateCategoriesRequest;
+use App\Http\Requests\Kpi\UpdateIndicatorsRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Employee\Models\Employee;
+use Modules\Kpi\Models\KpiCategory;
+use Modules\Kpi\Models\KpiIndicator;
 use Modules\Kpi\Services\KpiDailyService;
 use Modules\Kpi\Services\KpiMonthlyService;
 use Modules\Kpi\Services\KpiTaskService;
-use Modules\Kpi\Models\KpiCategory;
-use Modules\Kpi\Models\KpiIndicator;
-use Modules\Employee\Models\Employee;
 
 class KpiController extends Controller
 {
     protected KpiDailyService $dailyService;
+
     protected KpiMonthlyService $monthlyService;
+
     protected KpiTaskService $taskService;
 
     public function __construct(KpiDailyService $dailyService, KpiMonthlyService $monthlyService, KpiTaskService $taskService)
@@ -24,9 +28,6 @@ class KpiController extends Controller
         $this->taskService = $taskService;
     }
 
-    /**
-     * KPI Dashboard
-     */
     public function dashboard()
     {
         $user = auth()->user();
@@ -53,9 +54,6 @@ class KpiController extends Controller
         return view('kpi::dashboard', compact('dailyPerformance', 'monthlyPerformance', 'employee', 'taskStats'));
     }
 
-    /**
-     * Daily Performance View
-     */
     public function dailyPerformance(Request $request)
     {
         $user = auth()->user();
@@ -71,9 +69,6 @@ class KpiController extends Controller
         return view('kpi::daily', compact('performance', 'date', 'employee'));
     }
 
-    /**
-     * Monthly Performance View
-     */
     public function monthlyPerformance(Request $request)
     {
         $year = $request->get('year', now()->year);
@@ -91,9 +86,6 @@ class KpiController extends Controller
         return view('kpi::monthly', compact('performance', 'year', 'month', 'employee'));
     }
 
-    /**
-     * Monthly Detail View
-     */
     public function monthlyDetail(int $employeeId, int $year, int $month)
     {
         $employee = Employee::with('personalInfo', 'department', 'designation')->findOrFail($employeeId);
@@ -103,27 +95,15 @@ class KpiController extends Controller
         return view('kpi::monthly-detail', compact('employee', 'performance', 'year', 'month'));
     }
 
-    /**
-     * KPI Settings View
-     */
     public function settings()
     {
         $categories = KpiCategory::with('indicators')->ordered()->get();
+
         return view('kpi::settings', compact('categories'));
     }
 
-    /**
-     * Update Categories
-     */
-    public function updateCategories(Request $request)
+    public function updateCategories(UpdateCategoriesRequest $request)
     {
-        $request->validate([
-            'categories' => 'required|array',
-            'categories.*.id' => 'required|exists:kpi_categories,id',
-            'categories.*.weight_percentage' => 'required|numeric|min:0|max:100',
-            'categories.*.is_active' => 'boolean',
-        ]);
-
         foreach ($request->categories as $catData) {
             KpiCategory::where('id', $catData['id'])->update([
                 'weight_percentage' => $catData['weight_percentage'],
@@ -138,19 +118,8 @@ class KpiController extends Controller
         return redirect()->route('kpi.settings')->with('success', 'Categories updated successfully.');
     }
 
-    /**
-     * Update Indicators
-     */
-    public function updateIndicators(Request $request)
+    public function updateIndicators(UpdateIndicatorsRequest $request)
     {
-        $request->validate([
-            'indicators' => 'required|array',
-            'indicators.*.id' => 'required|exists:kpi_indicators,id',
-            'indicators.*.weight_percentage' => 'required|numeric|min:0|max:100',
-            'indicators.*.point_per_unit' => 'nullable|numeric',
-            'indicators.*.is_active' => 'boolean',
-        ]);
-
         foreach ($request->indicators as $indData) {
             KpiIndicator::where('id', $indData['id'])->update([
                 'weight_percentage' => $indData['weight_percentage'],
@@ -166,22 +135,18 @@ class KpiController extends Controller
         return redirect()->route('kpi.settings')->with('success', 'Indicators updated successfully.');
     }
 
-    /**
-     * API: Get daily performance
-     */
     public function apiDaily(int $employeeId, Request $request)
     {
         $date = $request->get('date', now()->format('Y-m-d'));
         $result = $this->dailyService->getEmployeeDailyPerformance($employeeId, $date);
+
         return response()->json($result);
     }
 
-    /**
-     * API: Get monthly performance
-     */
     public function apiMonthly(int $employeeId, int $year, int $month)
     {
         $result = $this->monthlyService->getEmployeeMonthlyPerformance($employeeId, $year, $month);
+
         return response()->json($result);
     }
 }

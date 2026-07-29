@@ -21,14 +21,9 @@
         </label>
     @endif
 
-    <select
-        id="{{ $id ?? $name }}"
-        name="{{ $name }}"
-        @if ($required) required @endif
-        @if ($multiple) multiple @endif
-        @if ($disabled) disabled @endif
-        {{ $attributes->merge(['class' => 'select2 w-full']) }}
-    >
+    <select id="{{ $id ?? $name }}" name="{{ $name }}" @if ($required) required @endif
+        @if ($multiple) multiple @endif @if ($disabled) disabled @endif
+        {{ $attributes->merge(['class' => 'select2 w-full']) }}>
         @if ($placeholder && !$multiple)
             <option value="">{{ $placeholder }}</option>
         @endif

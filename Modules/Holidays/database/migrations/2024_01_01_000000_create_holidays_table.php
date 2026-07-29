@@ -14,8 +14,8 @@ return new class extends Migration
             $table->date('holiday_date');
             $table->date('end_date')->nullable();
             $table->integer('total_days')->storedAs('DATEDIFF(COALESCE(end_date, holiday_date), holiday_date) + 1');
-            $table->enum('holiday_type', ['Public','Government','Company','Optional','Religious','Festival'])->default('Public');
-            $table->enum('applicable_to', ['All','Specific','Branch','Department'])->default('All');
+            $table->enum('holiday_type', ['Public', 'Government', 'Company', 'Optional', 'Religious', 'Festival'])->default('Public');
+            $table->enum('applicable_to', ['All', 'Specific', 'Branch', 'Department'])->default('All');
             $table->boolean('is_recurring')->default(false);
             $table->boolean('yearly_recurring')->default(false);
             $table->text('description')->nullable();

@@ -1,11 +1,8 @@
 <x-app-layout>
-
     <div class="p-4">
-
         {{-- REUSABLE DATA-TABLE COMPONENT --}}
-        <x-data-table id="permissionTable" title="Permission Management" icon="fa-solid fa-key"
-            buttonId="btnAddPermission" buttonText="Add New Permission" :columns="[ 'ID', 'Name', 'Slug', 'Group', 'Description', 'Created At', 'Action']" :ajaxUrl="route('permissions.dataTable')"
-            :dtColumns="[
+        <x-data-table id="permissionTable" title="Permission Management" icon="fa-solid fa-key" buttonId="btnAddPermission"
+            buttonText="Add New Permission" :columns="['ID', 'Name', 'Slug', 'Group', 'Description', 'Created At', 'Action']" :ajaxUrl="route('permissions.dataTable')" :dtColumns="[
                 ['data' => 'id', 'width' => '60px'],
                 ['data' => 'name'],
                 ['data' => 'slug'],
@@ -24,8 +21,10 @@
 
             {{-- Permission Name --}}
             <div class="mb-4 animate-fade" style="animation-delay: 50ms;">
-                <x-form-input label="Permission Name" name="name" id="perm_name" placeholder="e.g. Manage Products" required />
-                <p class="mt-1 text-xs text-gray-400">Slug will be auto-generated: e.g. <span id="slugPreview">manage-products</span></p>
+                <x-form-input label="Permission Name" name="name" id="perm_name" placeholder="e.g. Manage Products"
+                    required />
+                <p class="mt-1 text-xs text-gray-400">Slug will be auto-generated: e.g. <span
+                        id="slugPreview">manage-products</span></p>
             </div>
 
             {{-- Group --}}
@@ -37,13 +36,15 @@
                     <option value="__new__" disabled>─── Custom ───</option>
                 </x-form-select>
                 <div id="customGroupWrap" class="mt-2 hidden animate-fade">
-                    <x-form-input label="Custom Group Name" name="group_custom" id="perm_group_custom" placeholder="Enter new group name" />
+                    <x-form-input label="Custom Group Name" name="group_custom" id="perm_group_custom"
+                        placeholder="Enter new group name" />
                 </div>
             </div>
 
             {{-- Description --}}
             <div class="mb-4 animate-fade" style="animation-delay: 150ms;">
-                <x-form-textarea label="Description" name="description" id="perm_description" placeholder="What does this permission allow?" rows="2"></x-form-textarea>
+                <x-form-textarea label="Description" name="description" id="perm_description"
+                    placeholder="What does this permission allow?" rows="2"></x-form-textarea>
             </div>
         </form>
     </x-drawer>
@@ -94,7 +95,9 @@
                     title: 'Loading...',
                     text: 'Fetching permission details',
                     allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
                 });
 
                 resetPermissionForm();
@@ -158,7 +161,9 @@
                                 duration: 3000,
                                 gravity: "bottom",
                                 position: "right",
-                                style: { background: "linear-gradient(135deg, #16a34a, #4ade80)" },
+                                style: {
+                                    background: "linear-gradient(135deg, #16a34a, #4ade80)"
+                                },
                             }).showToast();
                             closeGlobalDrawer('permission-drawer', 'permission-overlay');
                             $('#permissionTable').DataTable().ajax.reload(null, false);
@@ -177,7 +182,11 @@
                         } else if (xhr.responseJSON?.message) {
                             errorMsg = xhr.responseJSON.message;
                         }
-                        Swal.fire({ icon: 'error', title: 'Validation Error', html: errorMsg });
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            html: errorMsg
+                        });
                     }
                 });
             }
@@ -194,14 +203,18 @@
                 }).then((r) => {
                     if (r.isConfirmed) {
                         let deleteUrl = "{{ route('permissions.destroy', ':id') }}".replace(':id', id);
-                        $.post(deleteUrl, { _method: 'DELETE' }, function(res) {
+                        $.post(deleteUrl, {
+                            _method: 'DELETE'
+                        }, function(res) {
                             if (res.status === 'success' || res.status === true) {
                                 Toastify({
                                     text: res.message || 'Deleted successfully',
                                     duration: 3000,
                                     gravity: "bottom",
                                     position: "right",
-                                    style: { background: "linear-gradient(135deg, #dc2626, #f87171)" },
+                                    style: {
+                                        background: "linear-gradient(135deg, #dc2626, #f87171)"
+                                    },
                                 }).showToast();
                                 $('#permissionTable').DataTable().ajax.reload(null, false);
                             } else {

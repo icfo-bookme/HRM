@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Salary\Http\Controllers\SalaryController;
-use Modules\Salary\Http\Controllers\SalaryComponentController;
 use Modules\Salary\Http\Controllers\EmployeeSalaryStructureController;
 use Modules\Salary\Http\Controllers\PayrollRunController;
+use Modules\Salary\Http\Controllers\SalaryComponentController;
+use Modules\Salary\Http\Controllers\SalaryController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('salaries', SalaryController::class)->names('salary');

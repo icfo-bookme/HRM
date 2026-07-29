@@ -1,9 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Employee\Http\Controllers\EmployeeAttendanceRuleController;
 use Modules\Employee\Http\Controllers\EmployeeController;
 use Modules\Employee\Http\Controllers\EmployeeEditController;
 use Modules\Employee\Http\Controllers\EmployeeLeaveBalanceController;
+use Modules\Employee\Http\Controllers\EmployeeReportController;
+use Modules\Employee\Http\Controllers\EmployeeWeekendController;
 use Modules\Employee\Http\Controllers\SkillCategoryController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -80,25 +83,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dataTable/employee-leave-balances', [EmployeeLeaveBalanceController::class, 'dataTable'])->name('employee-leave-balances.dataTable');
 
     // Employee Weekends
-    Route::get('employee-weekends', [\Modules\Employee\Http\Controllers\EmployeeWeekendController::class, 'index'])->name('employee.weekends.index');
-    Route::post('employee-weekends', [\Modules\Employee\Http\Controllers\EmployeeWeekendController::class, 'store'])->name('employee.weekends.store');
-    Route::get('employee-weekends/{employeeId}', [\Modules\Employee\Http\Controllers\EmployeeWeekendController::class, 'show'])->name('employee.weekends.show');
+    Route::get('employee-weekends', [EmployeeWeekendController::class, 'index'])->name('employee.weekends.index');
+    Route::post('employee-weekends', [EmployeeWeekendController::class, 'store'])->name('employee.weekends.store');
+    Route::get('employee-weekends/{employeeId}', [EmployeeWeekendController::class, 'show'])->name('employee.weekends.show');
 
     // Employee Attendance Rules
-    Route::get('employee-attendance-rules', [\Modules\Employee\Http\Controllers\EmployeeAttendanceRuleController::class, 'index'])->name('employee.attendance-rules.index');
-    Route::post('employee-attendance-rules', [\Modules\Employee\Http\Controllers\EmployeeAttendanceRuleController::class, 'store'])->name('employee.attendance-rules.store');
-    Route::get('employee-attendance-rules/{employeeId}', [\Modules\Employee\Http\Controllers\EmployeeAttendanceRuleController::class, 'show'])->name('employee.attendance-rules.show');
+    Route::get('employee-attendance-rules', [EmployeeAttendanceRuleController::class, 'index'])->name('employee.attendance-rules.index');
+    Route::post('employee-attendance-rules', [EmployeeAttendanceRuleController::class, 'store'])->name('employee.attendance-rules.store');
+    Route::get('employee-attendance-rules/{employeeId}', [EmployeeAttendanceRuleController::class, 'show'])->name('employee.attendance-rules.show');
 });
 
 // Employee Report Routes (separate middleware group for wider access)
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('employee-report', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'index'])->name('employee.report');
-    Route::get('employee-report/search', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'searchEmployee'])->name('employee.report.search');
-    Route::get('employee-report/attendance', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'attendanceData'])->name('employee.report.attendance');
-    Route::get('employee-report/overtime', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'overtimeData'])->name('employee.report.overtime');
-    Route::get('employee-report/salary', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'salaryData'])->name('employee.report.salary');
-    Route::get('employee-report/kpi', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'kpiData'])->name('employee.report.kpi');
-    Route::get('employee-report/loan', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'loanData'])->name('employee.report.loan');
-    Route::get('employee-report/kpi-monthly', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'monthlyKpiHistory'])->name('employee.report.kpi-monthly');
-    Route::get('employee-report/salary-monthly', [\Modules\Employee\Http\Controllers\EmployeeReportController::class, 'monthlySalaryData'])->name('employee.report.salary-monthly');
+    Route::get('employee-report', [EmployeeReportController::class, 'index'])->name('employee.report');
+    Route::get('employee-report/search', [EmployeeReportController::class, 'searchEmployee'])->name('employee.report.search');
+    Route::get('employee-report/attendance', [EmployeeReportController::class, 'attendanceData'])->name('employee.report.attendance');
+    Route::get('employee-report/overtime', [EmployeeReportController::class, 'overtimeData'])->name('employee.report.overtime');
+    Route::get('employee-report/salary', [EmployeeReportController::class, 'salaryData'])->name('employee.report.salary');
+    Route::get('employee-report/kpi', [EmployeeReportController::class, 'kpiData'])->name('employee.report.kpi');
+    Route::get('employee-report/loan', [EmployeeReportController::class, 'loanData'])->name('employee.report.loan');
+    Route::get('employee-report/kpi-monthly', [EmployeeReportController::class, 'monthlyKpiHistory'])->name('employee.report.kpi-monthly');
+    Route::get('employee-report/salary-monthly', [EmployeeReportController::class, 'monthlySalaryData'])->name('employee.report.salary-monthly');
 });

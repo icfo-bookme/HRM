@@ -2,8 +2,8 @@
 
 namespace Modules\Salary\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class SalaryComponent extends Model
 {
@@ -27,15 +27,15 @@ class SalaryComponent extends Model
     ];
 
     protected $casts = [
-        'default_value'    => 'decimal:4',
-        'is_taxable'       => 'boolean',
-        'is_pf_basis'      => 'boolean',
-        'is_active'        => 'boolean',
-        'show_in_slip'     => 'boolean',
-        'display_order'    => 'integer',
-        'metadata'         => 'array',
-        'created_at'       => 'datetime',
-        'updated_at'       => 'datetime',
+        'default_value' => 'decimal:4',
+        'is_taxable' => 'boolean',
+        'is_pf_basis' => 'boolean',
+        'is_active' => 'boolean',
+        'show_in_slip' => 'boolean',
+        'display_order' => 'integer',
+        'metadata' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**

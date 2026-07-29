@@ -2,14 +2,15 @@
 
 namespace Modules\Employee\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class SkillCategory extends Model
 {
     use HasFactory;
 
     protected $table = 'skill_categories';
+
     public $timestamps = false;
 
     protected $fillable = [

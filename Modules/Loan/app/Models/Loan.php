@@ -40,21 +40,21 @@ class Loan extends Model
     ];
 
     protected $casts = [
-        'loan_amount'           => 'decimal:2',
-        'interest_rate'         => 'decimal:2',
-        'total_interest'        => 'decimal:2',
-        'total_payable'         => 'decimal:2',
-        'installment_amount'    => 'decimal:2',
-        'remaining_amount'      => 'decimal:2',
-        'paid_installments'     => 'integer',
-        'total_installments'    => 'integer',
-        'application_date'      => 'date',
-        'approval_date'         => 'date',
+        'loan_amount' => 'decimal:2',
+        'interest_rate' => 'decimal:2',
+        'total_interest' => 'decimal:2',
+        'total_payable' => 'decimal:2',
+        'installment_amount' => 'decimal:2',
+        'remaining_amount' => 'decimal:2',
+        'paid_installments' => 'integer',
+        'total_installments' => 'integer',
+        'application_date' => 'date',
+        'approval_date' => 'date',
         'first_installment_date' => 'date',
-        'disbursement_date'     => 'date',
-        'created_at'            => 'datetime',
-        'updated_at'            => 'datetime',
-        'deleted_at'            => 'datetime',
+        'disbursement_date' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     public function employee(): BelongsTo
@@ -97,9 +97,9 @@ class Loan extends Model
         $installmentAmount = $installments > 0 ? $totalPayable / $installments : $totalPayable;
 
         return [
-            'loan_amount'        => $amount,
-            'total_interest'     => round($totalInterest, 2),
-            'total_payable'      => round($totalPayable, 2),
+            'loan_amount' => $amount,
+            'total_interest' => round($totalInterest, 2),
+            'total_payable' => round($totalPayable, 2),
             'installment_amount' => round($installmentAmount, 2),
             'total_installments' => $installments,
         ];

@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Holiday extends Model
 {
-    use HasFactory;
     use CustomSoftDeletes;
+    use HasFactory;
 
     protected $table = 'holidays';
 
@@ -27,12 +27,12 @@ class Holiday extends Model
     ];
 
     protected $casts = [
-        'holiday_date'     => 'date',
-        'end_date'         => 'date',
-        'is_recurring'     => 'boolean',
+        'holiday_date' => 'date',
+        'end_date' => 'date',
+        'is_recurring' => 'boolean',
         'yearly_recurring' => 'boolean',
-        'created_at'       => 'datetime',
-        'updated_at'       => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function assignments(): HasMany

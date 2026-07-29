@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Dashboard\StoreUserRequest;
 use App\Models\Role;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -24,7 +25,8 @@ class UserController extends Controller
     {
         $roles = Role::all();
         $employees = Employee::all();
-        return view('dashboard.users.index', compact('roles','employees'));
+
+        return view('dashboard.users.index', compact('roles', 'employees'));
     }
 
     /**
@@ -38,17 +40,11 @@ class UserController extends Controller
     /**
      * Store new user
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'email'       => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password'    => ['required', 'string', 'min:8'],
-            'role_id'     => ['nullable', 'exists:roles,id'],
-            'employee_id' => ['nullable', 'exists:employees,id'],
-        ]);
-
+        $validated = $request->validated();
         $result = $this->userService->saveUser($validated);
+
         return response()->json($result);
     }
 
@@ -58,24 +54,19 @@ class UserController extends Controller
     public function show($id)
     {
         $result = $this->userService->getUserById($id);
+
         return response()->json($result);
     }
 
     /**
      * Update existing user
      */
-    public function update(Request $request, $id)
+    public function update(StoreUserRequest $request, $id)
     {
-        $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'email'       => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id],
-            'password'    => ['nullable', 'string', 'min:8'],
-            'role_id'     => ['nullable', 'exists:roles,id'],
-            'employee_id' => ['nullable', 'exists:employees,id'],
-        ]);
-
+        $validated = $request->validated();
         $validated['user_id'] = $id;
         $result = $this->userService->saveUser($validated);
+
         return response()->json($result);
     }
 
@@ -85,6 +76,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $result = $this->userService->deleteUser($id);
+
         return response()->json($result);
     }
 }

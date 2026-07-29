@@ -12,7 +12,7 @@ class DesignationService
 {
     public function getDesignationDataTable(Request $request)
     {
-        $query = Designation::with([ 'department', 'salaryGrade'])
+        $query = Designation::with(['department', 'salaryGrade'])
             ->select(
                 'designations.id',
 
@@ -24,7 +24,6 @@ class DesignationService
                 'designations.created_at'
             )
             ->orderByDesc('designations.id');
-
 
         if ($request->department_id) {
             $query->where('designations.department_id', $request->department_id);
@@ -47,8 +46,8 @@ class DesignationService
             })
             ->addColumn('action', function (Designation $designation) {
                 return view('components.action-buttons', [
-                    'id'     => $designation->id,
-                    'edit'   => 'designationEdit',
+                    'id' => $designation->id,
+                    'edit' => 'designationEdit',
                     'delete' => 'designationDelete',
                 ])->render();
             })
@@ -72,15 +71,15 @@ class DesignationService
                 }
 
                 return [
-                    'status'      => 'success',
-                    'message'     => $message,
+                    'status' => 'success',
+                    'message' => $message,
                     'designation' => $designation->fresh(),
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error saving designation: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error saving designation: '.$e->getMessage(),
             ];
         }
     }
@@ -89,13 +88,14 @@ class DesignationService
     {
         try {
             $designation = Designation::findOrFail($id);
+
             return [
-                'status'      => 'success',
-                'designation'=> $designation,
+                'status' => 'success',
+                'designation' => $designation,
             ];
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Designation not found.',
             ];
         }
@@ -109,14 +109,14 @@ class DesignationService
                 $designation->delete();
 
                 return [
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'Designation deleted successfully.',
                 ];
             });
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
-                'message' => 'Error deleting designation: ' . $e->getMessage(),
+                'status' => 'error',
+                'message' => 'Error deleting designation: '.$e->getMessage(),
             ];
         }
     }

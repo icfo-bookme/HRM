@@ -28,7 +28,7 @@ class UpdateCompanyRequest extends FormRequest
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
             'phone' => 'nullable|string|max:30',
-            'email' => 'nullable|email|max:150|unique:companies,email,' . $companyId,
+            'email' => 'nullable|email|max:150|unique:companies,email,'.$companyId,
             'website' => 'nullable|url|max:200',
             'timezone' => 'nullable|string|max:50',
             'date_format' => 'nullable|string|max:20',

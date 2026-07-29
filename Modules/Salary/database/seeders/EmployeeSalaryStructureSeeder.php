@@ -18,6 +18,7 @@ class EmployeeSalaryStructureSeeder extends Seeder
 
         if ($employees->isEmpty()) {
             $this->command->info('No employees found. Skipping EmployeeSalaryStructureSeeder.');
+
             return;
         }
 
@@ -36,84 +37,84 @@ class EmployeeSalaryStructureSeeder extends Seeder
                 // Earning Components
                 [
                     'component_name' => 'Basic Salary',
-                    'amount'         => $basicSalary,
-                    'is_percentage'  => false,
+                    'amount' => $basicSalary,
+                    'is_percentage' => false,
                 ],
                 [
                     'component_name' => 'House Rent Allowance',
-                    'amount'         => 50, // 50% of basic
-                    'is_percentage'  => true,
+                    'amount' => 50, // 50% of basic
+                    'is_percentage' => true,
                 ],
                 [
                     'component_name' => 'Medical Allowance',
-                    'amount'         => 1500,
-                    'is_percentage'  => false,
+                    'amount' => 1500,
+                    'is_percentage' => false,
                 ],
                 [
                     'component_name' => 'Conveyance Allowance',
-                    'amount'         => 500,
-                    'is_percentage'  => false,
+                    'amount' => 500,
+                    'is_percentage' => false,
                 ],
                 [
                     'component_name' => 'Dearness Allowance',
-                    'amount'         => 2000,
-                    'is_percentage'  => false,
+                    'amount' => 2000,
+                    'is_percentage' => false,
                 ],
                 [
                     'component_name' => 'Special Allowance',
-                    'amount'         => 3000,
-                    'is_percentage'  => false,
+                    'amount' => 3000,
+                    'is_percentage' => false,
                 ],
                 [
                     'component_name' => 'City Compensatory Allowance',
-                    'amount'         => 1000,
-                    'is_percentage'  => false,
+                    'amount' => 1000,
+                    'is_percentage' => false,
                 ],
 
                 // Deduction Components
                 [
                     'component_name' => 'Provident Fund (PF)',
-                    'amount'         => 12, // 12% of basic
-                    'is_percentage'  => true,
+                    'amount' => 12, // 12% of basic
+                    'is_percentage' => true,
                 ],
                 [
                     'component_name' => 'Professional Tax',
-                    'amount'         => 200,
-                    'is_percentage'  => false,
+                    'amount' => 200,
+                    'is_percentage' => false,
                 ],
                 [
                     'component_name' => 'Income Tax (TDS)',
-                    'amount'         => 10, // 10% of gross
-                    'is_percentage'  => true,
+                    'amount' => 10, // 10% of gross
+                    'is_percentage' => true,
                 ],
             ];
 
             foreach ($structures as $structure) {
                 $component = SalaryComponent::where('name', $structure['component_name'])->first();
-                if (!$component) {
+                if (! $component) {
                     continue;
                 }
 
                 DB::table('employee_salary_structure')->updateOrInsert(
                     [
-                        'employee_id'  => $employee->id,
+                        'employee_id' => $employee->id,
                         'component_id' => $component->id,
                         'effective_to' => null,
                     ],
                     [
-                        'amount'         => $structure['amount'],
+                        'amount' => $structure['amount'],
                         'effective_from' => $effectiveFrom,
-                        'effective_to'   => null,
-                        'is_percentage'  => $structure['is_percentage'],
-                        'created_by'     => $createdBy,
-                        'created_at'     => $now,
-                        'updated_at'     => $now,
+                        'effective_to' => null,
+                        'is_percentage' => $structure['is_percentage'],
+                        'created_by' => $createdBy,
+                        'created_at' => $now,
+                        'updated_at' => $now,
                     ]
                 );
             }
         }
 
-        $this->command->info(count($employees) . ' employees have been assigned salary structures.');
+        $this->command->info(count($employees).' employees have been assigned salary structures.');
     }
 
     /**
@@ -130,6 +131,7 @@ class EmployeeSalaryStructureSeeder extends Seeder
 
         // Use the last digits of employee code to pick a salary
         $index = (int) substr($employeeCode, -2) % count($salaries);
+
         return $salaries[$index];
     }
 }

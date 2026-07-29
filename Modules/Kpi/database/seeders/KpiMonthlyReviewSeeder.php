@@ -2,7 +2,6 @@
 
 namespace Modules\Kpi\Database\Seeders;
 
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\Employee\Models\Employee;
@@ -15,6 +14,7 @@ class KpiMonthlyReviewSeeder extends Seeder
 
         if ($employees->isEmpty()) {
             $this->command->warn('No active employees found. Skipping KPI monthly review seeder.');
+
             return;
         }
 
@@ -62,7 +62,7 @@ class KpiMonthlyReviewSeeder extends Seeder
             );
         }
 
-        $this->command->info('✓ KPI monthly reviews seeded for ' . count($employees) . ' employees (2 months)');
+        $this->command->info('✓ KPI monthly reviews seeded for '.count($employees).' employees (2 months)');
     }
 
     private function getRandomBehaviorRemark(): string
@@ -75,6 +75,7 @@ class KpiMonthlyReviewSeeder extends Seeder
             'Displayed exceptional customer service skills.',
             'Good behavior and punctuality observed consistently.',
         ];
+
         return $remarks[array_rand($remarks)];
     }
 
@@ -88,6 +89,7 @@ class KpiMonthlyReviewSeeder extends Seeder
             'Achieved highest customer satisfaction rating in the department.',
             'Implemented process improvements that saved significant time.',
         ];
+
         return $remarks[array_rand($remarks)];
     }
 
@@ -101,6 +103,7 @@ class KpiMonthlyReviewSeeder extends Seeder
             'Unsatisfactory response time to customer queries.',
             'Did not attend mandatory team meetings.',
         ];
+
         return $remarks[array_rand($remarks)];
     }
 }

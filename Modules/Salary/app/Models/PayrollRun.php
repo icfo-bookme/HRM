@@ -2,6 +2,7 @@
 
 namespace Modules\Salary\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Setting\Models\FiscalYear;
@@ -29,14 +30,14 @@ class PayrollRun extends Model
     ];
 
     protected $casts = [
-        'run_month'       => 'date',
-        'approved_at'     => 'datetime',
-        'disbursed_at'    => 'datetime',
-        'total_gross'     => 'decimal:2',
-        'total_net'       => 'decimal:2',
+        'run_month' => 'date',
+        'approved_at' => 'datetime',
+        'disbursed_at' => 'datetime',
+        'total_gross' => 'decimal:2',
+        'total_net' => 'decimal:2',
         'total_deductions' => 'decimal:2',
-        'created_at'      => 'datetime',
-        'updated_at'      => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function fiscalYear(): BelongsTo
@@ -46,17 +47,17 @@ class PayrollRun extends Model
 
     public function approvedBy(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'approved_by', 'id');
+        return $this->belongsTo(User::class, 'approved_by', 'id');
     }
 
     public function disbursedBy(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'disbursed_by', 'id');
+        return $this->belongsTo(User::class, 'disbursed_by', 'id');
     }
 
     public function createdBy(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by', 'id');
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
     /**

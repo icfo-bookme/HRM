@@ -3,12 +3,12 @@
 namespace Modules\Employee\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Modules\Employee\Models\Employee;
-use Modules\Employee\Services\EmployeeLeaveBalanceService;
+use Illuminate\Http\Request;
 use Modules\Employee\Http\Requests\StoreEmployeeLeaveBalanceRequest;
 use Modules\Employee\Http\Requests\UpdateEmployeeLeaveBalanceRequest;
+use Modules\Employee\Models\Employee;
+use Modules\Employee\Services\EmployeeLeaveBalanceService;
 use Modules\Leave\Models\LeaveType;
-use Illuminate\Http\Request;
 use Modules\Setting\Models\FiscalYear;
 
 class EmployeeLeaveBalanceController extends Controller
@@ -25,9 +25,9 @@ class EmployeeLeaveBalanceController extends Controller
      */
     public function index()
     {
-        $employees    = Employee::with('personalInfo')->orderBy('id')->get(['id', 'employee_code']);
-        $leaveTypes   = LeaveType::where('is_active', true)->orderBy('name')->get(['id', 'name']);
-        $fiscalYears  = FiscalYear::all(); // No FiscalYear module exists yet
+        $employees = Employee::with('personalInfo')->orderBy('id')->get(['id', 'employee_code']);
+        $leaveTypes = LeaveType::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+        $fiscalYears = FiscalYear::all(); // No FiscalYear module exists yet
 
         return view('employee::leave-balance.index', compact('employees', 'leaveTypes', 'fiscalYears'));
     }
@@ -46,6 +46,7 @@ class EmployeeLeaveBalanceController extends Controller
     public function store(StoreEmployeeLeaveBalanceRequest $request)
     {
         $result = $this->employeeLeaveBalanceService->saveEmployeeLeaveBalance($request->validated());
+
         return response()->json($result);
     }
 
@@ -55,6 +56,7 @@ class EmployeeLeaveBalanceController extends Controller
     public function show($id)
     {
         $result = $this->employeeLeaveBalanceService->getEmployeeLeaveBalanceById($id);
+
         return response()->json($result);
     }
 
@@ -67,6 +69,7 @@ class EmployeeLeaveBalanceController extends Controller
         $data['balance_id'] = $id;
 
         $result = $this->employeeLeaveBalanceService->saveEmployeeLeaveBalance($data);
+
         return response()->json($result);
     }
 
@@ -76,6 +79,7 @@ class EmployeeLeaveBalanceController extends Controller
     public function destroy($id)
     {
         $result = $this->employeeLeaveBalanceService->deleteEmployeeLeaveBalance($id);
+
         return response()->json($result);
     }
 }

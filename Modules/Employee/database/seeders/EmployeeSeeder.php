@@ -2,15 +2,19 @@
 
 namespace Modules\Employee\Database\Seeders;
 
+use Carbon\Carbon;
+use Faker\Factory;
+use Faker\Provider\en_US\Address;
+use Faker\Provider\en_US\Person;
+use Faker\Provider\en_US\PhoneNumber;
 use Illuminate\Database\Seeder;
 use Modules\Employee\Models\Employee;
-use Modules\Employee\Models\EmployeePersonalInfo;
 use Modules\Employee\Models\EmployeeAddress;
 use Modules\Employee\Models\EmployeeEducation;
 use Modules\Employee\Models\EmployeeExperience;
-use Modules\Employee\Models\EmployeeSkill;
 use Modules\Employee\Models\EmployeeLanguage;
-use Carbon\Carbon;
+use Modules\Employee\Models\EmployeePersonalInfo;
+use Modules\Employee\Models\EmployeeSkill;
 
 class EmployeeSeeder extends Seeder
 {
@@ -34,10 +38,10 @@ class EmployeeSeeder extends Seeder
         // Ensure we have a shift, or use shift_id = 1
         $shiftId = 1;
 
-        $faker = \Faker\Factory::create('en_BD');
-        $faker->addProvider(new \Faker\Provider\en_US\Person($faker));
-        $faker->addProvider(new \Faker\Provider\en_US\PhoneNumber($faker));
-        $faker->addProvider(new \Faker\Provider\en_US\Address($faker));
+        $faker = Factory::create('en_BD');
+        $faker->addProvider(new Person($faker));
+        $faker->addProvider(new PhoneNumber($faker));
+        $faker->addProvider(new Address($faker));
 
         $genders = ['Male', 'Female', 'Other'];
         $bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -56,7 +60,7 @@ class EmployeeSeeder extends Seeder
             'Operations Manager', 'Operations Executive', 'Admin Manager', 'Admin Executive',
             'UI/UX Designer', 'Quality Assurance Engineer', 'DevOps Engineer',
             'Data Analyst', 'Business Analyst', 'Project Manager', 'Product Manager',
-            'Customer Support Lead', 'Customer Support Executive', 'Intern'
+            'Customer Support Lead', 'Customer Support Executive', 'Intern',
         ];
 
         $employeeData = [];
@@ -75,16 +79,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2020-01-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'arif.hossain@gmail.com',
-                    'blood_group' => 'A+',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Fatima Hossain',
-                    'father_name' => 'Md. Kamal Hossain',
-                    'mother_name' => 'Shahida Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01722345678',
-                ],
+            'personal' => [
+                'personal_email' => 'arif.hossain@gmail.com',
+                'blood_group' => 'A+',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Fatima Hossain',
+                'father_name' => 'Md. Kamal Hossain',
+                'mother_name' => 'Shahida Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01722345678',
+            ],
             'present_address' => ['house_no' => '12', 'road_no' => '5', 'area' => 'Gulshan', 'city' => 'Dhaka', 'postal_code' => '1212'],
             'permanent_address' => ['house_no' => '45', 'road_no' => '2', 'area' => 'Bogra Sadar', 'city' => 'Bogra', 'postal_code' => '5800'],
             'educations' => [
@@ -122,16 +126,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2021-03-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'sadia.rahman@yahoo.com',
-                    'blood_group' => 'B+',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Tanvir Ahmed',
-                    'father_name' => 'Abdur Rahman',
-                    'mother_name' => 'Rashida Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01732345679',
-                ],
+            'personal' => [
+                'personal_email' => 'sadia.rahman@yahoo.com',
+                'blood_group' => 'B+',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Tanvir Ahmed',
+                'father_name' => 'Abdur Rahman',
+                'mother_name' => 'Rashida Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01732345679',
+            ],
             'present_address' => ['house_no' => '8', 'road_no' => '3', 'area' => 'Banani', 'city' => 'Dhaka', 'postal_code' => '1213'],
             'permanent_address' => ['house_no' => '120', 'road_no' => '1', 'area' => 'Chawkbazar', 'city' => 'Chittagong', 'postal_code' => '4203'],
             'educations' => [
@@ -167,16 +171,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2020-06-15',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'kamal.uddin@hotmail.com',
-                    'blood_group' => 'O+',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Nasrin Sultana',
-                    'father_name' => 'Md. Abdul Jabbar',
-                    'mother_name' => 'Jahanara Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01742345680',
-                ],
+            'personal' => [
+                'personal_email' => 'kamal.uddin@hotmail.com',
+                'blood_group' => 'O+',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Nasrin Sultana',
+                'father_name' => 'Md. Abdul Jabbar',
+                'mother_name' => 'Jahanara Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01742345680',
+            ],
             'present_address' => ['house_no' => '25', 'road_no' => '7', 'area' => 'Dhanmondi', 'city' => 'Dhaka', 'postal_code' => '1205'],
             'permanent_address' => ['house_no' => '55', 'road_no' => '3', 'area' => 'Kushtia Sadar', 'city' => 'Kushtia', 'postal_code' => '7000'],
             'educations' => [
@@ -213,15 +217,15 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2021-08-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'mehrin.jahan@gmail.com',
-                    'blood_group' => 'AB+',
-                    'marital_status' => 'Single',
-                    'father_name' => 'Md. Shahidul Islam',
-                    'mother_name' => 'Shamima Akhter',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01752345681',
-                ],
+            'personal' => [
+                'personal_email' => 'mehrin.jahan@gmail.com',
+                'blood_group' => 'AB+',
+                'marital_status' => 'Single',
+                'father_name' => 'Md. Shahidul Islam',
+                'mother_name' => 'Shamima Akhter',
+                'religion' => 'Islam',
+                'personal_mobile' => '01752345681',
+            ],
             'present_address' => ['house_no' => '42', 'road_no' => '12', 'area' => 'Uttara', 'city' => 'Dhaka', 'postal_code' => '1230'],
             'permanent_address' => ['house_no' => '78', 'road_no' => '5', 'area' => 'Kishoreganj Sadar', 'city' => 'Kishoreganj', 'postal_code' => '2300'],
             'educations' => [
@@ -257,16 +261,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2022-01-15',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'rafiq.hasan@outlook.com',
-                    'blood_group' => 'B-',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Nusrat Jahan',
-                    'father_name' => 'Md. Joynal Abedin',
-                    'mother_name' => 'Hasna Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01762345682',
-                ],
+            'personal' => [
+                'personal_email' => 'rafiq.hasan@outlook.com',
+                'blood_group' => 'B-',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Nusrat Jahan',
+                'father_name' => 'Md. Joynal Abedin',
+                'mother_name' => 'Hasna Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01762345682',
+            ],
             'present_address' => ['house_no' => '15', 'road_no' => '8', 'area' => 'Mirpur', 'city' => 'Dhaka', 'postal_code' => '1216'],
             'permanent_address' => ['house_no' => '22', 'road_no' => '2', 'area' => 'Mymensingh Sadar', 'city' => 'Mymensingh', 'postal_code' => '2200'],
             'educations' => [
@@ -303,16 +307,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2021-11-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'nusrat.tabassum@gmail.com',
-                    'blood_group' => 'A-',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Md. Sabbir Ahmed',
-                    'father_name' => 'Md. Abdul Bari',
-                    'mother_name' => 'Saleha Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01772345683',
-                ],
+            'personal' => [
+                'personal_email' => 'nusrat.tabassum@gmail.com',
+                'blood_group' => 'A-',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Md. Sabbir Ahmed',
+                'father_name' => 'Md. Abdul Bari',
+                'mother_name' => 'Saleha Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01772345683',
+            ],
             'present_address' => ['house_no' => '30', 'road_no' => '4', 'area' => 'Bashundhara', 'city' => 'Dhaka', 'postal_code' => '1229'],
             'permanent_address' => ['house_no' => '5', 'road_no' => '1', 'area' => 'Comilla Sadar', 'city' => 'Comilla', 'postal_code' => '3500'],
             'educations' => [
@@ -348,16 +352,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2019-04-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'shahidul.islam@yahoo.com',
-                    'blood_group' => 'O-',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Nasima Begum',
-                    'father_name' => 'Md. Abdul Karim',
-                    'mother_name' => 'Rahima Khatun',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01782345684',
-                ],
+            'personal' => [
+                'personal_email' => 'shahidul.islam@yahoo.com',
+                'blood_group' => 'O-',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Nasima Begum',
+                'father_name' => 'Md. Abdul Karim',
+                'mother_name' => 'Rahima Khatun',
+                'religion' => 'Islam',
+                'personal_mobile' => '01782345684',
+            ],
             'present_address' => ['house_no' => '7', 'road_no' => '2', 'area' => 'Mohammadpur', 'city' => 'Dhaka', 'postal_code' => '1207'],
             'permanent_address' => ['house_no' => '33', 'road_no' => '4', 'area' => 'Faridpur Sadar', 'city' => 'Faridpur', 'postal_code' => '7800'],
             'educations' => [
@@ -393,15 +397,15 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2023-01-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'tanvir.ahmed@gmail.com',
-                    'blood_group' => 'A+',
-                    'marital_status' => 'Single',
-                    'father_name' => 'Md. Rafiqul Islam',
-                    'mother_name' => 'Shahnaz Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01792345685',
-                ],
+            'personal' => [
+                'personal_email' => 'tanvir.ahmed@gmail.com',
+                'blood_group' => 'A+',
+                'marital_status' => 'Single',
+                'father_name' => 'Md. Rafiqul Islam',
+                'mother_name' => 'Shahnaz Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01792345685',
+            ],
             'present_address' => ['house_no' => '50', 'road_no' => '10', 'area' => 'Rampura', 'city' => 'Dhaka', 'postal_code' => '1219'],
             'permanent_address' => ['house_no' => '18', 'road_no' => '3', 'area' => 'Narsingdi Sadar', 'city' => 'Narsingdi', 'postal_code' => '1600'],
             'educations' => [
@@ -436,16 +440,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2020-09-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'farzana.haque@yahoo.com',
-                    'blood_group' => 'AB-',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Mahbubur Rahman',
-                    'father_name' => 'Md. Shamsul Haque',
-                    'mother_name' => 'Rokeya Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01802345686',
-                ],
+            'personal' => [
+                'personal_email' => 'farzana.haque@yahoo.com',
+                'blood_group' => 'AB-',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Mahbubur Rahman',
+                'father_name' => 'Md. Shamsul Haque',
+                'mother_name' => 'Rokeya Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01802345686',
+            ],
             'present_address' => ['house_no' => '3', 'road_no' => '6', 'area' => 'Shyamoli', 'city' => 'Dhaka', 'postal_code' => '1204'],
             'permanent_address' => ['house_no' => '90', 'road_no' => '2', 'area' => 'Rajshahi Sadar', 'city' => 'Rajshahi', 'postal_code' => '6000'],
             'educations' => [
@@ -480,15 +484,15 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2023-06-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'jubayer.ali@gmail.com',
-                    'blood_group' => 'B+',
-                    'marital_status' => 'Single',
-                    'father_name' => 'Md. Abdul Hakim',
-                    'mother_name' => 'Ayesha Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01812345687',
-                ],
+            'personal' => [
+                'personal_email' => 'jubayer.ali@gmail.com',
+                'blood_group' => 'B+',
+                'marital_status' => 'Single',
+                'father_name' => 'Md. Abdul Hakim',
+                'mother_name' => 'Ayesha Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01812345687',
+            ],
             'present_address' => ['house_no' => '22', 'road_no' => '3', 'area' => 'Khilgaon', 'city' => 'Dhaka', 'postal_code' => '1219'],
             'permanent_address' => ['house_no' => '12', 'road_no' => '1', 'area' => 'Sylhet Sadar', 'city' => 'Sylhet', 'postal_code' => '3100'],
             'educations' => [
@@ -520,16 +524,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2022-03-15',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'shamima.akhtar@outlook.com',
-                    'blood_group' => 'O+',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Md. Shafiqul Islam',
-                    'father_name' => 'Md. Joynal Abedin',
-                    'mother_name' => 'Mahmuda Khatun',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01822345688',
-                ],
+            'personal' => [
+                'personal_email' => 'shamima.akhtar@outlook.com',
+                'blood_group' => 'O+',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Md. Shafiqul Islam',
+                'father_name' => 'Md. Joynal Abedin',
+                'mother_name' => 'Mahmuda Khatun',
+                'religion' => 'Islam',
+                'personal_mobile' => '01822345688',
+            ],
             'present_address' => ['house_no' => '9', 'road_no' => '5', 'area' => 'Malibagh', 'city' => 'Dhaka', 'postal_code' => '1217'],
             'permanent_address' => ['house_no' => '45', 'road_no' => '2', 'area' => 'Barisal Sadar', 'city' => 'Barisal', 'postal_code' => '8200'],
             'educations' => [
@@ -565,16 +569,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2021-05-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'mizanur.rahman@gmail.com',
-                    'blood_group' => 'A+',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Sharmin Akhter',
-                    'father_name' => 'Md. Abdur Rahman',
-                    'mother_name' => 'Sufia Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01832345689',
-                ],
+            'personal' => [
+                'personal_email' => 'mizanur.rahman@gmail.com',
+                'blood_group' => 'A+',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Sharmin Akhter',
+                'father_name' => 'Md. Abdur Rahman',
+                'mother_name' => 'Sufia Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01832345689',
+            ],
             'present_address' => ['house_no' => '14', 'road_no' => '9', 'area' => 'Khilbarirtek', 'city' => 'Dhaka', 'postal_code' => '1229'],
             'permanent_address' => ['house_no' => '55', 'road_no' => '1', 'area' => 'Tangail Sadar', 'city' => 'Tangail', 'postal_code' => '1900'],
             'educations' => [
@@ -610,15 +614,15 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2022-07-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'sabbir.hossain@outlook.com',
-                    'blood_group' => 'AB+',
-                    'marital_status' => 'Single',
-                    'father_name' => 'Md. Nurul Hossain',
-                    'mother_name' => 'Jesmin Akhter',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01842345690',
-                ],
+            'personal' => [
+                'personal_email' => 'sabbir.hossain@outlook.com',
+                'blood_group' => 'AB+',
+                'marital_status' => 'Single',
+                'father_name' => 'Md. Nurul Hossain',
+                'mother_name' => 'Jesmin Akhter',
+                'religion' => 'Islam',
+                'personal_mobile' => '01842345690',
+            ],
             'present_address' => ['house_no' => '28', 'road_no' => '11', 'area' => 'Banasree', 'city' => 'Dhaka', 'postal_code' => '1219'],
             'permanent_address' => ['house_no' => '8', 'road_no' => '2', 'area' => 'Jamalpur Sadar', 'city' => 'Jamalpur', 'postal_code' => '2000'],
             'educations' => [
@@ -653,16 +657,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2022-10-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'laila.sultana@gmail.com',
-                    'blood_group' => 'B+',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Md. Kabir Hossain',
-                    'father_name' => 'Md. Aminul Islam',
-                    'mother_name' => 'Nasrin Sultana',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01852345691',
-                ],
+            'personal' => [
+                'personal_email' => 'laila.sultana@gmail.com',
+                'blood_group' => 'B+',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Md. Kabir Hossain',
+                'father_name' => 'Md. Aminul Islam',
+                'mother_name' => 'Nasrin Sultana',
+                'religion' => 'Islam',
+                'personal_mobile' => '01852345691',
+            ],
             'present_address' => ['house_no' => '33', 'road_no' => '7', 'area' => 'Wari', 'city' => 'Dhaka', 'postal_code' => '1203'],
             'permanent_address' => ['house_no' => '60', 'road_no' => '4', 'area' => 'Narayanganj Sadar', 'city' => 'Narayanganj', 'postal_code' => '1400'],
             'educations' => [
@@ -697,16 +701,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2020-02-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'shafiq.rahman@yahoo.com',
-                    'blood_group' => 'O+',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Tamanna Rahman',
-                    'father_name' => 'Kazi Abdul Latif',
-                    'mother_name' => 'Kazi Shahida Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01862345692',
-                ],
+            'personal' => [
+                'personal_email' => 'shafiq.rahman@yahoo.com',
+                'blood_group' => 'O+',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Tamanna Rahman',
+                'father_name' => 'Kazi Abdul Latif',
+                'mother_name' => 'Kazi Shahida Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01862345692',
+            ],
             'present_address' => ['house_no' => '5', 'road_no' => '4', 'area' => 'Baridhara', 'city' => 'Dhaka', 'postal_code' => '1212'],
             'permanent_address' => ['house_no' => '20', 'road_no' => '2', 'area' => 'Rangpur Sadar', 'city' => 'Rangpur', 'postal_code' => '5400'],
             'educations' => [
@@ -745,15 +749,15 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2023-02-15',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'taslima.begum@gmail.com',
-                    'blood_group' => 'A-',
-                    'marital_status' => 'Single',
-                    'father_name' => 'Md. Abdul Baten',
-                    'mother_name' => 'Shahida Akhter',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01872345693',
-                ],
+            'personal' => [
+                'personal_email' => 'taslima.begum@gmail.com',
+                'blood_group' => 'A-',
+                'marital_status' => 'Single',
+                'father_name' => 'Md. Abdul Baten',
+                'mother_name' => 'Shahida Akhter',
+                'religion' => 'Islam',
+                'personal_mobile' => '01872345693',
+            ],
             'present_address' => ['house_no' => '18', 'road_no' => '5', 'area' => 'Shantibagh', 'city' => 'Dhaka', 'postal_code' => '1217'],
             'permanent_address' => ['house_no' => '35', 'road_no' => '3', 'area' => 'Pabna Sadar', 'city' => 'Pabna', 'postal_code' => '6600'],
             'educations' => [
@@ -789,16 +793,16 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Contractual',
             'joining_date' => '2022-01-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'mahbub.alam@hotmail.com',
-                    'blood_group' => 'B+',
-                    'marital_status' => 'Married',
-                    'spouse_name' => 'Sharmin Alam',
-                    'father_name' => 'Late. Abdul Mannan',
-                    'mother_name' => 'Rowshan Ara Begum',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01882345694',
-                ],
+            'personal' => [
+                'personal_email' => 'mahbub.alam@hotmail.com',
+                'blood_group' => 'B+',
+                'marital_status' => 'Married',
+                'spouse_name' => 'Sharmin Alam',
+                'father_name' => 'Late. Abdul Mannan',
+                'mother_name' => 'Rowshan Ara Begum',
+                'religion' => 'Islam',
+                'personal_mobile' => '01882345694',
+            ],
             'present_address' => ['house_no' => '40', 'road_no' => '15', 'area' => 'Lalmatia', 'city' => 'Dhaka', 'postal_code' => '1207'],
             'permanent_address' => ['house_no' => '25', 'road_no' => '1', 'area' => 'Chandpur Sadar', 'city' => 'Chandpur', 'postal_code' => '3600'],
             'educations' => [
@@ -834,15 +838,15 @@ class EmployeeSeeder extends Seeder
             'employment_type' => 'Full-Time',
             'joining_date' => '2022-09-01',
             'status' => 'Active',
-                'personal' => [
-                    'personal_email' => 'nazia.hassan@gmail.com',
-                    'blood_group' => 'O-',
-                    'marital_status' => 'Single',
-                    'father_name' => 'Md. Nurul Hassan',
-                    'mother_name' => 'Fahmida Hassan',
-                    'religion' => 'Islam',
-                    'personal_mobile' => '01892345695',
-                ],
+            'personal' => [
+                'personal_email' => 'nazia.hassan@gmail.com',
+                'blood_group' => 'O-',
+                'marital_status' => 'Single',
+                'father_name' => 'Md. Nurul Hassan',
+                'mother_name' => 'Fahmida Hassan',
+                'religion' => 'Islam',
+                'personal_mobile' => '01892345695',
+            ],
             'present_address' => ['house_no' => '19', 'road_no' => '6', 'area' => 'Moghbazar', 'city' => 'Dhaka', 'postal_code' => '1217'],
             'permanent_address' => ['house_no' => '42', 'road_no' => '5', 'area' => 'Brahmanbaria Sadar', 'city' => 'Brahmanbaria', 'postal_code' => '3400'],
             'educations' => [
@@ -866,9 +870,9 @@ class EmployeeSeeder extends Seeder
 
         // Process all employees
         foreach ($employeeData as $index => $data) {
-            $employeeCode = 'EMP-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT);
+            $employeeCode = 'EMP-'.str_pad($index + 1, 4, '0', STR_PAD_LEFT);
 
-            $fullName = $data['first_name'] . ' ' . $data['last_name'];
+            $fullName = $data['first_name'].' '.$data['last_name'];
             $employee = Employee::updateOrCreate(
                 ['employee_code' => $employeeCode],
                 [
@@ -984,7 +988,7 @@ class EmployeeSeeder extends Seeder
             }
         }
 
-        $this->command->info('✓ Employees seeded: ' . count($employeeData) . ' records');
+        $this->command->info('✓ Employees seeded: '.count($employeeData).' records');
         $this->command->info('✓ Personal info, addresses, educations, experiences, skills, and languages seeded successfully!');
     }
 }

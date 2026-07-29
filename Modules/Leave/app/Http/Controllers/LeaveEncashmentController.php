@@ -3,12 +3,12 @@
 namespace Modules\Leave\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Modules\Leave\Services\LeaveEncashmentService;
+use Illuminate\Http\Request;
+use Modules\Employee\Models\Employee;
 use Modules\Leave\Http\Requests\StoreLeaveEncashmentRequest;
 use Modules\Leave\Http\Requests\UpdateLeaveEncashmentRequest;
-use Modules\Employee\Models\Employee;
 use Modules\Leave\Models\LeaveType;
-use Illuminate\Http\Request;
+use Modules\Leave\Services\LeaveEncashmentService;
 
 class LeaveEncashmentController extends Controller
 {
@@ -21,7 +21,7 @@ class LeaveEncashmentController extends Controller
 
     public function index()
     {
-        $employees  = Employee::with('personalInfo')->orderBy('id')->get(['id', 'employee_code']);
+        $employees = Employee::with('personalInfo')->orderBy('id')->get(['id', 'employee_code']);
         $leaveTypes = LeaveType::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         return view('leave::leave-encashment.index', compact('employees', 'leaveTypes'));
@@ -29,7 +29,7 @@ class LeaveEncashmentController extends Controller
 
     public function create()
     {
-        $employees  = Employee::with('personalInfo')->orderBy('id')->get(['id', 'employee_code']);
+        $employees = Employee::with('personalInfo')->orderBy('id')->get(['id', 'employee_code']);
         $leaveTypes = LeaveType::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         return view('leave::leave-encashment.create', compact('employees', 'leaveTypes'));
@@ -45,7 +45,7 @@ class LeaveEncashmentController extends Controller
         }
 
         $encashment = $result['data'];
-        $employees  = Employee::with('personalInfo')->orderBy('id')->get(['id', 'employee_code']);
+        $employees = Employee::with('personalInfo')->orderBy('id')->get(['id', 'employee_code']);
         $leaveTypes = LeaveType::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         return view('leave::leave-encashment.edit', compact('encashment', 'employees', 'leaveTypes'));
@@ -59,12 +59,14 @@ class LeaveEncashmentController extends Controller
     public function store(StoreLeaveEncashmentRequest $request)
     {
         $result = $this->leaveEncashmentService->saveLeaveEncashment($request->validated());
+
         return response()->json($result);
     }
 
     public function show($id)
     {
         $result = $this->leaveEncashmentService->getLeaveEncashmentById($id);
+
         return response()->json($result);
     }
 
@@ -74,12 +76,14 @@ class LeaveEncashmentController extends Controller
         $data['encashment_id'] = $id;
 
         $result = $this->leaveEncashmentService->saveLeaveEncashment($data);
+
         return response()->json($result);
     }
 
     public function destroy($id)
     {
         $result = $this->leaveEncashmentService->deleteLeaveEncashment($id);
+
         return response()->json($result);
     }
 
@@ -87,14 +91,15 @@ class LeaveEncashmentController extends Controller
     {
         $approvedBy = auth()->id();
         $result = $this->leaveEncashmentService->approve($id, $approvedBy);
+
         return response()->json($result);
     }
 
     public function getBalance(Request $request)
     {
-        $employeeId  = $request->input('employee_id');
+        $employeeId = $request->input('employee_id');
         $leaveTypeId = $request->input('leave_type_id');
-        $remaining   = $this->leaveEncashmentService->getRemainingBalance($employeeId, $leaveTypeId);
+        $remaining = $this->leaveEncashmentService->getRemainingBalance($employeeId, $leaveTypeId);
 
         return response()->json([
             'remaining_days' => $remaining,

@@ -3,6 +3,7 @@
 namespace Modules\Holidays\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Modules\Department\Models\Department;
 use Modules\Holidays\Models\HolidayAssignment;
 
 class StoreHolidayAssignmentRequest extends FormRequest
@@ -15,8 +16,8 @@ class StoreHolidayAssignmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'holiday_id'     => 'required|integer|exists:holidays,id',
-            'branch_id'      => 'nullable|integer|exists:branches,id',
+            'holiday_id' => 'required|integer|exists:holidays,id',
+            'branch_id' => 'nullable|integer|exists:branches,id',
             'department_ids' => 'nullable|array',
             'department_ids.*' => 'integer|exists:departments,id',
         ];
@@ -25,9 +26,9 @@ class StoreHolidayAssignmentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'holiday_id.required'  => 'Holiday is required.',
-            'holiday_id.exists'    => 'Selected holiday does not exist.',
-            'branch_id.exists'     => 'Selected branch does not exist.',
+            'holiday_id.required' => 'Holiday is required.',
+            'holiday_id.exists' => 'Selected holiday does not exist.',
+            'branch_id.exists' => 'Selected branch does not exist.',
             'department_ids.array' => 'Departments must be an array.',
             'department_ids.*.exists' => 'One or more selected departments do not exist.',
         ];
@@ -75,16 +76,16 @@ class StoreHolidayAssignmentRequest extends FormRequest
                         }
                     }
 
-                    if (!empty($alreadyAssigned)) {
-                        $deptNames = \Modules\Department\Models\Department::whereIn('id', $alreadyAssigned)
+                    if (! empty($alreadyAssigned)) {
+                        $deptNames = Department::whereIn('id', $alreadyAssigned)
                             ->pluck('name')
                             ->implode(', ');
 
-                        $validator->errors()->add('department_ids', 
-                            'This holiday is already assigned to: ' . $deptNames . '. Please edit or delete the existing assignment(s) instead.');
+                        $validator->errors()->add('department_ids',
+                            'This holiday is already assigned to: '.$deptNames.'. Please edit or delete the existing assignment(s) instead.');
                     }
                 }
-            }
+            },
         ];
     }
 }

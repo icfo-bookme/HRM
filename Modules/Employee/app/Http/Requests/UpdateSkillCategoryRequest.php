@@ -17,14 +17,14 @@ class UpdateSkillCategoryRequest extends FormRequest
         $categoryId = $this->route('skill_category');
 
         return [
-            'name'        => [
+            'name' => [
                 'required',
                 'string',
                 'max:100',
                 Rule::unique('skill_categories', 'name')->ignore($categoryId),
             ],
             'description' => 'nullable|string|max:500',
-            'is_active'   => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
         ];
     }
 
@@ -32,7 +32,7 @@ class UpdateSkillCategoryRequest extends FormRequest
     {
         return [
             'name.required' => 'Skill category name is required.',
-            'name.unique'   => 'This skill category name already exists.',
+            'name.unique' => 'This skill category name already exists.',
         ];
     }
 }

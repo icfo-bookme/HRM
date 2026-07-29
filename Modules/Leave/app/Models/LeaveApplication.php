@@ -2,8 +2,8 @@
 
 namespace Modules\Leave\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Employee\Models\Employee;
 
 class LeaveApplication extends Model
@@ -13,6 +13,7 @@ class LeaveApplication extends Model
     protected $table = 'leave_applications';
 
     const UPDATED_AT = 'updated_at';
+
     const CREATED_AT = 'applied_at';
 
     protected $fillable = [
@@ -36,22 +37,27 @@ class LeaveApplication extends Model
     ];
 
     protected $casts = [
-        'from_date'     => 'date:Y-m-d',
-        'to_date'       => 'date:Y-m-d',
-        'total_days'    => 'decimal:1',
-        'is_half_day'   => 'boolean',
-        'approved_at'   => 'datetime',
-        'applied_at'    => 'datetime',
-        'updated_at'    => 'datetime',
+        'from_date' => 'date:Y-m-d',
+        'to_date' => 'date:Y-m-d',
+        'total_days' => 'decimal:1',
+        'is_half_day' => 'boolean',
+        'approved_at' => 'datetime',
+        'applied_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // ===== STATUS CONSTANTS =====
-    const STATUS_DRAFT      = 'Draft';
-    const STATUS_PENDING    = 'Pending';
-    const STATUS_APPROVED   = 'Approved';
-    const STATUS_REJECTED   = 'Rejected';
-    const STATUS_CANCELLED  = 'Cancelled';
-    const STATUS_WITHDRAWN  = 'Withdrawn';
+    const STATUS_DRAFT = 'Draft';
+
+    const STATUS_PENDING = 'Pending';
+
+    const STATUS_APPROVED = 'Approved';
+
+    const STATUS_REJECTED = 'Rejected';
+
+    const STATUS_CANCELLED = 'Cancelled';
+
+    const STATUS_WITHDRAWN = 'Withdrawn';
 
     // ===== RELATIONS =====
     public function employee()
@@ -105,15 +111,16 @@ class LeaveApplication extends Model
     public function getStatusBadgeAttribute(): string
     {
         $colors = [
-            self::STATUS_DRAFT     => 'gray',
-            self::STATUS_PENDING   => 'yellow',
-            self::STATUS_APPROVED  => 'green',
-            self::STATUS_REJECTED  => 'red',
+            self::STATUS_DRAFT => 'gray',
+            self::STATUS_PENDING => 'yellow',
+            self::STATUS_APPROVED => 'green',
+            self::STATUS_REJECTED => 'red',
             self::STATUS_CANCELLED => 'gray',
             self::STATUS_WITHDRAWN => 'orange',
         ];
 
         $color = $colors[$this->status] ?? 'gray';
+
         return "<span class=\"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{$color}-100 text-{$color}-800\">{$this->status}</span>";
     }
 
@@ -144,8 +151,8 @@ class LeaveApplication extends Model
     public static function generateApplicationNo(): string
     {
         $prefix = 'LV';
-        $date   = now()->format('Ymd');
-        $last   = self::whereDate('applied_at', today())->count() + 1;
+        $date = now()->format('Ymd');
+        $last = self::whereDate('applied_at', today())->count() + 1;
 
         return sprintf('%s-%s-%04d', $prefix, $date, $last);
     }

@@ -3,13 +3,13 @@
 namespace Modules\Attendance\Services;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Attendance\Models\Attendance;
 use Modules\Attendance\Models\AttendanceLog;
 use Modules\Employee\Models\Employee;
 use Yajra\DataTables\DataTables;
-use Exception;
 
 class AttendanceService
 {
@@ -22,7 +22,7 @@ class AttendanceService
         collect([
             'employee_id' => 'attendance.employee_id',
             'attendance_status' => 'attendance.attendance_status',
-        ])->each(fn($column, $filter) => $request->filled($filter)
+        ])->each(fn ($column, $filter) => $request->filled($filter)
             ? $query->where($column, $request->$filter)
             : null);
 
@@ -69,11 +69,11 @@ class AttendanceService
                 return '
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold text-lg">
-                ' . $initial . '
+                '.$initial.'
             </div>
             <div>
-                <div class="font-medium">' . $name . '</div>
-                <div class="text-sm text-gray-500">' . $code . '</div>
+                <div class="font-medium">'.$name.'</div>
+                <div class="text-sm text-gray-500">'.$code.'</div>
             </div>
         </div>
     ';
@@ -87,7 +87,7 @@ class AttendanceService
                     });
                 });
             })
-            ->editColumn('attendance_date', fn($a) => $a->attendance_date->format('d M '))
+            ->editColumn('attendance_date', fn ($a) => $a->attendance_date->format('d M '))
             ->addColumn('attendance_time', function ($a) {
 
                 $checkIn = $a->check_in_at
@@ -102,28 +102,29 @@ class AttendanceService
         <div class="space-y-1">
             <div class="flex text-sm items-center gap-2 text-blue-600">
                 <i class="fa-solid fa-right-to-bracket"></i>
-                <span>' . $checkIn . '</span>
+                <span>'.$checkIn.'</span>
             </div>
 
             <div class="flex items-center gap-2 text-green-600">
                 <i class="fa-solid fa-right-from-bracket"></i>
-                <span>' . $checkOut . '</span>
+                <span>'.$checkOut.'</span>
             </div>
         </div>
     ';
             })
             ->editColumn('attendance_status', function ($a) {
                 $color = $statusColors[$a->attendance_status] ?? 'secondary';
-                $html = '<span class="badge badge-' . $color . '">' . $a->attendance_status . '</span>';
+                $html = '<span class="badge badge-'.$color.'">'.$a->attendance_status.'</span>';
                 if ($a->is_late && $a->late_minutes > 0) {
                     $html .= '<br><span class="inline-flex items-center rounded-md bg-red-600 px-2 py-0.5 text-xs font-medium text-white shadow-sm mt-1">Late</span>';
                 }
                 if ($a->is_early_out && $a->early_out_minutes > 0) {
                     $html .= '<br><span class="inline-flex items-center rounded-md bg-orange-600 px-2 py-0.5 text-xs font-medium text-white shadow-sm mt-1">Early</span>';
                 }
+
                 return $html;
             })
-            ->editColumn('approval_status', fn($a) => sprintf(
+            ->editColumn('approval_status', fn ($a) => sprintf(
                 '<span class="badge badge-%s">%s</span>',
                 $approvalColors[$a->approval_status] ?? 'secondary',
                 $a->approval_status
@@ -133,13 +134,16 @@ class AttendanceService
                     $hours = intdiv($a->net_working_minutes, 60);
                     $mins = $a->net_working_minutes % 60;
                     $total = round($a->net_working_minutes / 60, 1);
-                    return '<span class="font-medium text-gray-700">' . $hours . 'h ' . $mins . 'm</span>';
+
+                    return '<span class="font-medium text-gray-700">'.$hours.'h '.$mins.'m</span>';
                 }
                 if ($a->working_minutes && $a->working_minutes > 0) {
                     $hours = intdiv($a->working_minutes, 60);
                     $mins = $a->working_minutes % 60;
-                    return '<span class="font-medium text-gray-700">' . $hours . 'h ' . $mins . 'm</span>';
+
+                    return '<span class="font-medium text-gray-700">'.$hours.'h '.$mins.'m</span>';
                 }
+
                 return '<span class="text-gray-400">—</span>';
             })
             ->addColumn('late_early', function ($a) {
@@ -147,18 +151,19 @@ class AttendanceService
                 if ($a->is_late && $a->late_minutes > 0) {
                     $hours = round($a->late_minutes / 60, 1);
                     $parts[] = '<span class="inline-flex items-center gap-1  rounded-full text-xs font-medium bg-red-100 text-red-700">
-                        <i class="fa-solid fa-clock"></i> Late ' . $a->late_minutes . 'm' . ($hours >= 1 ? ' / ' . $hours . 'h' : '') . '
+                        <i class="fa-solid fa-clock"></i> Late '.$a->late_minutes.'m'.($hours >= 1 ? ' / '.$hours.'h' : '').'
                     </span>';
                 }
                 if ($a->is_early_out && $a->early_out_minutes > 0) {
                     $hours = round($a->early_out_minutes / 60, 1);
                     $parts[] = '<span class="inline-flex items-center gap-1  rounded-full text-xs font-medium bg-orange-100 text-orange-700">
-                        <i class="fa-solid fa-clock"></i> Early ' . $a->early_out_minutes . 'm' . ($hours >= 1 ? ' / ' . $hours . 'h' : '') . '
+                        <i class="fa-solid fa-clock"></i> Early '.$a->early_out_minutes.'m'.($hours >= 1 ? ' / '.$hours.'h' : '').'
                     </span>';
                 }
                 if (empty($parts)) {
                     return '<span class="text-gray-50 bg-green-600 p-1 rounded-xl">Ontime</span>';
                 }
+
                 return implode('<br>', $parts);
             })
             ->addColumn('overtime', function ($a) {
@@ -166,13 +171,15 @@ class AttendanceService
                     $hours = intdiv($a->overtime_minutes, 60);
                     $mins = $a->overtime_minutes % 60;
                     $total = round($a->overtime_minutes / 60, 1);
+
                     return '<span class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700">
-                        <i class="fa-solid fa-clock"></i> ' . $hours . 'h ' . $mins . 'm' . ($total >= 1 ? ' (' . $total . 'h)' : '') . '
+                        <i class="fa-solid fa-clock"></i> '.$hours.'h '.$mins.'m'.($total >= 1 ? ' ('.$total.'h)' : '').'
                     </span>';
                 }
+
                 return '<span class="text-gray-400">—</span>';
             })
-            ->editColumn('source', fn($a) => '<span class="badge badge-info">' . e($a->source) . '</span>')
+            ->editColumn('source', fn ($a) => '<span class="badge badge-info">'.e($a->source).'</span>')
             ->addColumn('action', function (Attendance $a) {
                 $approvalStatus = $a->approval_status;
                 $id = $a->id;
@@ -180,26 +187,21 @@ class AttendanceService
                 $canEditApproved = $user && ($user->hasAnyRole(['admin', 'manager']));
                 $html = '<div class="flex space-x-1 justify-center items-center">';
 
-                // Edit button - disabled only when Approved and user is NOT HR/Admin/Super Admin
-                if ($approvalStatus === 'Approved' && !$canEditApproved) {
-                    $html .= '<button onclick="attendanceEdit(' . $id . ')" class="bg-gray-400 text-white px-2 py-1 rounded text-sm cursor-not-allowed" title="Edit unavailable - attendance is approved" disabled><i class="fa fa-pencil"></i></button>';
+                if ($approvalStatus === 'Approved' && ! $canEditApproved) {
+                    $html .= '<button onclick="attendanceEdit('.$id.')" class="bg-gray-400 text-white px-2 py-1 rounded text-sm cursor-not-allowed" title="Edit unavailable - attendance is approved" disabled><i class="fa fa-pencil"></i></button>';
                 } else {
-                    $html .= '<button onclick="attendanceEdit(' . $id . ')" class="bg-blue-900 text-white px-2 py-1 rounded text-sm hover:bg-blue-600" title="Edit"><i class="fa fa-pencil"></i></button>';
+                    $html .= '<button onclick="attendanceEdit('.$id.')" class="bg-blue-900 text-white px-2 py-1 rounded text-sm hover:bg-blue-600" title="Edit"><i class="fa fa-pencil"></i></button>';
                 }
 
-                // Approval buttons - only one shows based on current status
                 if ($approvalStatus === 'Pending') {
-                    // Pending: show Approve button only
-                    $html .= '<button onclick="attendanceApprove(' . $id . ')" class="bg-green-600 text-white px-2 py-1 rounded text-sm hover:bg-green-700" title="Approve"><i class="fa fa-check"></i></button>';
+                    $html .= '<button onclick="attendanceApprove('.$id.')" class="bg-green-600 text-white px-2 py-1 rounded text-sm hover:bg-green-700" title="Approve"><i class="fa fa-check"></i></button>';
                 } elseif ($approvalStatus === 'Approved') {
-                    // Approved: show Disapprove button only
-                    $html .= '<button onclick="attendanceDisapprove(' . $id . ')" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600" title="Disapprove"><i class="fa fa-times"></i></button>';
+                    $html .= '<button onclick="attendanceDisapprove('.$id.')" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600" title="Disapprove"><i class="fa fa-times"></i></button>';
                 }
-                // Rejected: no approval button shown
 
-                // Delete button
-                $html .= '<button onclick="attendanceDelete(' . $id . ')" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600" title="Delete"><i class="fa fa-trash"></i></button>';
+                $html .= '<button onclick="attendanceDelete('.$id.')" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600" title="Delete"><i class="fa fa-trash"></i></button>';
                 $html .= '</div>';
+
                 return $html;
             })
             ->rawColumns(['employee', 'attendance_time', 'working_hours', 'late_early', 'overtime', 'attendance_status', 'approval_status', 'source', 'action'])
@@ -208,12 +210,12 @@ class AttendanceService
 
     private function calculateAttendanceMetrics(array $data, ?Employee $employee): array
     {
-        $checkIn = !empty($data['check_in_at']) ? Carbon::parse($data['check_in_at']) : null;
-        $checkOut = !empty($data['check_out_at']) ? Carbon::parse($data['check_out_at']) : null;
+        $checkIn = ! empty($data['check_in_at']) ? Carbon::parse($data['check_in_at']) : null;
+        $checkOut = ! empty($data['check_out_at']) ? Carbon::parse($data['check_out_at']) : null;
         $shift = $employee?->shift;
 
         if ($shift && $checkIn) {
-            $scheduledIn = Carbon::parse($data['attendance_date'] . ' ' . $shift->start_time);
+            $scheduledIn = Carbon::parse($data['attendance_date'].' '.$shift->start_time);
             $grace = $shift->grace_in_min ?? 0;
             $isLate = $checkIn->gt($scheduledIn->copy()->addMinutes($grace));
             $data['is_late'] = $isLate;
@@ -221,7 +223,7 @@ class AttendanceService
         }
 
         if ($shift && $checkOut) {
-            $scheduledOut = Carbon::parse($data['attendance_date'] . ' ' . $shift->end_time);
+            $scheduledOut = Carbon::parse($data['attendance_date'].' '.$shift->end_time);
             $grace = $shift->grace_out_min ?? 0;
             $isEarly = $checkOut->lt($scheduledOut->copy()->subMinutes($grace));
             $data['is_early_out'] = $isEarly;
@@ -240,17 +242,12 @@ class AttendanceService
             $data['last_out_at'] = $data['check_out_at'];
         }
 
-        // ====== Overtime Calculation ======
-        // If employee has a shift and checked out, calculate overtime
-        // Overtime = minutes worked beyond scheduled end_time + grace_out_min
         if ($shift && $checkOut) {
-            $scheduledOut = Carbon::parse($data['attendance_date'] . ' ' . $shift->end_time);
+            $scheduledOut = Carbon::parse($data['attendance_date'].' '.$shift->end_time);
             $graceOut = $shift->grace_out_min ?? 0;
 
-            // Overtime threshold = scheduled end time + grace out period
             $overtimeThreshold = $scheduledOut->copy()->addMinutes($graceOut);
 
-            // If check-out is after the overtime threshold
             if ($checkOut->gt($overtimeThreshold)) {
                 $overtimeMinutes = $overtimeThreshold->diffInMinutes($checkOut);
                 $data['overtime_minutes'] = $overtimeMinutes;
@@ -307,17 +304,17 @@ class AttendanceService
                 $data = $this->calculateAttendanceMetrics($data, $employee);
                 $attendance = Attendance::create($data);
 
-                if (!empty($data['check_in_at'])) {
+                if (! empty($data['check_in_at'])) {
                     $this->createLog($data['employee_id'], $data['check_in_at'], 'IN');
                 }
-                if (!empty($data['check_out_at'])) {
+                if (! empty($data['check_out_at'])) {
                     $this->createLog($data['employee_id'], $data['check_out_at'], 'OUT');
                 }
 
                 return ['status' => 'success', 'message' => 'Attendance added successfully.', 'attendance' => $attendance->fresh()->load('employee.personalInfo')];
             });
         } catch (Exception $e) {
-            return ['status' => 'error', 'message' => 'Error saving attendance: ' . $e->getMessage(), 'attendance' => null];
+            return ['status' => 'error', 'message' => 'Error saving attendance: '.$e->getMessage(), 'attendance' => null];
         }
     }
 
@@ -326,12 +323,11 @@ class AttendanceService
         try {
             $attendance = Attendance::with('employee.personalInfo')->findOrFail($id)->toArray();
 
-            // Format datetime fields for the edit form
             $timeFormat = 'H:i';
-            if (!empty($attendance['check_in_at'])) {
+            if (! empty($attendance['check_in_at'])) {
                 $attendance['check_in_at_formatted'] = Carbon::parse($attendance['check_in_at'])->format($timeFormat);
             }
-            if (!empty($attendance['check_out_at'])) {
+            if (! empty($attendance['check_out_at'])) {
                 $attendance['check_out_at_formatted'] = Carbon::parse($attendance['check_out_at'])->format($timeFormat);
             }
 
@@ -346,10 +342,11 @@ class AttendanceService
         try {
             return DB::transaction(function () use ($id) {
                 Attendance::findOrFail($id)->delete();
+
                 return ['status' => 'success', 'message' => 'Attendance deleted successfully.'];
             });
         } catch (Exception $e) {
-            return ['status' => 'error', 'message' => 'Error deleting attendance: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Error deleting attendance: '.$e->getMessage()];
         }
     }
 
@@ -363,10 +360,11 @@ class AttendanceService
                     'approved_by' => auth()->id(),
                     'approved_at' => now(),
                 ]);
+
                 return ['status' => 'success', 'message' => 'Attendance approved successfully.'];
             });
         } catch (Exception $e) {
-            return ['status' => 'error', 'message' => 'Error approving attendance: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Error approving attendance: '.$e->getMessage()];
         }
     }
 
@@ -380,10 +378,11 @@ class AttendanceService
                     'approved_by' => null,
                     'approved_at' => null,
                 ]);
+
                 return ['status' => 'success', 'message' => 'Approval reverted to Pending successfully.'];
             });
         } catch (Exception $e) {
-            return ['status' => 'error', 'message' => 'Error reverting approval: ' . $e->getMessage()];
+            return ['status' => 'error', 'message' => 'Error reverting approval: '.$e->getMessage()];
         }
     }
 }

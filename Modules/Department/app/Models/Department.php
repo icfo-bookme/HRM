@@ -2,20 +2,20 @@
 
 namespace Modules\Department\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Traits\CustomSoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\Branch\Models\Branch;
-use App\Models\User;
-use App\Traits\CustomSoftDeletes;
 
 class Department extends Model
 {
-    use HasFactory;
     use CustomSoftDeletes;
-  
-   protected $table = 'departments';
+    use HasFactory;
+
+    protected $table = 'departments';
 
     protected $fillable = [
         'branch_id',
@@ -35,7 +35,7 @@ class Department extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'metadata'  => 'array',
+        'metadata' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

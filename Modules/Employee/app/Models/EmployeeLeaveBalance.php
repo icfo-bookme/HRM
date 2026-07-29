@@ -2,14 +2,15 @@
 
 namespace Modules\Employee\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeeLeaveBalance extends Model
 {
     use HasFactory;
 
     protected $table = 'employee_leave_balance';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -53,11 +54,11 @@ class EmployeeLeaveBalance extends Model
 
     public function getRemainingDaysAttribute()
     {
-        return $this->opening_balance 
-            + $this->earned_days 
-            - $this->used_days 
-            - $this->encashed_days 
-            - $this->lapsed_days 
+        return $this->opening_balance
+            + $this->earned_days
+            - $this->used_days
+            - $this->encashed_days
+            - $this->lapsed_days
             - $this->pending_days;
     }
 }

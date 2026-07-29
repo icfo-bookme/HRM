@@ -25,6 +25,6 @@ class SalaryGradeDatabaseSeeder extends Seeder
             );
         }
 
-        $this->command->info('✓ Salary grades seeded: ' . count($grades) . ' records');
+        $this->command->info('✓ Salary grades seeded: '.count($grades).' records');
     }
 }

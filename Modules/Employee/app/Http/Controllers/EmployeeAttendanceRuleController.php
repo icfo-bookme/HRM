@@ -3,12 +3,13 @@
 namespace Modules\Employee\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Employee\StoreAttendanceRuleRequest;
 use Illuminate\Http\Request;
 use Modules\Employee\Services\EmployeeAttendanceRuleService;
 
 class EmployeeAttendanceRuleController extends Controller
 {
-    protected $attendanceRuleService;
+    protected EmployeeAttendanceRuleService $attendanceRuleService;
 
     public function __construct(EmployeeAttendanceRuleService $attendanceRuleService)
     {
@@ -27,9 +28,9 @@ class EmployeeAttendanceRuleController extends Controller
         return view('employee::attendance-rules.index', compact('employees', 'search'));
     }
 
-    public function store(Request $request)
+    public function store(StoreAttendanceRuleRequest $request)
     {
-        $result = $this->attendanceRuleService->storeRule($request);
+        $result = $this->attendanceRuleService->storeRule($request->validated());
 
         if ($result['status'] === 'success') {
             return response()->json($result);
