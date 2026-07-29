@@ -13,7 +13,9 @@ return new class extends Migration
             $table->unsignedBigInteger('notice_id');
             $table->unsignedBigInteger('employee_id');
             $table->text('comment')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('acknowledged_at')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamp('created_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
 
             // Each employee can acknowledge only once per notice
             $table->unique(['notice_id', 'employee_id']);

@@ -1,0 +1,144 @@
+================================================================================
+                    HRM DATABASE SCHEMA COMPARISON REPORT
+              hrm.sql (Reference) vs Migration Files (Implementation)
+================================================================================
+
+Generated: July 29, 2026
+Total SQL Tables: 61
+Total Migration Files: 60 (10 core + 50 module)
+
+================================================================================
+SECTION 1: MISSING TABLES (Tables in SQL but no migration found)
+================================================================================
+
+All 61 tables from hrm.sql have corresponding migration files. ✓
+
+The following Laravel default tables are handled by framework migrations:
+  - cache_locks        → database/migrations/0001_01_01_000001_create_cache_table.php ✓
+  - job_batches        → database/migrations/0001_01_01_000002_create_jobs_table.php ✓
+  - failed_jobs        → database/migrations/0001_01_01_000002_create_jobs_table.php ✓
+  - password_reset_tokens → database/migrations/0001_01_01_000000_create_users_table.php ✓
+  - sessions           → database/migrations/0001_01_01_000000_create_users_table.php ✓
+
+================================================================================
+SECTION 2: FIXES APPLIED
+================================================================================
+
+The following discrepancies were found and FIXED in the migration files:
+
+2.1 employees.status DEFAULT VALUE
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ File: Modules/Employee/database/migrations/2024_01_01_000008       │
+  │                                                                    │
+  │ SQL:     DEFAULT 'Inactive'                                        │
+  │ Before:  ->default('Active')                                       │
+  │ After:   ->default('Inactive')                                     │
+  │                                                                    │
+  │ ✅ FIXED                                                            │
+  └─────────────────────────────────────────────────────────────────────┘
+
+2.2 branches.company_id NULLABLE
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ File: Modules/Branch/database/migrations/2024_01_01_000002         │
+  │                                                                    │
+  │ SQL:     `company_id` bigint(20) UNSIGNED DEFAULT NULL             │
+  │ Before:  $table->unsignedBigInteger('company_id'); (NOT NULL)      │
+  │ After:   $table->unsignedBigInteger('company_id')->nullable();     │
+  │                                                                    │
+  │ ✅ FIXED                                                            │
+  └─────────────────────────────────────────────────────────────────────┘
+
+2.3 departments.code NULLABLE
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ File: Modules/Department/database/migrations/2024_01_01_000003     │
+  │                                                                    │
+  │ SQL:     `code` varchar(30) DEFAULT NULL                           │
+  │ Before:  $table->string('code', 30); (NOT NULL)                    │
+  │ After:   $table->string('code', 30)->nullable();                   │
+  │                                                                    │
+  │ ✅ FIXED                                                            │
+  └─────────────────────────────────────────────────────────────────────┘
+
+2.4 loan_installments.status ENUM missing 'Progress'
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ File: Modules/Loan/database/migrations/2026_06_17_000001           │
+  │                                                                    │
+  │ SQL:     ENUM('Pending','Progress','Paid','Partial','Overdue',     │
+  │               'Waived')                                            │
+  │ Before:  ENUM('Pending','Paid','Partial','Overdue','Waived')       │
+  │ After:   ENUM('Pending','Progress','Paid','Partial','Overdue',     │
+  │               'Waived')                                            │
+  │                                                                    │
+  │ Note: Migration 2026_06_28_000001 also adds 'Progress' later       │
+  │ ✅ FIXED (both initial + subsequent migration now consistent)      │
+  └─────────────────────────────────────────────────────────────────────┘
+
+2.5 notice_acknowledgements missing columns
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │ File: Modules/Notice/database/migrations/2026_07_18_154447         │
+  │                                                                    │
+  │ SQL has: acknowledged_at, created_at, updated_at                   │
+  │ Before:  Only had created_at (useCurrent)                          │
+  │ After:   Added acknowledged_at (useCurrent+useCurrentOnUpdate),    │
+  │          created_at (nullable), updated_at (nullable)              │
+  │                                                                    │
+  │ ✅ FIXED                                                            │
+  └─────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+SECTION 3: VERIFIED MATCHES (No changes needed)
+================================================================================
+
+3.1 employees table - Foreign Keys
+  SQL: No ON DELETE specified (MySQL default = RESTRICT)
+  Migration: onDelete('restrict')
+  → Functionally identical ✓
+
+3.2 employee_personal_info - signature_file
+  Added by database/migrations/2026_06_22_150119 ✓
+
+3.3 leave_applications - professional_email
+  Added by migration 2026_06_14_121402 ✓
+
+3.4 leave_types - affects_balance
+  Added by migration 2026_06_23_000001 ✓
+
+3.5 employees - count_late_for_payroll, count_overtime_for_payroll
+  Added by migration 2026_06_16_000001 ✓
+
+3.6 salary_grades - attendance deduction columns
+  Added by migration 2026_06_16_000001 ✓
+
+3.7 employee_personal_info - removed document fields
+  Removed by migration 2024_01_01_000023 ✓
+
+3.8 employees - removed personal fields
+  Removed by migration 2024_01_01_000022 ✓
+
+3.9 attendance.source - 'Leave Auto' value
+  Added by migration 2026_06_23_000001 ✓
+
+3.10 employee_attendance_rules.late_deduction_type
+  Updated by migration 2026_06_16_000005 ✓
+
+3.11 All JSON columns (metadata, settings, etc.)
+  Laravel json() creates longtext with json_valid check ✓
+
+3.12 holidays.total_days GENERATED column
+  SQL uses to_days(), migration uses DATEDIFF()
+  → Functionally identical ✓
+
+================================================================================
+SECTION 4: SUMMARY
+================================================================================
+
+  Total tables compared:  61
+  Issues found:           5
+  Issues fixed:           5
+  Remaining issues:       0
+
+  ✅ ALL MIGRATIONS NOW MATCH hrm.sql SCHEMA
+
+================================================================================
+                        END OF REPORT
+================================================================================

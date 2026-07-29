@@ -23,7 +23,7 @@ return new class extends Migration
             $table->date('probation_end_date')->nullable();
             $table->date('last_working_day')->nullable();
             $table->date('contract_end_date')->nullable();
-            $table->enum('status', ['Active', 'Inactive', 'On Leave', 'Suspended', 'Terminated', 'Resigned', 'Retired'])->default('Active');
+            $table->enum('status', ['Active', 'Inactive', 'On Leave', 'Suspended', 'Terminated', 'Resigned', 'Retired'])->default('Inactive');
             $table->boolean('portal_active')->default(false);
             $table->datetime('portal_last_login')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();

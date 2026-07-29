@@ -62,7 +62,7 @@ return new class extends Migration
             $table->date('due_date');
             $table->decimal('amount', 14, 2)->default(0);
             $table->decimal('paid_amount', 14, 2)->default(0);
-            $table->enum('status', ['Pending', 'Paid', 'Partial', 'Overdue', 'Waived'])->default('Pending');
+            $table->enum('status', ['Pending', 'Progress', 'Paid', 'Partial', 'Overdue', 'Waived'])->default('Pending');
             $table->foreignId('payroll_run_id')->nullable()->constrained('payroll_runs')->nullOnDelete();
             $table->dateTime('paid_at')->nullable();
             $table->text('notes')->nullable();

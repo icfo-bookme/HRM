@@ -13,7 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('branch_id');
             $table->unsignedBigInteger('cost_center_id')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
-            $table->string('code', 30);
+            $table->string('code', 30)->nullable();
             $table->string('name', 200);
             $table->text('description')->nullable();
             $table->unsignedBigInteger('head_employee_id')->nullable();
