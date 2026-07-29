@@ -1,129 +1,282 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# HRM (Human Resource Management System)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive, modular **Human Resource Management System** built with **Laravel 12** and **nwidart/laravel-modules**. This system provides end-to-end HR operations including employee management, attendance tracking, leave management, KPI/performance evaluation, payroll processing, loan management, and more.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 👥 Employee Management
+- **11-step employee creation wizard** — Collects comprehensive employee data including personal info, addresses, banking, documents, education, experience, job history, languages, skills, and dependents
+- **Employee profiles** — View detailed employee information
+- **Section-wise editing** — Update specific employee sections independently
+- **Employee reports** — Attendance, overtime, salary, KPI, and loan reports
+- **Employee search** — Advanced search with DataTables integration
+- **Skill categories** — Manage skill categorization
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### ⏰ Attendance Management
+- **Daily attendance tracking** — Record and manage employee attendance
+- **Attendance devices** — Manage biometric/attendance devices
+- **Attendance approval workflow** — Approve/disapprove attendance records
+- **Attendance reports** — Generate detailed attendance reports
+- **Overtime tracking** — Calculate and report overtime
+- **Employee attendance rules** — Define per-employee attendance policies
+- **Employee weekends** — Configure weekly off-days per employee
 
-## Learning Laravel
+### 🏖️ Leave Management
+- **Leave types** — Configurable leave categories (annual, sick, casual, etc.)
+- **Leave applications** — Apply for leave with balance validation
+- **Approval workflow** — Multi-level approve/disapprove/reject workflow
+- **Leave balance management** — Track and manage employee leave balances
+- **Leave encashment** — Convert unused leave to monetary value
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 📊 KPI & Performance Management
+- **Dashboard** — Performance overview and analytics
+- **Daily performance tracking** — Monitor day-to-day performance
+- **Monthly performance evaluation** — Monthly performance reviews with detailed breakdowns
+- **Task management** — Create, assign, and track KPI-related tasks
+- **Monthly reviews** — Evaluate behavior, bonuses, and penalties
+- **KPI settings** — Configure categories and performance indicators
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 💰 Payroll & Salary Management
+- **Salary components** — Define earnings, deductions, and allowances
+- **Employee salary structure** — Assign salary components to employees
+- **Payroll runs** — Generate monthly payroll with preview
+- **Payroll approval** — Approve and lock payroll runs
+- **Payment processing** — Mark salaries as paid with payment list management
+- **Recalculation** — Recalculate payroll when needed
+- **Salary grades** — Define salary grade structures
 
-## Laravel Sponsors
+### 💳 Loan Management
+- **Loan application** — Employees can apply for loans
+- **Approval workflow** — Approve/reject loan applications
+- **Disbursement** — Track loan disbursement
+- **Loan calculation** — Calculate EMI and repayment schedules
+- **My loans** — Employees can view their loan status
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 🏢 Organization Management
+- **Company** — Manage company information
+- **Branch** — Multi-branch support
+- **Department** — Department management
+- **Designation** — Job designation/position management
+- **Shift** — Shift scheduling and management
 
-### Premium Partners
+### 🎉 Holidays
+- **Holiday management** — Define public and company holidays
+- **Holiday assignment** — Assign holidays to branches/departments
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 📢 Notices
+- **Notice management** — Create and publish company notices
 
-## Contributing
+### ⚙️ Settings
+- **System settings** — Configure global application settings
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Tech Stack
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Technology | Purpose |
+|------------|---------|
+| **Laravel 12** | PHP framework |
+| **PHP 8.2+** | Server-side language |
+| **MySQL** | Database |
+| **nwidart/laravel-modules** | Modular architecture |
+| **Tailwind CSS 3** | Utility-first CSS framework |
+| **Alpine.js** | Lightweight JavaScript framework |
+| **Vite** | Build tool and asset bundler |
+| **Yajra DataTables** | Server-side data tables |
+| **Select2** | Enhanced select inputs |
+| **Chart.js** | Charts and analytics |
+| **FullCalendar** | Calendar views |
+| **Axios** | HTTP client |
+| **Laravel Breeze** | Authentication scaffolding |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Requirements
+
+- PHP ^8.2
+- Composer 2.x
+- Node.js 18+ & npm
+- MySQL 8.0+ (or MariaDB 10.3+)
+- Web server (Apache/Nginx) or Laravel Valet/Herd
+
+---
+
+## Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/icfo-bookme/HRM.git
+cd HRM
+```
+
+### 2. Install PHP Dependencies
+
+```bash
+composer install
+```
+
+### 3. Environment Configuration
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Edit `.env` and configure your database connection:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=hrm
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 4. Install & Build Frontend Assets
+
+```bash
+npm install
+npm run build
+```
+
+### 5. Run Database Migrations
+
+```bash
+php artisan migrate
+```
+
+### 6. (Optional) Seed Database
+
+```bash
+php artisan db:seed
+```
+
+### 7. Start Development Server
+
+```bash
+php artisan serve
+```
+
+Or use the all-in-one dev command (runs server, queue worker, logs, and Vite concurrently):
+
+```bash
+composer run dev
+```
+
+---
+
+## Quick Setup
+
+For a fresh installation, run the setup command which handles everything:
+
+```bash
+composer run setup
+```
+
+This will:
+1. Install Composer dependencies
+2. Create `.env` from `.env.example`
+3. Generate application key
+4. Run database migrations
+5. Install npm dependencies
+6. Build frontend assets
+
+---
+
+## Module Structure
+
+The application uses a modular architecture with the following modules:
+
+```
+Modules/
+├── Attendance/       # Attendance tracking, devices, reports, overtime
+├── Branch/           # Branch management
+├── Company/          # Company information
+├── Department/       # Department management
+├── Designation/      # Job designations
+├── Employee/         # Employee lifecycle, profiles, reports
+├── Holidays/         # Holiday management & assignment
+├── Kpi/              # Performance management, tasks, reviews
+├── Leave/            # Leave types, applications, encashment
+├── Loan/             # Loan applications & disbursement
+├── Notice/           # Company notices
+├── Salary/           # Salary components, structure, payroll
+├── SalaryGrade/      # Salary grade definitions
+├── Setting/          # System settings
+└── Shift/            # Shift scheduling
+```
+
+Each module follows the standard **nwidart/laravel-modules** structure:
+
+```
+ModuleName/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   └── Requests/
+│   ├── Models/
+│   └── Providers/
+├── config/
+├── database/
+│   └── migrations/
+├── resources/
+│   └── views/
+├── routes/
+│   └── web.php
+├── Services/
+└── tests/
+```
+
+---
+
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `composer run setup` | Full project setup (deps, env, migrate, build) |
+| `composer run dev` | Start all dev services concurrently |
+| `composer run test` | Run tests with fresh config |
+| `npm run build` | Build frontend assets |
+| `npm run dev` | Start Vite dev server |
+
+---
+
+## Testing
+
+```bash
+composer run test
+```
+
+Or run PHPUnit directly:
+
+```bash
+php artisan test
+```
+
+---
+
+## Deployment
+
+The project includes a GitHub Actions deployment workflow (`.github/workflows/deploy.yml`). Configure your deployment secrets in GitHub repository settings.
+
+---
+
+## Security
+
+If you discover any security vulnerabilities, please report them via the repository's issue tracker.
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
+---
 
+## Contributing
 
-
-
-I've created a reusable **Select2** component (`form-select2.blade.php`) with CDN integration. Here's what was done:
-
-## 1. Added Select2 CDN in `resources/views/layouts/app.blade.php`
-- **CSS**: `select2.min.css` added in `<head>`
-- **JS**: `select2.min.js` added before sidebar JS
-- **Global init**: Auto-initializes all `.select2` elements with placeholder, allowClear, and width:100%
-
-## 2. Created `resources/views/components/form-select2.blade.php`
-A full-featured reusable component like `form-select`, supporting:
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `label` | string | — | Label text (optional) |
-| `name` | string | null | Input name attribute |
-| `id` | string | null | Input ID (falls back to name) |
-| `placeholder` | string | "Select an option" | Placeholder text |
-| `required` | bool | false | Required field indicator |
-| `multiple` | bool | false | Enable multi-select |
-| `allowClear` | bool | true | Show clear button |
-| `options` | array | [] | Key-value option pairs |
-| `selected` | mixed | null | Selected value(s) |
-| `disabled` | bool | false | Disable the select |
-
-## Usage Examples
-
-**Basic single select:**
-```blade
-<x-form-select2
-    label="Department"
-    name="department_id"
-    :options="$departments"
-    :selected="old('department_id', $user->department_id ?? null)"
-/>
-```
-
-**With slot (custom options):**
-```blade
-<x-form-select2 label="Employee" name="employee_id">
-    <option value="1">John Doe</option>
-    <option value="2">Jane Smith</option>
-</x-form-select2>
-```
-
-**Multi-select:**
-```blade
-<x-form-select2
-    label="Roles"
-    name="roles[]"
-    :multiple="true"
-    :options="$roles"
-    :selected="old('roles', $userRoles ?? [])"
-/>
-```
-
-**Required field:**
-```blade
-<x-form-select2
-    label="Status"
-    name="status"
-    :options="['active' => 'Active', 'inactive' => 'Inactive']"
-    :required="true"
-/>
-```
-
-The component automatically uses `select2` class and pushes its initialization script to the `@stack('scripts')` section.
+Contributions are welcome! Please feel free to submit a Pull Request.
